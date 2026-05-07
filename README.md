@@ -36,16 +36,6 @@ Open `plotter_studio.html` directly in your browser — no build step, no server
 | **Academic Cloud (SAIA)** | Qwen3 Coder 30B ★, DeepSeek R1 Distill 70B, LLaMA 3.3 70B, Mistral Large 3 |
 
 Works without an API key inside [claude.ai](https://claude.ai/code) (uses Claude Sonnet 4.6 automatically).
-
-## Creative Lineage
-
-Built on the shoulders of:
-- Vera Molnár, Manfred Mohr, Frieder Nake — algorithmic plotter foundations
-- [Tyler Hobbs](https://tylerxhobbs.com) — flow fields, parametric density
-- [Golan Levin / Drawing With Machines](https://github.com/golanlevin/DrawingWithMachines) — CMU course, Processing-to-SVG pipelines
-- [Generative Gestaltung](http://www.generative-gestaltung.de) — parametric grids, noise studies
-- [Plotter Files](https://plotterfiles.com), [Turtletoy](https://turtletoy.net), [Generated Space](https://generated.space)
-
 ## License
 
 MIT
