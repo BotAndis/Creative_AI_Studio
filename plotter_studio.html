@@ -1,0 +1,2963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Generative Plotter Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<style>
+:root{
+  --bg:#080808;--surf:#0f0f0f;--surf2:#161616;--surf3:#1e1e1e;
+  --brd:#222;--brdhi:#2e2e2e;
+  --acc:#c06820;--acchi:#d97828;--accdim:rgba(192,104,32,.13);
+  --txt:#c4bfb2;--txhi:#e0dbd0;--txlo:#3a3a3a;--txdim:#555;
+  --grn:#6fa877;--pink:#c84870;
+  --font:'IBM Plex Mono',monospace;
+  --handle:4px;
+  --paper:#eeebe6; /* preview canvas bg */
+  --code-bg:#080808; /* code panel bg */
+}
+
+/* ── LIGHT THEME ── */
+body.light{
+  --bg:#f5f3ef;
+  --surf:#ffffff;
+  --surf2:#f0ede8;
+  --surf3:#e8e4dc;
+  --brd:#d8d4cc;
+  --brdhi:#c8c4bc;
+  --acc:#b85a18;
+  --acchi:#d06820;
+  --accdim:rgba(184,90,24,.10);
+  --txt:#3d3a35;
+  --txhi:#1a1815;
+  --txlo:#aaa6a0;
+  --txdim:#787470;
+  --grn:#5e9468;
+  --pink:#b03a5c;
+  --paper:#fafaf7;
+  --code-bg:#f8f5f0;
+}
+body.light #code-display.pde-mode{color:#3a7a4a}
+body.light #code-display.p5-mode{color:#3878a8}
+body.light #pph{background-image:radial-gradient(circle,#bdb9b1 1px,transparent 1px)}
+body.light .cl-avatar,body.light .typ-av,body.light .mini-av{background:linear-gradient(135deg,#b85a18,#7a3a10)}
+body.light #chat,body.light #settings-pop,body.light #tpl-editor,body.light #tpl-drop{box-shadow:0 12px 48px rgba(60,40,20,.18)}
+body.light .bubble{box-shadow:0 1px 2px rgba(0,0,0,.04)}
+
+/* Theme button */
+.theme-btn{
+  width:26px;height:26px;background:none;border:1px solid var(--brd);
+  border-radius:4px;color:var(--txdim);font-family:var(--font);
+  font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .18s;flex-shrink:0;margin-right:4px;
+}
+.theme-btn:hover{border-color:var(--acc);color:var(--acc);transform:rotate(15deg)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:var(--font);font-size:12px;-webkit-font-smoothing:antialiased}
+
+/* ── TOPBAR ── */
+/* ── LIGHT MODE — inspiration overlay ── */
+#inspiration-overlay.light-insp #insp-canvas-wrap{background:#e8e4dc}
+#inspiration-overlay.light-insp #insp-vignette{
+  background:radial-gradient(ellipse 80% 70% at 50% 50%, transparent 30%, rgba(232,228,220,.88) 100%);
+}
+#inspiration-overlay.light-insp #insp-header{background:rgba(240,237,230,.82);border-bottom:1px solid rgba(0,0,0,.08)}
+#inspiration-overlay.light-insp .insp-title{color:rgba(60,55,45,.5)}
+#inspiration-overlay.light-insp .insp-section-title{color:rgba(60,55,45,.4);border-bottom-color:rgba(0,0,0,.1)}
+#inspiration-overlay.light-insp .insp-card{background:rgba(255,252,248,.82);border-color:rgba(0,0,0,.1);color:#333}
+#inspiration-overlay.light-insp .insp-card:hover{background:rgba(255,255,252,.95);border-color:var(--acc)}
+#inspiration-overlay.light-insp .insp-card-host{color:rgba(0,0,0,.3)}
+#inspiration-overlay.light-insp .insp-card-name{color:rgba(20,18,12,.88)}
+#inspiration-overlay.light-insp .insp-card-desc{color:rgba(50,45,38,.72)}
+#inspiration-overlay.light-insp .insp-card-tag{background:rgba(0,0,0,.05);color:rgba(0,0,0,.35);border-color:rgba(0,0,0,.1)}
+#inspiration-overlay.light-insp .insp-wow{background:rgba(192,104,32,.07)!important;border-color:var(--acc)!important}
+
+/* ── COLOR PICKER ── */
+#color-theme-pop{
+  position:fixed;z-index:9999;
+  background:var(--surf);border:1px solid var(--brdhi);
+  border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.65);
+  padding:14px;display:none;flex-direction:column;gap:10px;
+  width:200px;
+}
+#color-theme-pop.open{display:flex}
+.ctp-label{font-size:7.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--txdim)}
+.ctp-swatches{display:flex;flex-wrap:wrap;gap:7px}
+.ctp-swatch{
+  width:24px;height:24px;border-radius:4px;cursor:pointer;
+  border:2px solid transparent;transition:all .15s;flex-shrink:0;
+}
+.ctp-swatch:hover{transform:scale(1.15)}
+.ctp-swatch.active{border-color:var(--txhi)}
+.ctp-custom{display:flex;gap:6px;align-items:center}
+.ctp-custom input[type=color]{
+  width:32px;height:24px;border:1px solid var(--brd);border-radius:3px;
+  background:none;cursor:pointer;padding:0;
+}
+.ctp-custom-label{font-size:8.5px;color:var(--txdim)}
+.bst{display:flex;align-items:center;gap:6px;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--txdim)}
+.sd{width:6px;height:6px;border-radius:50%;background:var(--txlo);flex-shrink:0;transition:background .4s}
+.sd.ok{background:var(--grn)}.sd.run{background:var(--acc);animation:bl .9s infinite}.sd.err{background:var(--pink)}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── LAYOUT ── */
+#app{display:flex;flex-direction:column;height:calc(100vh - 38px);overflow:hidden;position:relative}
+.h-handle{height:var(--handle);background:var(--brd);cursor:row-resize;flex-shrink:0;transition:background .2s;z-index:5}
+.h-handle:hover,.h-handle.dragging{background:var(--acc)}
+.v-handle{width:var(--handle);background:var(--brd);cursor:col-resize;flex-shrink:0;transition:background .2s;z-index:5}
+.v-handle:hover,.v-handle.dragging{background:var(--acc)}
+.row{display:flex;flex-direction:row;overflow:hidden;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;min-width:0;min-height:0}
+
+/* ── PANELS ── */
+.pan{display:flex;flex-direction:column;overflow:hidden;background:var(--surf);min-width:0;min-height:0}
+.plb{height:28px;padding:0 10px;flex-shrink:0;display:flex;align-items:center;gap:7px;font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--txlo);border-bottom:1px solid var(--brd)}
+.plb .d{color:var(--acc);font-size:6.5px}.plbr{justify-content:space-between}
+.ibtn{height:19px;padding:0 9px;background:none;border:1px solid var(--brd);border-radius:2px;color:var(--txdim);font-family:var(--font);font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .18s}
+.ibtn:hover,.ibtn.active{border-color:var(--acc);color:var(--acc)}
+.plb-actions{display:flex;gap:5px;align-items:center}
+
+/* ── CONCEPT ── */
+#cwrap{flex:1;overflow-y:auto;padding:14px}
+#ctitle{font-size:12.5px;font-weight:600;color:var(--txhi);line-height:1.4;margin-bottom:9px;border-left:2px solid var(--acc);padding-left:9px;display:none}
+#cbody{font-size:10px;line-height:1.9;color:var(--txt);display:none}
+
+/* ── PREVIEW ── */
+#prv{flex:1;overflow:auto;background:var(--paper);display:flex;align-items:flex-start;justify-content:center}
+#p5w{display:flex;flex-direction:column;align-items:center;padding:10px 10px 14px;width:100%}
+#p5w canvas{max-width:100%;height:auto!important;display:block;box-shadow:0 2px 16px rgba(0,0,0,.18)}
+#p5w input[type=range]{accent-color:var(--acc);width:140px;vertical-align:middle}
+#p5w input[type=checkbox]{accent-color:var(--acc);width:13px;height:13px;vertical-align:middle}
+#p5w button{background:var(--acc);color:#fff;border:none;border-radius:2px;padding:4px 11px;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;margin-top:4px;font-family:var(--font);cursor:pointer}
+#p5w button:hover{background:var(--acchi)}
+#p5w label{color:#555;margin-top:6px;display:inline-block;margin-right:4px;font-family:var(--font);font-size:10px}
+#pph-old-removed{display:none}
+#pph .ico{font-size:24px;opacity:.18}#pph p{font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:#aaa}
+
+/* ── FULLSCREEN ── */
+#fs-overlay{display:none;position:fixed;inset:0;z-index:9500;background:var(--paper);flex-direction:column}
+#fs-overlay.on{display:flex}
+#fs-topbar{height:40px;background:var(--surf);border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0}
+#fs-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--txdim);flex:1}
+#fs-body{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center}
+#fs-p5w{display:flex;flex-direction:column;align-items:center;padding:16px;width:100%}
+#fs-p5w canvas{max-width:100%;height:auto!important;display:block;box-shadow:0 4px 32px rgba(0,0,0,.2)}
+#fs-p5w input[type=range]{accent-color:var(--acc);width:180px;vertical-align:middle}
+#fs-p5w button{background:var(--acc);color:#fff;border:none;border-radius:2px;padding:4px 11px;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;margin-top:4px;font-family:var(--font);cursor:pointer}
+#fs-p5w label{color:#555;margin-top:6px;display:inline-block;margin-right:4px;font-family:var(--font);font-size:10px}
+
+/* ── CODE TABS ── */
+.code-tabs{display:flex;align-items:stretch;height:28px;border-bottom:1px solid var(--brd)}
+.ctab{height:28px;padding:0 12px;font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--txdim);cursor:pointer;border-right:1px solid var(--brd);display:flex;align-items:center;gap:5px;transition:all .16s;user-select:none}
+.ctab:hover{color:var(--txt);background:var(--surf2)}
+.ctab.active{color:var(--txhi);background:var(--surf3)}
+.ctab .td{color:var(--acc);font-size:6px}
+.tab-actions{flex:1;display:flex;justify-content:flex-end;padding-right:10px;align-items:center;gap:5px}
+#code-display{flex:1;overflow:auto;padding:12px 14px;background:var(--code-bg);font-size:10px;line-height:1.65;white-space:pre;font-family:var(--font);word-break:normal}
+#code-display.pde-mode{color:#9db8c8}
+#code-display.p5-mode{color:#c8a0a8}
+.pde-mode .hl-kw{color:#569cd6}.pde-mode .hl-type{color:#4ec9b0}.pde-mode .hl-fn{color:#dcdcaa}.pde-mode .hl-str{color:#ce9178}.pde-mode .hl-num{color:#b5cea8}.pde-mode .hl-cmt{color:#5a7a5a;font-style:italic}.pde-mode .hl-pp{color:#c586c0}.pde-mode .hl-const{color:#4fc1ff}
+.p5-mode .hl-kw{color:#e06c9f}.p5-mode .hl-type{color:#c678dd}.p5-mode .hl-fn{color:#61afef}.p5-mode .hl-str{color:#98c379}.p5-mode .hl-num{color:#d19a66}.p5-mode .hl-cmt{color:#7f848e;font-style:italic}.p5-mode .hl-pp{color:#e5c07b}.p5-mode .hl-const{color:#f0a0c0}
+.howto-body.pde-how .hw-bold{color:#7ab8d8}.howto-body.pde-how .hw-code{color:#4ec9b0;background:rgba(78,201,176,.08);padding:0 3px;border-radius:2px}.howto-body.pde-how .hw-bullet{color:#569cd6}.howto-body.pde-how .how-hdr{color:#569cd6;font-weight:700;font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;display:block;margin:10px 0 3px;border-bottom:1px solid rgba(86,156,214,.2);padding-bottom:3px}
+.howto-body.p5-how  .hw-bold{color:#d88aa8}.howto-body.p5-how  .hw-code{color:#e06c9f;background:rgba(224,108,159,.08);padding:0 3px;border-radius:2px}.howto-body.p5-how  .hw-bullet{color:#e06c9f}.howto-body.p5-how  .how-hdr{color:#e06c9f;font-weight:700;font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;display:block;margin:10px 0 3px;border-bottom:1px solid rgba(224,108,159,.2);padding-bottom:3px}
+.ctab.active#tab-pde{color:#7ab8d8;border-bottom:2px solid #569cd6}
+.ctab.active#tab-p5{color:#d88aa8;border-bottom:2px solid #e06c9f}
+#about-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+#about-overlay.open{display:flex}
+.about-box{background:var(--surf);border:1px solid var(--brdhi);border-radius:14px;padding:38px 32px;max-width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.85);position:relative}
+.about-wave{font-size:40px;margin-bottom:16px;animation:wave 1.2s ease-in-out 2}
+@keyframes wave{0%,100%{transform:rotate(0)}30%{transform:rotate(-20deg)}60%{transform:rotate(20deg)}}
+.about-title{font-size:15px;font-weight:700;color:var(--txhi);margin-bottom:14px;letter-spacing:.02em}
+.about-sub{font-size:10.5px;color:var(--txt);line-height:1.9;letter-spacing:.03em}
+.about-acc{color:var(--acc);font-weight:600}
+.about-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--txdim);font-size:18px;cursor:pointer;transition:color .2s;font-family:var(--font)}
+.about-close:hover{color:var(--pink)}
+#slbl{cursor:default;user-select:none}
+
+/* ── HOWTO ── */
+#howto-wrap{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.howto-body{font-size:10px;line-height:1.85;color:var(--txt);white-space:pre-wrap;word-break:break-word;padding:14px;display:none}
+.howto-body .hw-bold{font-weight:600;color:var(--txhi)}
+.howto-body .hw-code{color:var(--acc);font-size:9.5px}
+.howto-body .hw-bullet{color:var(--grn);margin-right:4px}
+/* ── PLACEHOLDER ANIMATIONS ── */
+.phm{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--txlo);position:relative;overflow:hidden}
+.phm .ico{font-size:18px;opacity:.3}.phm p{font-size:8px;letter-spacing:.15em;text-transform:uppercase}
+#concept-anim-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.18}
+#pph{width:100%;height:100%;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  background-image:none} /* override old dot grid */
+#pph canvas,#preview-anim-canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+
+/* ══════════════════════════════════════
+   CHAT POPUP
+══════════════════════════════════════ */
+#chat{position:fixed;bottom:20px;right:20px;width:380px;height:520px;background:var(--surf);border:1px solid var(--brdhi);border-radius:10px;box-shadow:0 12px 48px rgba(0,0,0,.7);display:flex;flex-direction:column;z-index:9000;transition:height .2s ease}
+#chat.mini{height:44px;overflow:hidden}
+#chdr{height:44px;flex-shrink:0;display:flex;align-items:center;padding:0 12px;gap:9px;background:var(--surf2);border-bottom:1px solid var(--brd);border-radius:10px 10px 0 0;cursor:grab}
+#chdr:active{cursor:grabbing}
+.cl-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#c06820,#7a3a10);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:#fff;font-weight:600}
+.cl-info{flex:1;min-width:0}
+.cl-name{font-size:10.5px;font-weight:600;color:var(--txhi);letter-spacing:.04em}
+.cl-sub{font-size:8.5px;color:var(--grn);letter-spacing:.06em;margin-top:1px;display:flex;align-items:center;gap:4px}
+.cl-sub::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--grn);display:inline-block}
+.hbtn{width:24px;height:24px;border-radius:4px;background:none;border:1px solid var(--brd);color:var(--txdim);font-family:var(--font);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .16s}
+.hbtn:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── MODEL + TEMPLATE TOOLBAR ── */
+#chat-toolbar{
+  padding:6px 10px;border-bottom:1px solid var(--brd);
+  display:flex;gap:6px;align-items:center;flex-shrink:0;
+  background:var(--surf3);
+}
+/* ── MODEL BUTTON ── */
+.model-btn{
+  flex:1;height:24px;min-width:0;
+  background:var(--bg);border:1px solid var(--brd);border-radius:3px;
+  color:var(--txt);font-family:var(--font);font-size:9px;
+  padding:0 7px;outline:none;cursor:pointer;transition:border-color .2s;
+  display:flex;align-items:center;gap:6px;text-align:left;
+}
+.model-btn:hover,.model-btn.open{border-color:var(--acc);color:var(--txhi)}
+#model-btn-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.model-btn-arrow{font-size:8px;color:var(--txdim);flex-shrink:0;transition:transform .16s}
+.model-btn.open .model-btn-arrow{transform:rotate(180deg)}
+
+/* ── MODEL DROPDOWN ── */
+#model-drop{position:fixed;z-index:9400;width:300px;max-height:480px;background:var(--surf);border:1px solid var(--brdhi);border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.75);display:none;flex-direction:column;overflow:hidden;}
+#model-drop.open{display:flex}
+#model-drop-scroll{overflow-y:auto;overflow-x:hidden;flex:1;max-height:478px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--acc) var(--surf2);}
+#model-drop-scroll::-webkit-scrollbar{width:5px}
+#model-drop-scroll::-webkit-scrollbar-track{background:var(--surf2)}
+#model-drop-scroll::-webkit-scrollbar-thumb{background:var(--acc);border-radius:3px}
+.md-section-label{
+  padding:7px 12px 4px;font-size:7px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--txdim);
+  border-top:1px solid var(--brd);margin-top:0;flex-shrink:0;background:var(--surf3);
+}
+/* Accordion toggle row */
+.md-apikey-toggle{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;
+  cursor:pointer;background:rgba(192,104,32,.07);
+  border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);
+  font-size:9.5px;color:var(--acc);font-weight:500;letter-spacing:.04em;
+  transition:background .16s;flex-shrink:0;
+}
+.md-apikey-toggle:hover{background:rgba(192,104,32,.14)}
+.md-toggle-icon{font-size:9px;transition:transform .18s;flex-shrink:0}
+.md-toggle-icon.open{transform:rotate(90deg)}
+/* Accordion body */
+.md-accordion{display:none;flex-direction:column;overflow:hidden}
+.md-accordion.open{display:flex}
+/* API key info banner inside accordion */
+.md-key-info{padding:8px 12px;background:var(--surf3);border-bottom:1px solid var(--brd);flex-shrink:0}
+.md-key-info-row{display:flex;align-items:center;gap:6px;font-size:8.5px;margin-bottom:3px}
+.md-key-info-row:last-child{margin-bottom:0}
+.md-key-prov{color:var(--txdim);font-size:8px;letter-spacing:.1em;text-transform:uppercase;width:70px;flex-shrink:0}
+.md-key-info a{color:var(--acc);text-decoration:none;font-size:8.5px}
+.md-key-info a:hover{text-decoration:underline}
+/* Tags — now multiple per item */
+.md-tags{display:flex;gap:3px;flex-wrap:wrap;flex-shrink:0}
+.tag-free{background:rgba(111,168,119,.18);color:var(--grn);border:1px solid rgba(111,168,119,.3)}
+.tag-paid{background:rgba(88,152,184,.12);color:#5898b8}
+
+/* ── THINKING BAR ── */
+#thinking-bar{padding:5px 10px;border-bottom:1px solid var(--brd);display:none;align-items:center;gap:8px;flex-shrink:0;background:rgba(192,104,32,.05);}
+#thinking-bar.visible{display:flex}
+#thinking-toggle{height:20px;padding:0 10px;background:none;border:1px solid var(--brd);border-radius:10px;color:var(--txdim);font-family:var(--font);font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:5px;}
+#thinking-toggle.on{background:var(--accdim);border-color:var(--acc);color:var(--acc)}
+#thinking-toggle .tog-dot{width:6px;height:6px;border-radius:50%;background:var(--txdim);transition:background .18s}
+#thinking-toggle.on .tog-dot{background:var(--acc)}
+.thinking-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--txdim)}
+
+/* ── TOOLBAR ICON BUTTONS ── */
+.tb-icon-btn{
+  width:24px;height:24px;background:none;border:1px solid var(--brd);
+  border-radius:3px;color:var(--txdim);font-size:12px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .16s;flex-shrink:0;
+}
+.tb-icon-btn:hover{border-color:var(--acc);color:var(--acc)}
+.tb-icon-danger:hover{border-color:var(--pink);color:var(--pink)}
+
+/* ── SESSION PANEL ── */
+#session-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9150;display:none}
+#session-overlay.open{display:block}
+#session-panel{
+  position:fixed;z-index:9200;width:300px;
+  bottom:80px;right:20px;
+  background:var(--surf);border:1px solid var(--brdhi);
+  border-radius:8px;box-shadow:0 10px 36px rgba(0,0,0,.65);
+  display:none;flex-direction:column;overflow:hidden;max-height:420px;
+}
+#session-panel.open{display:flex}
+.sp2-hdr{height:36px;background:var(--surf2);border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0}
+.sp2-title{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--txhi);flex:1}
+#session-list-wrap{flex:1;overflow-y:auto;min-height:0}
+#session-list{display:flex;flex-direction:column}
+.session-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--brd);cursor:pointer;transition:background .14s}
+.session-item:hover{background:var(--surf2)}
+.session-item-name{flex:1;font-size:10px;color:var(--txhi)}
+.session-item-date{font-size:8px;color:var(--txdim)}
+.session-item-del{width:20px;height:20px;background:none;border:none;color:var(--txdim);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;border-radius:3px;transition:all .15s;flex-shrink:0}
+.session-item-del:hover{color:var(--pink);background:rgba(200,72,112,.1)}
+.session-empty{padding:20px;font-size:9px;letter-spacing:.1em;color:var(--txdim);text-align:center;line-height:1.8}
+.sp2-foot{padding:10px;border-top:1px solid var(--brd);display:flex;gap:7px;flex-shrink:0}
+#session-name-input{flex:1;background:var(--bg);border:1px solid var(--brd);border-radius:3px;color:var(--txhi);font-family:var(--font);font-size:9.5px;padding:5px 8px;outline:none;transition:border-color .2s}
+#session-name-input:focus{border-color:var(--acc)}
+#session-save-btn{padding:0 10px;height:27px;background:var(--acc);color:#fff;border:none;border-radius:3px;font-family:var(--font);font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+#session-save-btn:hover{background:var(--acchi)}
+
+/* ── RESET CONFIRM ── */
+#reset-confirm{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9400;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);
+}
+#reset-confirm.open{display:flex}
+.rc-body{background:var(--surf);border:1px solid var(--brdhi);border-radius:10px;padding:28px;max-width:320px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.8)}
+.rc-icon{font-size:28px;margin-bottom:10px;color:var(--pink)}
+.rc-title{font-size:13px;font-weight:600;color:var(--txhi);margin-bottom:8px}
+.rc-sub{font-size:9.5px;color:var(--txdim);line-height:1.7;margin-bottom:20px}
+.rc-btns{display:flex;gap:10px;justify-content:center}
+#rc-cancel{padding:7px 18px;background:none;border:1px solid var(--brd);border-radius:4px;color:var(--txt);font-family:var(--font);font-size:9px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+#rc-cancel:hover{border-color:var(--acc)}
+#rc-ok{padding:7px 18px;background:var(--pink);border:none;border-radius:4px;color:#fff;font-family:var(--font);font-size:9px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+#rc-ok:hover{background:#d0305a}
+.md-item{
+  padding:8px 12px;cursor:pointer;transition:background .14s;
+  flex-shrink:0;position:relative;border-bottom:1px solid rgba(255,255,255,.03);
+}
+.md-item:hover{background:var(--surf2)}
+.md-item.active-model{background:var(--accdim)}
+.md-apikey-row{background:rgba(192,104,32,.06)}
+.md-recommended{border-left:2px solid var(--grn)}
+.md-item-main{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.md-name{font-size:10px;color:var(--txhi);font-weight:500;flex:1}
+.md-id{font-size:8px;color:var(--txdim);letter-spacing:.04em;font-family:var(--font)}
+.md-tag{
+  font-size:7px;letter-spacing:.12em;text-transform:uppercase;
+  padding:1px 5px;border-radius:2px;flex-shrink:0;font-weight:600;
+}
+.tag-base{background:rgba(111,168,119,.15);color:var(--grn)}
+.tag-key{background:rgba(192,104,32,.2);color:var(--acc)}
+.tag-power{background:rgba(200,72,112,.15);color:var(--pink)}
+.tag-std{background:rgba(88,152,184,.15);color:#5898b8}
+.tag-fast{background:rgba(111,168,119,.12);color:var(--grn)}
+.tag-rec{background:rgba(111,168,119,.2);color:var(--grn);border:1px solid rgba(111,168,119,.3)}
+.tag-alias{background:rgba(192,104,32,.12);color:var(--acc)}
+.tag-dep{background:rgba(200,72,112,.1);color:var(--pink)}
+.md-hint{
+  padding:8px 12px;font-size:8.5px;line-height:1.6;color:var(--txdim);
+  border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);
+  background:var(--surf3);flex-shrink:0;
+}
+.md-hint code{color:var(--acc);background:rgba(192,104,32,.1);padding:0 3px;border-radius:2px}
+
+/* Tooltip */
+#md-tooltip{
+  position:fixed;z-index:9500;max-width:240px;
+  background:var(--surf3);border:1px solid var(--brdhi);
+  border-radius:5px;padding:8px 10px;
+  font-size:9px;line-height:1.6;color:var(--txt);
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+  pointer-events:none;display:none;
+}
+.tb-label{font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--txdim);white-space:nowrap}
+.tb-divider{width:1px;height:16px;background:var(--brd);flex-shrink:0}
+
+/* Template button */
+#tpl-btn{
+  height:24px;padding:0 10px;background:none;border:1px solid var(--brd);
+  border-radius:3px;color:var(--txdim);font-family:var(--font);
+  font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+  cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0;
+  display:flex;align-items:center;gap:5px;
+}
+#tpl-btn:hover,#tpl-btn.active{border-color:var(--acc);color:var(--acc)}
+
+/* Template dropdown */
+#tpl-drop{
+  position:fixed;z-index:9200;width:200px;
+  background:var(--surf);border:1px solid var(--brdhi);
+  border-radius:6px;box-shadow:0 8px 28px rgba(0,0,0,.65);
+  display:none;flex-direction:column;overflow:hidden;
+}
+#tpl-drop.open{display:flex}
+.tpl-item{
+  padding:9px 14px;font-size:9.5px;color:var(--txt);cursor:pointer;
+  letter-spacing:.04em;transition:all .14s;border-bottom:1px solid var(--brd);
+  display:flex;align-items:center;gap:8px;
+}
+.tpl-item:last-child{border-bottom:none}
+.tpl-item:hover{background:var(--surf2);color:var(--txhi)}
+.tpl-item.active-tpl{color:var(--acc)}
+.tpl-item .tpl-dot{width:5px;height:5px;border-radius:50%;background:var(--acc);flex-shrink:0;opacity:0}
+.tpl-item.active-tpl .tpl-dot{opacity:1}
+
+/* ── API KEY ── */
+#keybanner{padding:0;background:var(--surf3);border-bottom:1px solid var(--brd);flex-shrink:0;display:flex;flex-direction:column}
+#keybanner.hidden{display:none}
+.key-prov-icon{width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:0;transition:background .2s}
+.key-prov-icon.gemini{background:#4285f4}
+#key-status-dots{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.key-sdot{width:7px;height:7px;border-radius:50%;background:var(--txlo);transition:background .3s;flex-shrink:0}
+.key-sdot.set{background:var(--grn)}
+#key-hint{font-size:8px;color:var(--txdim);padding:4px 10px 6px;letter-spacing:.06em;line-height:1.5;display:none}
+#key-hint.show{display:block}
+#key-hint a{color:var(--acc);text-decoration:none}
+#key-hint a:hover{text-decoration:underline}
+.key-status{padding:0 6px;font-size:11px;color:var(--txlo);display:flex;align-items:center;line-height:1}
+.key-status.set{color:var(--grn)}
+.key-row{padding:7px 12px;display:flex;gap:6px;align-items:center}
+#kinput{flex:1;background:var(--bg);border:1px solid var(--brd);border-radius:3px;color:var(--txt);font-family:var(--font);font-size:9.5px;padding:5px 8px;outline:none;transition:border-color .2s}
+#kinput:focus{border-color:var(--acc)}
+#kinput::placeholder{color:var(--txlo);font-style:italic;font-size:9px}
+#kset{padding:0 9px;height:27px;background:var(--acc);color:#fff;border:none;border-radius:3px;font-family:var(--font);font-size:8px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+#kset:hover{background:var(--acchi)}
+
+/* ── MESSAGES ── */
+#msgs{flex:1;overflow-y:auto;padding:12px 12px 6px;display:flex;flex-direction:column;gap:12px;min-height:0;scroll-behavior:smooth}
+.mgrp{display:flex;flex-direction:column;gap:4px}
+.mgrp.user{align-items:flex-end}.mgrp.claude{align-items:flex-start}
+.msender{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--txdim);padding:0 4px;display:flex;align-items:center;gap:6px}
+.msender .mini-av{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#c06820,#7a3a10);display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:600;flex-shrink:0}
+.bubble{max-width:88%;padding:9px 12px;font-size:10.5px;line-height:1.7;word-break:break-word;border-radius:8px}
+.mgrp.user .bubble{background:var(--accdim);border:1px solid rgba(192,104,32,.35);color:var(--txhi);border-radius:8px 8px 2px 8px}
+.mgrp.claude .bubble{background:var(--surf2);border:1px solid var(--brd);color:var(--txt);border-radius:8px 8px 8px 2px}
+.bubble.err{border-color:var(--pink)!important;color:var(--pink)!important;background:rgba(200,72,112,.07)!important}
+.mts{font-size:7.5px;color:var(--txdim);padding:0 4px;margin-top:1px}
+#attach-chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 6px;min-height:0}
+.chip{background:var(--surf3);border:1px solid var(--brd);border-radius:3px;padding:3px 8px;font-size:8.5px;color:var(--txt);display:flex;align-items:center;gap:5px}
+.chip-x{cursor:pointer;color:var(--txdim);font-size:11px;line-height:1;transition:color .15s}
+.chip-x:hover{color:var(--pink)}
+#typing{display:none;align-items:flex-start;gap:8px;padding:0 0 2px}
+#typing.on{display:flex}
+.typ-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#c06820,#7a3a10);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:600;flex-shrink:0;margin-top:2px}
+.typ-dots{background:var(--surf2);border:1px solid var(--brd);border-radius:8px 8px 8px 2px;padding:10px 14px;display:flex;gap:5px;align-items:center}
+.typ-dots span{width:6px;height:6px;border-radius:50%;background:var(--txdim);animation:dot 1.2s ease-in-out infinite}
+.typ-dots span:nth-child(2){animation-delay:.2s}.typ-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+/* ── INPUT ROW ── */
+#cinrow{padding:10px;border-top:1px solid var(--brd);display:flex;flex-direction:column;gap:7px;flex-shrink:0}
+#cin{width:100%;background:var(--surf2);border:1px solid var(--brd);border-radius:5px;color:var(--txhi);font-family:var(--font);font-size:11px;line-height:1.5;padding:8px 10px;resize:none;height:58px;outline:none;transition:border-color .2s}
+#cin:focus{border-color:var(--acc)}
+#cin::placeholder{color:var(--txlo);font-style:italic;font-size:10px}
+.cin-foot{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.cin-hint{font-size:8px;letter-spacing:.08em;color:var(--txdim);flex:1}
+.cin-actions{display:flex;gap:6px;align-items:center}
+#attach-btn,#settings-btn{width:28px;height:28px;background:none;border:1px solid var(--brd);border-radius:4px;color:var(--txdim);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .16s;flex-shrink:0}
+#attach-btn:hover,#settings-btn:hover,#settings-btn.active{border-color:var(--acc);color:var(--acc)}
+#file-input{display:none}
+#csend{height:28px;padding:0 14px;background:var(--acc);color:#fff;border:none;border-radius:4px;font-family:var(--font);font-size:8.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:background .18s}
+#csend:hover:not(:disabled){background:var(--acchi)}
+#csend:disabled{opacity:.35;cursor:not-allowed}
+.dl-btn{display:inline-flex;align-items:center;gap:5px;margin-top:7px;margin-right:4px;padding:4px 9px;background:var(--surf3);border:1px solid var(--brd);border-radius:3px;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt);cursor:pointer;transition:all .18s;font-family:var(--font)}
+.dl-btn:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ══════════════════════════════════════
+   SETTINGS POPUP
+══════════════════════════════════════ */
+#settings-pop{position:fixed;z-index:9100;width:290px;background:var(--surf);border:1px solid var(--brdhi);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.7);display:none;flex-direction:column;overflow:hidden}
+#settings-pop.open{display:flex}
+.sp-hdr{height:34px;background:var(--surf2);border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 12px;gap:8px;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--txdim)}
+.sp-section{font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--txdim);margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--brd)}
+.sp-section:first-child{margin-top:0}
+.sp-body{padding:12px 14px;display:flex;flex-direction:column}
+.sp-row{display:flex;align-items:center;gap:9px;padding:5px 0;cursor:pointer}
+.sp-row:hover .sp-label{color:var(--txhi)}
+.sp-cb{width:13px;height:13px;accent-color:var(--acc);cursor:pointer;flex-shrink:0}
+.sp-label{font-size:9.5px;color:var(--txt);letter-spacing:.04em;user-select:none}
+.sp-foot{padding:10px 14px;border-top:1px solid var(--brd);font-size:8px;letter-spacing:.08em;color:var(--txdim);line-height:1.6}
+.sp-hint{font-size:8px;color:var(--txdim);letter-spacing:.06em;line-height:1.5;padding:2px 0 4px;margin-top:-2px}
+
+/* ══════════════════════════════════════
+   CUSTOM TEMPLATE EDITOR POPUP
+══════════════════════════════════════ */
+#tpl-editor{
+  position:fixed;z-index:9300;
+  width:560px;max-width:calc(100vw - 40px);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  background:var(--surf);border:1px solid var(--brdhi);
+  border-radius:10px;box-shadow:0 16px 64px rgba(0,0,0,.8);
+  display:none;flex-direction:column;overflow:hidden;
+  max-height:calc(100vh - 60px);
+}
+#tpl-editor.open{display:flex}
+#tpl-editor-hdr{
+  height:40px;background:var(--surf2);border-bottom:1px solid var(--brd);
+  display:flex;align-items:center;padding:0 14px;gap:9px;flex-shrink:0;
+}
+#tpl-editor-hdr .d{color:var(--acc);font-size:8px}
+#tpl-editor-hdr .title{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--txhi);flex:1}
+#tpl-editor-body{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.tpl-field-label{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--txdim);margin-bottom:5px}
+#tpl-name-input{
+  width:100%;background:var(--bg);border:1px solid var(--brd);border-radius:3px;
+  color:var(--txhi);font-family:var(--font);font-size:10.5px;padding:7px 10px;
+  outline:none;transition:border-color .2s;
+}
+#tpl-name-input:focus{border-color:var(--acc)}
+#tpl-textarea{
+  width:100%;flex:1;min-height:260px;
+  background:var(--bg);border:1px solid var(--brd);border-radius:3px;
+  color:var(--txt);font-family:var(--font);font-size:10px;line-height:1.7;
+  padding:10px 12px;resize:vertical;outline:none;transition:border-color .2s;
+}
+#tpl-textarea:focus{border-color:var(--acc)}
+.tpl-hint{font-size:8.5px;letter-spacing:.06em;color:var(--txdim);line-height:1.65;padding:8px 10px;background:var(--surf3);border-radius:3px;border-left:2px solid var(--acc)}
+#tpl-editor-foot{
+  padding:12px 16px;border-top:1px solid var(--brd);
+  display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;
+}
+.tpl-foot-btn{
+  height:30px;padding:0 16px;border:none;border-radius:4px;
+  font-family:var(--font);font-size:8.5px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .18s;
+}
+#tpl-save-btn{background:var(--acc);color:#fff}
+#tpl-save-btn:hover{background:var(--acchi)}
+#tpl-cancel-btn{background:none;border:1px solid var(--brd);color:var(--txdim)}
+#tpl-cancel-btn:hover{border-color:var(--acc);color:var(--acc)}
+#tpl-editor-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9250;display:none}
+#tpl-editor-overlay.open{display:block}
+
+/* ── LOADING ── */
+#veil{position:fixed;inset:0;background:rgba(8,8,8,.78);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:8000;backdrop-filter:blur(2px)}
+#veil.on{display:flex}
+.vt{font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--acc)}
+.vb{width:200px;height:2px;background:var(--surf3);border-radius:1px;overflow:hidden}
+.vf{height:100%;background:var(--acc);border-radius:1px;animation:sw 1.6s ease-in-out infinite}
+.vs{font-size:8.5px;letter-spacing:.12em;color:var(--txdim)}
+@keyframes sw{0%{width:0%;margin-left:0%}50%{width:55%;margin-left:22%}100%{width:0%;margin-left:100%}}
+
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--brdhi);border-radius:2px}
+</style>
+</head>
+<body>
+
+<style>
+/* ── NAV TABS ── */
+#bar{height:38px;background:var(--surf);border-bottom:1px solid var(--brd);display:flex;align-items:stretch;padding:0 0 0 14px;gap:0;flex-shrink:0;z-index:10000;position:relative}
+.nav-logo{display:flex;align-items:center;gap:8px;padding-right:16px;flex-shrink:0}
+.nav-logo .bd{color:var(--acc);font-size:9px}
+.nav-logo .bl{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--txhi)}
+.nav-divider{width:1px;background:var(--brd);margin:6px 0;flex-shrink:0}
+.nav-tab{
+  display:flex;align-items:center;gap:7px;padding:0 16px;
+  font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--txdim);cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .18s;flex-shrink:0;user-select:none;
+}
+.nav-tab:hover{color:var(--txt);background:rgba(255,255,255,.03)}
+.nav-tab.active{color:var(--txhi);border-bottom-color:var(--acc)}
+.nav-tab.soon{opacity:.4;cursor:default;pointer-events:none}
+.nav-tab .tab-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0}
+.nav-tab.active .tab-dot{background:var(--acc);opacity:1}
+.nav-soon-badge{font-size:6.5px;letter-spacing:.14em;background:var(--surf3);border:1px solid var(--brd);border-radius:2px;padding:1px 4px;color:var(--txdim);margin-left:2px}
+.nav-spacer{flex:1}
+.nav-right{display:flex;align-items:center;gap:8px;padding-right:14px;flex-shrink:0}
+
+/* ── INSPIRATION OVERLAY ── */
+#inspiration-overlay{
+  position:fixed;left:0;right:0;top:38px;bottom:0;
+  z-index:9000;
+  display:none;flex-direction:column;
+  background:transparent;
+  animation:fadeIn .3s ease;
+}
+#inspiration-overlay.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* Background canvas — fills the entire overlay */
+#insp-canvas-wrap{
+  position:absolute;inset:0;z-index:0;overflow:hidden;
+  background:#0a0a0a;
+}
+#insp-canvas-wrap canvas{display:block}
+
+/* Dark vignette so cards are readable over the animation */
+#insp-vignette{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 80% 70% at 50% 50%, transparent 30%, rgba(6,6,6,.82) 100%);
+}
+
+#insp-header{
+  position:relative;z-index:2;
+  height:38px;background:rgba(10,10,10,.7);border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;padding:0 28px;gap:10px;flex-shrink:0;
+  backdrop-filter:blur(8px);
+}
+#insp-header .insp-title{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);flex:1}
+
+#insp-body{
+  position:relative;z-index:2;
+  flex:1;overflow-y:auto;
+  padding:40px 60px 60px;
+  display:flex;flex-direction:column;gap:0;
+  max-width:960px;margin:0 auto;width:100%;
+}
+
+.insp-section-title{
+  font-size:7.5px;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(255,255,255,.25);margin-bottom:20px;margin-top:48px;
+  border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:8px;
+}
+.insp-section-title:first-child{margin-top:0}
+.insp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:8px}
+.insp-card{
+  background:rgba(12,12,12,.75);border:1px solid rgba(255,255,255,.09);
+  border-radius:6px;padding:18px 20px;cursor:pointer;text-decoration:none;
+  transition:all .22s;display:block;position:relative;overflow:hidden;
+  backdrop-filter:blur(12px);
+}
+.insp-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--acc) 0%,transparent 60%);
+  opacity:0;transition:opacity .2s;
+}
+.insp-card:hover{
+  border-color:rgba(192,104,32,.5);
+  transform:translateY(-3px);
+  box-shadow:0 12px 32px rgba(0,0,0,.6);
+  background:rgba(18,15,10,.85);
+}
+.insp-card:hover::before{opacity:.06}
+.insp-card-host{
+  font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.25);margin-bottom:7px;display:flex;align-items:center;gap:6px;
+}
+.insp-card-host .host-icon{width:14px;height:14px;border-radius:2px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0}
+.insp-card-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.88);margin-bottom:8px;line-height:1.3}
+.insp-card-desc{font-size:10px;line-height:1.75;color:rgba(200,195,188,.7)}
+.insp-card-tag{display:inline-block;font-size:7px;letter-spacing:.14em;text-transform:uppercase;padding:2px 6px;border-radius:2px;margin-top:10px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.08)}
+.insp-wow{
+  border-color:rgba(192,104,32,.45)!important;
+  background:rgba(192,104,32,.07)!important;
+}
+.insp-wow .insp-card-name{color:#d97828}
+.insp-wow-badge{
+  position:absolute;top:12px;right:12px;
+  font-size:7px;letter-spacing:.14em;text-transform:uppercase;
+  background:var(--acc);color:#fff;padding:2px 7px;border-radius:2px;font-weight:600;
+}
+</style>
+
+<div id="bar">
+  <div class="nav-tab active" id="nav-studio" onclick="switchNav('studio')">
+    <span class="tab-dot"></span>
+    Studio
+  </div>
+  <div class="nav-tab soon" id="nav-soon">
+    Coming Soon
+    <span class="nav-soon-badge">Soon</span>
+  </div>
+  <div class="nav-tab" id="nav-inspiration" onclick="switchNav('inspiration')">
+    <span class="tab-dot"></span>
+    Inspiration
+  </div>
+
+  <div class="nav-spacer"></div>
+  <div class="nav-right">
+    <button id="color-theme-btn" class="theme-btn" title="Accent color">◈</button>
+    <button id="theme-btn" class="theme-btn" title="Toggle light/dark theme">☾</button>
+    <div class="bst"><span class="sd" id="sdot"></span><span id="slbl">idle</span></div>
+  </div>
+</div>
+
+<!-- Inspiration overlay -->
+<div id="inspiration-overlay">
+  <!-- Background animation canvas -->
+  <div id="insp-canvas-wrap"></div>
+  <div id="insp-vignette"></div>
+
+  <div id="insp-header">
+    <span style="color:rgba(192,104,32,.7);font-size:9px">◆</span>
+    <span class="insp-title">Inspiration · Reference · Creative Lineage</span>
+  </div>
+  <div id="insp-body">
+
+    <div class="insp-section-title">Essential Resources</div>
+    <div class="insp-cards">
+
+      <a class="insp-card insp-wow" href="https://github.com/golanlevin/DrawingWithMachines" target="_blank">
+        <div class="insp-wow-badge">★ WOW</div>
+        <div class="insp-card-host"><span class="host-icon">⌥</span>github.com</div>
+        <div class="insp-card-name">Drawing With Machines</div>
+        <div class="insp-card-desc">Golan Levin's CMU graduate course on pen plotter art. The most comprehensive resource in the field — covers Processing-to-SVG pipelines, vpype post-processing, axidraw workflows, offset curves, and the full creative-technical stack. The canonical reference.</div>
+        <span class="insp-card-tag">Course · CMU · Golan Levin</span>
+      </a>
+
+      <a class="insp-card" href="https://plotterfiles.com/" target="_blank">
+        <div class="insp-card-host"><span class="host-icon">◈</span>plotterfiles.com</div>
+        <div class="insp-card-name">Plotter Files</div>
+        <div class="insp-card-desc">Curated gallery of plotter-ready SVG files and generative sketches from the community. Dense with practical inspiration — flow fields, hatching studies, Voronoi tessellations, and more. Download and plot directly or dissect for technique.</div>
+        <span class="insp-card-tag">Gallery · Community · SVG</span>
+      </a>
+
+    </div>
+
+    <div class="insp-section-title">Live Sketches &amp; Editors</div>
+    <div class="insp-cards">
+
+      <a class="insp-card" href="https://turtletoy.net/turtle/browse/newest/" target="_blank">
+        <div class="insp-card-host"><span class="host-icon">🐢</span>turtletoy.net</div>
+        <div class="insp-card-name">Turtletoy</div>
+        <div class="insp-card-desc">Browser-based sandbox for plotter-style generative art using a turtle graphics API. Thousands of community-made sketches in the open gallery — browse, fork, and remix directly in the browser. An endlessly scrollable source of algorithmic ideas.</div>
+        <span class="insp-card-tag">Interactive · Turtle Graphics · Browse</span>
+      </a>
+
+      <a class="insp-card" href="https://generated.space/" target="_blank">
+        <div class="insp-card-host"><span class="host-icon">⬡</span>generated.space</div>
+        <div class="insp-card-name">Generated Space</div>
+        <div class="insp-card-desc">A curated space of generative art experiments — noise-based compositions, particle systems, recursive geometries. Clean, editorial curation with an emphasis on the mathematical beauty of emergence and pattern. Good for understanding density and negative space.</div>
+        <span class="insp-card-tag">Generative · Curated · Experiments</span>
+      </a>
+
+    </div>
+
+    <div class="insp-section-title">Code &amp; Books</div>
+    <div class="insp-cards">
+
+      <a class="insp-card" href="https://github.com/erdavids/Generative-Art" target="_blank">
+        <div class="insp-card-host"><span class="host-icon">⌥</span>github.com</div>
+        <div class="insp-card-name">Generative Art (erdavids)</div>
+        <div class="insp-card-desc">A growing collection of Processing Java sketches built for pen plotters — clean code, well-commented, and designed with physical output in mind. Covers circle packing, flow fields, recursive subdivision and more. Good starting point for porting ideas to your own work.</div>
+        <span class="insp-card-tag">Processing · Open Source · Patterns</span>
+      </a>
+
+      <a class="insp-card" href="http://www.generative-gestaltung.de" target="_blank">
+        <div class="insp-card-host"><span class="host-icon">▦</span>generative-gestaltung.de</div>
+        <div class="insp-card-name">Generative Gestaltung</div>
+        <div class="insp-card-desc">The book and companion website by Bohnacker, Groß, Laub, and Lazzeroni — the defining textbook on parametric and generative design with Processing. Hundreds of interactive examples covering grids, agents, fractals, and noise. The academic backbone of the field.</div>
+        <span class="insp-card-tag">Book · Processing · Parametric Design</span>
+      </a>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div id="app">
+  <div class="row" id="top-row" style="flex:0 0 57%">
+
+    <div class="pan col" id="pc" style="flex:0 0 28%">
+      <div class="plb"><span class="d">◆</span> Concept</div>
+      <div id="cwrap">
+        <div class="phm" id="cph">
+          <canvas id="concept-anim-canvas"></canvas>
+          <p style="position:relative;z-index:2;font-size:8px;letter-spacing:.15em;text-transform:uppercase;opacity:.4;margin-top:8px">Awaiting prompt</p>
+        </div>
+        <div id="ctitle"></div>
+        <div id="cbody"></div>
+      </div>
+    </div>
+
+    <div class="v-handle" id="vh-cp"></div>
+
+    <div class="pan col" id="pp" style="flex:1">
+      <div class="plb plbr">
+        <div style="display:flex;align-items:center;gap:7px"><span class="d">◆</span> p5.js Preview</div>
+        <div class="plb-actions" id="prv-actions" style="display:none">
+          <button class="ibtn" id="rbtn">⟳ Reseed</button>
+          <button class="ibtn" id="dlhtml-preview-btn">↓ .html</button>
+          <button class="ibtn" id="fsbtn">⛶ Fullscreen</button>
+        </div>
+      </div>
+      <div id="prv">
+        <div id="p5w">
+          <div id="pph">
+            <canvas id="preview-anim-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="h-handle" id="hh-main"></div>
+
+  <div class="row" id="bot-row" style="flex:1">
+    <div class="pan col" id="code-panel" style="flex:1">
+      <div class="code-tabs">
+        <div class="ctab active" id="tab-pde" onclick="switchTab('pde')">
+          <span class="td">◆</span>Processing<span style="color:var(--txdim);font-size:7px">.pde</span>
+        </div>
+        <div class="ctab" id="tab-p5" onclick="switchTab('p5')">
+          <span class="td">◆</span>p5.js<span style="color:var(--txdim);font-size:7px">.js</span>
+        </div>
+        <div class="tab-actions">
+          <button class="ibtn" id="cpbtn">Copy</button>
+          <button class="ibtn" id="dlpde-btn">↓ .pde</button>
+          <button class="ibtn" id="dlp5-btn">↓ .js</button>
+          <button class="ibtn" id="dlhtml-btn">↓ .html</button>
+        </div>
+      </div>
+      <div id="code-display" class="pde-mode">// Code will appear here…</div>
+    </div>
+
+    <div class="v-handle" id="vh-ch"></div>
+
+    <div class="pan col" id="how-panel" style="flex:0 0 280px">
+      <div class="plb"><span class="d">◆</span><span id="how-label">How it works</span></div>
+      <div id="howto-wrap">
+        <div class="phm" id="how-ph"><span class="ico">📋</span><p>Awaiting generation</p></div>
+        <div id="howto-pde" class="howto-body"></div>
+        <div id="howto-p5"  class="howto-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen overlay -->
+<div id="fs-overlay">
+  <div id="fs-topbar">
+    <span style="color:var(--acc);font-size:9px">◆</span>
+    <span id="fs-title">p5.js Preview — Fullscreen</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="ibtn" id="fs-reseed">⟳ Reseed</button>
+      <button class="ibtn" id="fs-dl-png">↓ PNG</button>
+      <button class="ibtn" id="fs-close">✕ Close</button>
+    </div>
+  </div>
+  <div id="fs-body"><div id="fs-p5w"></div></div>
+</div>
+
+<!-- Chat popup -->
+<div id="chat">
+  <div id="chdr">
+    <div class="cl-avatar">✦</div>
+    <div class="cl-info">
+      <div class="cl-name">Plotter Assistant</div>
+      <div class="cl-sub" id="cl-sub-model">claude-sonnet-4</div>
+    </div>
+    <button class="hbtn" id="ctog">−</button>
+  </div>
+
+  <!-- Model + Template toolbar -->
+  <div id="chat-toolbar">
+    <span class="tb-label">Model</span>
+    <button id="model-btn" class="model-btn">
+      <span id="model-btn-label">Claude Sonnet 4.6</span>
+      <span class="model-btn-arrow">▾</span>
+    </button>
+    <div class="tb-divider"></div>
+    <button id="tpl-btn">⊞ Template ▾</button>
+    <div class="tb-divider"></div>
+    <button id="session-btn" class="tb-icon-btn" title="Sessions">🗂</button>
+    <button id="reset-btn" class="tb-icon-btn tb-icon-danger" title="Reset all data">⟳</button>
+  </div>
+
+  <!-- Thinking toggle (Claude only) -->
+  <div id="thinking-bar">
+    <span class="thinking-label">Extended Thinking</span>
+    <button id="thinking-toggle"><span class="tog-dot"></span><span id="thinking-state">Off</span></button>
+    <span class="thinking-label" style="color:var(--txdim);font-size:7.5px">Adaptive reasoning before answering</span>
+  </div>
+
+  <div id="keybanner">
+    <div class="key-row">
+      <span class="key-prov-icon" id="key-prov-icon">A</span>
+      <input id="kinput" type="password" placeholder="API key…">
+      <div id="key-status-dots">
+        <span class="key-sdot" id="key-sdot-anthropic" title="Anthropic key"></span>
+        <span class="key-sdot" id="key-sdot-gemini" title="Gemini key"></span>
+        <span class="key-sdot" id="key-sdot-academic" title="Academic Cloud key"></span>
+      </div>
+      <button id="kset">Set</button>
+    </div>
+    <div id="key-hint"></div>
+  </div>
+
+  <div id="msgs">
+    <div class="mgrp claude">
+      <div class="msender"><span class="mini-av">✦</span> Assistant</div>
+      <div class="bubble">Hi! Describe a plotter sketch. Download buttons appear once a sketch is generated. Use the toolbar above to switch models or templates.</div>
+      <div class="mts" id="welcome-ts"></div>
+    </div>
+    <div id="typing">
+      <div class="typ-av">✦</div>
+      <div class="typ-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <div id="attach-chips"></div>
+
+  <div id="cinrow">
+    <textarea id="cin" placeholder="e.g. flow field with radial density gradient, portrait…"></textarea>
+    <div class="cin-foot">
+      <span class="cin-hint">Ctrl+Enter to send</span>
+      <div class="cin-actions">
+        <button id="attach-btn" title="Attach file">📎</button>
+        <input type="file" id="file-input" multiple accept="image/*,.pdf,.txt,.pde,.js,.md">
+        <button id="settings-btn" title="Generation settings">⚙</button>
+        <button id="csend">Send ↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Template dropdown -->
+<div id="tpl-drop">
+  <div class="tpl-item active-tpl" data-tpl="dma" id="tpl-dma">
+    <span class="tpl-dot"></span>dMA Creative Coding
+  </div>
+  <div class="tpl-item" data-tpl="custom" id="tpl-custom-item">
+    <span class="tpl-dot"></span>Custom…
+  </div>
+</div>
+
+<!-- Settings popup -->
+<div id="settings-pop">
+  <div class="sp-hdr"><span class="d">◆</span> Generation Settings</div>
+  <div class="sp-body">
+
+    <div class="sp-section">Processing</div>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-pde" checked><span class="sp-label">Generate Processing Code</span></label>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-pde-exp" checked><span class="sp-label">Generate Code Explanation</span></label>
+
+    <div class="sp-section">p5.js</div>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-p5" checked><span class="sp-label">Generate p5.js Code</span></label>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-p5-exp" checked><span class="sp-label">Generate p5.js Explanation</span></label>
+
+    <div class="sp-section">p5.js Preview Controls</div>
+    <div class="sp-hint">These add interactive buttons to the p5.js sketch canvas.</div>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-text-btn" checked><span class="sp-label">Text On/Off Button</span></label>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-linetext-btn" checked><span class="sp-label">Line Labels On/Off Button</span></label>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-reseed-btn" checked><span class="sp-label">Reseed Button</span></label>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-sliders"><span class="sp-label">Allow Parameter Sliders</span></label>
+
+  </div>
+  <div class="sp-foot">Unchecked sections are skipped. Saved automatically.</div>
+</div>
+
+<!-- Template editor overlay -->
+<div id="tpl-editor-overlay"></div>
+
+<!-- Custom template editor -->
+<div id="tpl-editor">
+  <div id="tpl-editor-hdr">
+    <span class="d">◆</span>
+    <span class="title">Custom Template</span>
+    <button class="hbtn" id="tpl-editor-close">✕</button>
+  </div>
+  <div id="tpl-editor-body">
+    <div>
+      <div class="tpl-field-label">Template Name</div>
+      <input id="tpl-name-input" type="text" placeholder="e.g. My Studio Setup">
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div class="tpl-field-label">System Prompt / Template</div>
+      <textarea id="tpl-textarea" placeholder="Write your full system prompt here. Use [TASK] as a placeholder for the user's sketch description."></textarea>
+    </div>
+    <div class="tpl-hint">
+      Use <strong>[TASK]</strong> where the user's sketch description should be inserted.<br>
+      The template replaces the full system prompt — include all instructions you need.<br>
+      Leave blank to reset to the built-in default.
+    </div>
+  </div>
+  <div id="tpl-editor-foot">
+    <button class="tpl-foot-btn" id="tpl-cancel-btn">Cancel</button>
+    <button class="tpl-foot-btn" id="tpl-save-btn">Save &amp; Use</button>
+  </div>
+</div>
+
+<!-- Model picker dropdown -->
+<div id="model-drop"><div id="model-drop-scroll" onwheel="this.scrollTop+=event.deltaY;event.preventDefault();">
+
+  <!-- ── BASE (always visible) ── -->
+  <div class="md-section-label">No Key Required</div>
+  <div class="md-item md-recommended" data-model="claude-sonnet-4-6" data-provider="anthropic"
+       data-tip="Works inside claude.ai without any API key. Recommended starting point — best all-round quality for plotter generation. Note: claude.ai forces this model regardless of selection.">
+    <div class="md-item-main">
+      <span class="md-name">Claude Sonnet 4.6</span>
+      <div class="md-tags"><span class="md-tag tag-rec">★ Recommended</span><span class="md-tag tag-free">Free</span><span class="md-tag tag-base">Base</span></div>
+    </div>
+    <div class="md-id">claude-sonnet-4-6</div>
+  </div>
+
+  <!-- ── API KEY ACCORDION TOGGLE ── -->
+  <div class="md-apikey-toggle" id="md-apikey-toggle">
+    <span class="md-toggle-icon" id="md-toggle-icon">▸</span>
+    <span>Use API Key — unlock all models</span>
+    <span class="md-tag tag-key" style="margin-left:auto">🔑 Set Key</span>
+  </div>
+
+  <!-- ── ACCORDION BODY (hidden until toggled) ── -->
+  <div id="md-accordion" class="md-accordion">
+
+    <!-- API key info banner -->
+    <div class="md-key-info">
+      <div class="md-key-info-row">
+        <span class="md-key-prov">Anthropic:</span>
+        <a href="https://platform.claude.com/settings/keys" target="_blank">platform.claude.com/settings/keys</a>
+      </div>
+      <div class="md-key-info-row">
+        <span class="md-key-prov">Google:</span>
+        <a href="https://aistudio.google.com/api-keys" target="_blank">aistudio.google.com/api-keys</a>
+      </div>
+    </div>
+
+    <!-- ── ANTHROPIC ── -->
+    <div class="md-section-label">Anthropic / Claude</div>
+    <div class="md-item md-recommended" data-model="claude-sonnet-4-6-latest" data-provider="anthropic"
+         data-tip="★ Recommended. Best balance of intelligence and speed for coding and production. Ideal for most plotter tasks. Supports extended thinking mode.">
+      <div class="md-item-main">
+        <span class="md-name">Claude Sonnet 4.6</span>
+        <div class="md-tags"><span class="md-tag tag-rec">★ Recommended</span><span class="md-tag tag-paid">Paid</span></div>
+      </div>
+      <div class="md-id">claude-sonnet-4-6-latest</div>
+    </div>
+    <div class="md-item" data-model="claude-opus-4-7-latest" data-provider="anthropic"
+         data-tip="Most capable Claude. Complex logic, long documents, deep reasoning. Slowest and most expensive. Best for intricate generative systems. Supports extended thinking.">
+      <div class="md-item-main">
+        <span class="md-name">Claude Opus 4.7</span>
+        <div class="md-tags"><span class="md-tag tag-power">Power</span><span class="md-tag tag-paid">Paid</span></div>
+      </div>
+      <div class="md-id">claude-opus-4-7-latest</div>
+    </div>
+    <div class="md-item" data-model="claude-haiku-4-5-latest" data-provider="anthropic"
+         data-tip="Cheapest and fastest Claude. Good for quick iterations and simple tasks. Lower output quality for complex plotter generation.">
+      <div class="md-item-main">
+        <span class="md-name">Claude Haiku 4.5</span>
+        <div class="md-tags"><span class="md-tag tag-fast">Speed</span><span class="md-tag tag-paid">Paid</span></div>
+      </div>
+      <div class="md-id">claude-haiku-4-5-latest</div>
+    </div>
+    <div class="md-hint">💡 Opus 4.7 and Sonnet 4.6 support <code>thinking</code> mode — use the slider below the model picker to enable extended reasoning.</div>
+
+    <!-- ── GOOGLE FREE ── -->
+    <div class="md-section-label">Google Gemini · Free Tier</div>
+    <div class="md-item md-recommended" data-model="gemini-3-flash-preview" data-provider="gemini"
+         data-tip="★ Recommended free Gemini. Best balance of reasoning and speed in the Gemini 3 series. Preview model, actively updated by Google.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 3 Flash</span>
+        <div class="md-tags"><span class="md-tag tag-rec">★ Recommended</span><span class="md-tag tag-free">Free</span></div>
+      </div>
+      <div class="md-id">gemini-3-flash-preview</div>
+    </div>
+    <div class="md-item" data-model="gemini-flash-latest" data-provider="gemini"
+         data-tip="Developer alias that always routes to the newest stable Flash model. Won't break when older models retire next month. Currently transitioning from 2.5 to Gemini 3 Flash.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini Flash (Latest Alias)</span>
+        <div class="md-tags"><span class="md-tag tag-alias">Alias</span><span class="md-tag tag-free">Free</span></div>
+      </div>
+      <div class="md-id">gemini-flash-latest</div>
+    </div>
+    <div class="md-item" data-model="gemini-3.1-flash-lite-preview" data-provider="gemini"
+         data-tip="Ultra-fast and low-cost. Best for simple high-volume tasks. Not ideal for complex plotter generation.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 3.1 Flash-Lite</span>
+        <div class="md-tags"><span class="md-tag tag-fast">Fast</span><span class="md-tag tag-free">Free</span></div>
+      </div>
+      <div class="md-id">gemini-3.1-flash-lite-preview</div>
+    </div>
+    <div class="md-item" data-model="gemini-2.5-pro" data-provider="gemini"
+         data-tip="Complex logic and coding. Limited daily requests on free tier. Good quality but may hit rate limits.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 2.5 Pro</span>
+        <div class="md-tags"><span class="md-tag tag-std">Pro</span><span class="md-tag tag-free">Free</span><span class="md-tag tag-dep">⚠ Jun 17</span></div>
+      </div>
+      <div class="md-id">gemini-2.5-pro</div>
+    </div>
+    <div class="md-item" data-model="gemini-2.5-flash" data-provider="gemini"
+         data-tip="Stable Gemini 2.5 Flash. Reliable but retiring June 17. Migrate to gemini-3-flash-preview.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 2.5 Flash</span>
+        <div class="md-tags"><span class="md-tag tag-dep">⚠ Jun 17</span><span class="md-tag tag-free">Free</span></div>
+      </div>
+      <div class="md-id">gemini-2.5-flash</div>
+    </div>
+    <div class="md-item" data-model="gemini-2.5-flash-lite" data-provider="gemini"
+         data-tip="Lightweight Gemini 2.5. Retiring July 22 — avoid for new projects.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 2.5 Flash-Lite</span>
+        <div class="md-tags"><span class="md-tag tag-dep">⚠ Jul 22</span><span class="md-tag tag-free">Free</span></div>
+      </div>
+      <div class="md-id">gemini-2.5-flash-lite</div>
+    </div>
+
+    <!-- ── GOOGLE PAID ── -->
+    <div class="md-section-label">Google Gemini · Paid Only</div>
+    <div class="md-item" data-model="gemini-3.1-pro-preview" data-provider="gemini"
+         data-tip="Most capable Gemini. Frontier-level reasoning and agentic workflows. Requires billing. Best for complex generative art prompts.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 3.1 Pro</span>
+        <div class="md-tags"><span class="md-tag tag-power">Most Capable</span><span class="md-tag tag-paid">Paid</span></div>
+      </div>
+      <div class="md-id">gemini-3.1-pro-preview</div>
+    </div>
+    <div class="md-item" data-model="gemini-3-flash" data-provider="gemini"
+         data-tip="Production-grade Gemini 3 Flash with high rate limits. Best for heavy usage.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 3 Flash</span>
+        <div class="md-tags"><span class="md-tag tag-std">Production</span><span class="md-tag tag-paid">Paid</span></div>
+      </div>
+      <div class="md-id">gemini-3-flash</div>
+    </div>
+    <div class="md-item" data-model="gemini-3.1-flash-lite" data-provider="gemini"
+         data-tip="Most cost-efficient Gemini for massive scale. Very low price per token.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 3.1 Flash-Lite</span>
+        <div class="md-tags"><span class="md-tag tag-fast">Cost-Efficient</span><span class="md-tag tag-paid">Paid</span></div>
+      </div>
+      <div class="md-id">gemini-3.1-flash-lite</div>
+    </div>
+    <div class="md-item" data-model="gemini-2.5-pro-paid" data-provider="gemini"
+         data-tip="Stable enterprise Gemini 2.5 Pro. High throughput. Good before Gemini 3 is fully stable.">
+      <div class="md-item-main">
+        <span class="md-name">Gemini 2.5 Pro (Paid)</span>
+        <div class="md-tags"><span class="md-tag tag-std">Enterprise</span><span class="md-tag tag-paid">Paid</span></div>
+      </div>
+      <div class="md-id">gemini-2.5-pro</div>
+    </div>
+
+    <!-- ── ACADEMIC CLOUD / SAIA ── -->
+    <div class="md-section-label">Academic Cloud (SAIA)</div>
+    <div class="md-item md-recommended" data-model="qwen3-coder-30b-a3b-instruct" data-provider="academic"
+         data-tip="★ Recommended SAIA model. Qwen3 Coder 30B — excellent code generation, fast, ideal for plotter sketch work. Requires Academic Cloud key.">
+      <div class="md-item-main">
+        <span class="md-name">Qwen3 Coder 30B</span>
+        <div class="md-tags"><span class="md-tag tag-rec">★ Recommended</span><span class="md-tag tag-key">🔑 Key</span></div>
+      </div>
+      <div class="md-id">qwen3-coder-30b-a3b-instruct</div>
+    </div>
+    <div class="md-item" data-model="deepseek-r1-distill-llama-70b" data-provider="academic"
+         data-tip="DeepSeek R1 distilled into LLaMA 70B — strong reasoning and code. Good for complex generative logic.">
+      <div class="md-item-main">
+        <span class="md-name">DeepSeek R1 Distill 70B</span>
+        <div class="md-tags"><span class="md-tag tag-power">Reasoning</span><span class="md-tag tag-key">🔑 Key</span></div>
+      </div>
+      <div class="md-id">deepseek-r1-distill-llama-70b</div>
+    </div>
+    <div class="md-item" data-model="llama-3.3-70b-instruct" data-provider="academic"
+         data-tip="Meta LLaMA 3.3 70B — reliable open-source backbone, solid general coding.">
+      <div class="md-item-main">
+        <span class="md-name">LLaMA 3.3 70B</span>
+        <div class="md-tags"><span class="md-tag tag-std">Open Source</span><span class="md-tag tag-key">🔑 Key</span></div>
+      </div>
+      <div class="md-id">llama-3.3-70b-instruct</div>
+    </div>
+    <div class="md-item" data-model="mistral-large-3-675b-instruct-2512" data-provider="academic"
+         data-tip="Mistral Large 3 — frontier-class reasoning and instruction following. Best for nuanced plotter prompts.">
+      <div class="md-item-main">
+        <span class="md-name">Mistral Large 3</span>
+        <div class="md-tags"><span class="md-tag tag-power">Power</span><span class="md-tag tag-key">🔑 Key</span></div>
+      </div>
+      <div class="md-id">mistral-large-3-675b-instruct-2512</div>
+    </div>
+    <div class="md-hint">💡 Enter your Academic Cloud (SAIA) API key above to use these models.</div>
+
+  </div><!-- end accordion -->
+
+  </div><!-- end scroll -->
+  <!-- tooltip -->
+  <div id="md-tooltip"></div>
+</div>
+
+<!-- Session panel -->
+<div id="session-panel">
+  <div class="sp2-hdr">
+    <span style="color:var(--acc);font-size:9px">◆</span>
+    <span class="sp2-title">Sessions</span>
+    <button class="hbtn" id="session-close">✕</button>
+  </div>
+  <div id="session-list-wrap">
+    <div id="session-list"></div>
+    <div class="session-empty" id="session-empty">No saved sessions yet.<br>Save the current session below.</div>
+  </div>
+  <div class="sp2-foot">
+    <input id="session-name-input" type="text" placeholder="Session name…">
+    <button id="session-save-btn">Save Current</button>
+  </div>
+</div>
+<div id="session-overlay"></div>
+
+<!-- Reset confirm dialog -->
+<div id="reset-confirm">
+  <div class="rc-body">
+    <div class="rc-icon">⟳</div>
+    <div class="rc-title">Reset All Data?</div>
+    <div class="rc-sub">This clears all sessions, chat history, generated code, API keys, and settings. This cannot be undone.</div>
+    <div class="rc-btns">
+      <button id="rc-cancel">Cancel</button>
+      <button id="rc-ok">Reset Everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- Accent color picker -->
+<div id="color-theme-pop">
+  <div class="ctp-label">Accent Color</div>
+  <div class="ctp-swatches">
+    <div class="ctp-swatch active" data-acc="#c06820" data-achi="#d97828" data-accdim="rgba(192,104,32,.13)" style="background:#c06820" title="Amber (default)"></div>
+    <div class="ctp-swatch" data-acc="#1a7aa0" data-achi="#2290bc" data-accdim="rgba(26,122,160,.13)" style="background:#1a7aa0" title="Ocean"></div>
+    <div class="ctp-swatch" data-acc="#a01a5a" data-achi="#be2270" data-accdim="rgba(160,26,90,.13)" style="background:#a01a5a" title="Magenta"></div>
+    <div class="ctp-swatch" data-acc="#1a8a44" data-achi="#22a050" data-accdim="rgba(26,138,68,.13)" style="background:#1a8a44" title="Emerald"></div>
+    <div class="ctp-swatch" data-acc="#6a3ab0" data-achi="#7e48cc" data-accdim="rgba(106,58,176,.13)" style="background:#6a3ab0" title="Violet"></div>
+    <div class="ctp-swatch" data-acc="#b02020" data-achi="#cc2828" data-accdim="rgba(176,32,32,.13)" style="background:#b02020" title="Crimson"></div>
+    <div class="ctp-swatch" data-acc="#9a8810" data-achi="#b4a018" data-accdim="rgba(154,136,16,.13)" style="background:#9a8810" title="Gold"></div>
+    <div class="ctp-swatch" data-acc="#0a8070" data-achi="#0e9882" data-accdim="rgba(10,128,112,.13)" style="background:#0a8070" title="Teal"></div>
+  </div>
+  <div class="ctp-custom">
+    <input type="color" id="ctp-custom-input" value="#c06820" title="Custom color">
+    <span class="ctp-custom-label">Custom</span>
+  </div>
+</div>
+
+<!-- Loading veil -->
+<div id="veil">
+  <div class="vt">Generating Sketch</div>
+  <div class="vb"><div class="vf"></div></div>
+  <div class="vs" id="vsub"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+
+// ══════════════════════════════════════════════════════════════
+//  GENERATIVE PLOTTER STUDIO v8
+//  Model selector · Template system · Full system prompt
+// ══════════════════════════════════════════════════════════════
+
+var MODEL = 'claude-sonnet-4-6';
+var apiKeys = { anthropic: '', gemini: '', academic: '' };
+var ACADEMIC_CLOUD_KEY_DEFAULT = '';
+var ACADEMIC_MODELS = ['qwen3-coder-30b-a3b-instruct','deepseek-r1-distill-llama-70b','llama-3.3-70b-instruct','mistral-large-3-675b-instruct-2512'];
+var activeKeyTab = 'anthropic';
+var chatHistory = [];
+var lastFnP5 = null;
+var p5inst   = null;
+var p5instFS = null;
+var currentTab = 'pde';
+var pendingFiles = [];
+var stored = { title:'', desc:'', pdecode:'', p5code:'', pdeexp:'', p5exp:'' };
+var currentTemplate = 'dma'; // 'dma' | 'custom'
+var customTemplate  = { name:'Custom', body:'' };
+
+function G(id){ return document.getElementById(id); }
+
+// ── Provider router ───────────────────────────────────────────
+// Maps a model string to the API provider name
+function providerFor(model) {
+  if (model && model.indexOf('gemini') === 0) return 'gemini';
+  if (model && ACADEMIC_MODELS.indexOf(model) > -1) return 'academic';
+  return 'anthropic';
+}
+
+// ── Environment detection ─────────────────────────────────────
+// Inside claude.ai the platform auto-injects auth for Anthropic calls only.
+// Gemini calls always need a user-supplied key, even inside claude.ai.
+var IS_CLAUDE_AI = (function(){
+  var h = window.location.hostname;
+  return h === '' ||
+    h.indexOf('claude.ai') > -1 ||
+    h.indexOf('anthropic.com') > -1 ||
+    window.location.protocol === 'blob:';
+})();
+
+// Update the colored dot next to each tab to show whether a key is set
+function updateKeyStatusDots() {
+  var da = G('key-sdot-anthropic'), dg = G('key-sdot-gemini'), dac = G('key-sdot-academic');
+  if (da) da.classList.toggle('set', !!apiKeys.anthropic || IS_CLAUDE_AI);
+  if (dg) dg.classList.toggle('set', !!apiKeys.gemini);
+  if (dac) dac.classList.toggle('set', !!apiKeys.academic);
+}
+
+// Switch which provider's key is shown in the input
+// ── Key banner auto-switches based on selected model ─────────
+function getCurrentProvider() { return providerFor(MODEL); }
+
+function updateKeyBanner() {
+  var prov = getCurrentProvider();
+  var icon = G('key-prov-icon');
+  var input = G('kinput');
+  var hint  = G('key-hint');
+
+  if (prov === 'gemini') {
+    icon.textContent = 'G';
+    icon.className = 'key-prov-icon gemini';
+    input.placeholder = 'AIza… — aistudio.google.com/api-keys';
+    input.value = apiKeys.gemini || '';
+    var hasCurrent = !!apiKeys.gemini;
+    hint.innerHTML = hasCurrent
+      ? '✓ Gemini key set. <a onclick="clearKeyFor(\'gemini\')" style="cursor:pointer">Remove</a>'
+      : 'Get a free key at <a href="https://aistudio.google.com/api-keys" target="_blank">aistudio.google.com/api-keys</a>';
+  } else if (prov === 'academic') {
+    icon.textContent = 'AC';
+    icon.className = 'key-prov-icon';
+    icon.style.fontSize = '7px';
+    input.placeholder = 'Academic Cloud key — or uses built-in key';
+    input.value = apiKeys.academic || '';
+    var hasCurrent = !!apiKeys.academic;
+    hint.innerHTML = hasCurrent
+      ? '✓ Academic Cloud key set. <a onclick="clearKeyFor(\'academic\')" style="cursor:pointer">Remove</a>'
+      : 'Enter your Academic Cloud (SAIA) key above.';
+  } else {
+    icon.textContent = 'A';
+    icon.className = 'key-prov-icon';
+    icon.style.fontSize = '';
+    input.placeholder = IS_CLAUDE_AI ? 'Optional override — auto-injected inside claude.ai' : 'sk-ant-… — platform.claude.com/settings/keys';
+    input.value = apiKeys.anthropic || '';
+    var hasCurrent = !!apiKeys.anthropic;
+    hint.innerHTML = hasCurrent
+      ? '✓ Anthropic key set. <a onclick="clearKeyFor(\'anthropic\')" style="cursor:pointer">Remove</a>'
+      : (IS_CLAUDE_AI ? 'No key needed inside claude.ai.' : 'Get a key at <a href="https://platform.claude.com/settings/keys" target="_blank">platform.claude.com/settings/keys</a>');
+  }
+  hint.className = 'show';
+  activeKeyTab = prov;
+  updateKeyStatusDots();
+
+  // Hide banner if current provider key is already set (or it's claude.ai + anthropic)
+  var satisfied = prov === 'anthropic' ? (!!apiKeys.anthropic || IS_CLAUDE_AI)
+                : prov === 'academic'  ? !!apiKeys.academic
+                : !!apiKeys.gemini;
+  if (satisfied) {
+    G('keybanner').classList.add('hidden');
+  }
+}
+
+function clearKeyFor(prov) {
+  apiKeys[prov] = '';
+  try { localStorage.removeItem('plotterStudio_apiKey_' + prov); } catch(e) {}
+  updateKeyStatusDots();
+  updateKeyBanner();
+  G('keybanner').classList.remove('hidden');
+  addBubble((prov === 'anthropic' ? 'Anthropic' : prov === 'gemini' ? 'Gemini' : 'Academic Cloud') + ' key removed.', 'claude');
+}
+window.clearKeyFor = clearKeyFor;
+
+// Replace old switchKeyTab with stub that calls updateKeyBanner
+function switchKeyTab(provider) {
+  MODEL = MODEL; // no-op, provider comes from model selection
+  activeKeyTab = provider;
+  updateKeyBanner();
+}
+
+function initApiKeyUI() {
+  try {
+    apiKeys.anthropic = localStorage.getItem('plotterStudio_apiKey_anthropic') || '';
+    apiKeys.gemini    = localStorage.getItem('plotterStudio_apiKey_gemini')    || '';
+    apiKeys.academic  = localStorage.getItem('plotterStudio_apiKey_academic')  || '';
+    var legacy = localStorage.getItem('plotterStudio_apiKey');
+    if (legacy && !apiKeys.anthropic) {
+      apiKeys.anthropic = legacy;
+      localStorage.setItem('plotterStudio_apiKey_anthropic', legacy);
+      localStorage.removeItem('plotterStudio_apiKey');
+    }
+  } catch(e) {}
+
+  updateKeyStatusDots();
+  updateKeyBanner(); // sets banner state based on current MODEL's provider
+
+  if (apiKeys.anthropic || apiKeys.gemini) {
+    var parts = [];
+    if (apiKeys.anthropic) parts.push('Anthropic');
+    if (apiKeys.gemini)    parts.push('Gemini');
+    addBubble('🔑 ' + parts.join(' & ') + ' key(s) loaded. <a style="cursor:pointer;color:var(--acc)" onclick="clearKeyFor(\'anthropic\')">Remove Anthropic</a> / <a style="cursor:pointer;color:var(--acc)" onclick="clearKeyFor(\'gemini\')">Remove Gemini</a>', 'claude');
+  }
+}
+
+// ── PLACEHOLDERS ──────────────────────────────────────────────
+var PLACEHOLDERS = ['// Code will appear here','// Generating','// Processing code not generated','// p5.js code not generated'];
+function isPlaceholder(s){
+  if(!s||s.trim()==='') return true;
+  var t=s.trim();
+  for(var i=0;i<PLACEHOLDERS.length;i++) if(t.indexOf(PLACEHOLDERS[i])===0) return true;
+  return false;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SYSTEM PROMPT — FULL VERSION (from skill.md + user doc)
+// ══════════════════════════════════════════════════════════════
+
+var BASE_SYSTEM_PROMPT = `ROLE
+You are an expert creative coding assistant for pen plotter art and generative drawing in Processing Java. Your mindset is equal parts artist, engineer, and architect: poetic but rigorous, experimental but controlled.
+Your output is Processing Java code. You use p5.js only inside HTML previews as a quick visualization — never as the primary deliverable.
+
+CREATIVE LINEAGE
+Inherit rigor from:
+- Vera Molnár, Manfred Mohr, Frieder Nake, Roman Verostko — algorithmic plotter foundations, constraint-based variation, systematic exploration
+- Tyler Hobbs — flow fields, parametric density, density as composition (tylerxhobbs.com)
+- Golan Levin, CMU Drawing with Machines — offset curves, Processing-to-SVG pipelines, plotter-aware geometry (github.com/golanlevin/DrawingWithMachines)
+- Generative Gestaltung (Bohnacker, Gross, Laub, Lazzeroni) — parametric grids, noise studies, typographic systems (generative-gestaltung.de)
+- erdavids/Generative-Art — Processing Java patterns that plot cleanly
+- plotterfiles.com, generated.space, turtletoy.net, @generative.hut — living reference gallery
+
+AESTHETIC PRIORITIES (in order):
+1. Plotter-friendliness — continuous paths, elegant line ordering, minimal unnecessary pen lifts
+2. Generative rigor — real systems with parameters that have reasons. Emergence under constraint. Not noise for noise's sake.
+3. Architectural composition — intentional figure/ground, considered negative space, controlled density gradients
+4. Machine-drawn elegance — hatching, contours, fields, tilings, offsets. Never fill().
+
+Name techniques explicitly: flow field, Lloyd relaxation, Poisson-disk sampling, Voronoi tessellation, quadtree subdivision, L-system, differential growth, reaction-diffusion, isolines, offset curves, space-filling curves.
+
+INPUT HANDLING:
+- Description — produce one strong concept (up to three if the prompt invites genuinely different generative systems)
+- Reference image — analyze composition, density, gesture, rhythm, structural geometry. Translate to a generative system. Name what you lifted from the image.
+- PDF or notes — extract visual concepts and geometric principles, turn them into drawing systems.
+- Existing code — refine, reorder paths, reduce lifts, or spin off a variation.
+
+MANDATORY OUTPUT FORMAT — always exactly these sections in this order, nothing else:
+
+### [Concept Title]
+Two or three sentences. What the viewer sees. Which generative system drives it. Why it works as a plotted drawing.`;
+
+// dMA template user prompt addition
+var DMA_PROMPT_ADDITION = `
+Generate a sketch for Processing and p5.js:
+Screen: 1080, 764
+Background: White
+Line color: Black
+Line weight: 1
+Frame Rate: 12
+
+Have a boolean toggle SHOW_TEXT to enable/disable drawing of text.
+Include prompt in header comment of the code, also include date and LLM version.
+After generation, save an image of the sketch with sketchname and date-time in filename as .jpg and .svg.
+
+Comment the code for a novice creative coding student.
+
+Text labels (10pt) should be in dark pink (#c84870).
+Add text next to the start and end points showing the XY coordinates.
+Create a footer (16pt, same color) in the bottom right corner: "dMA Creative Coding - Lines_01" + date.
+Create a header at the top left corner counting the placed lines and showing the max lines.
+Save the lines in an array and redraw them for SVG export.`;
+
+// ── Build system prompt from settings ─────────────────────────
+function buildSysPrompt() {
+  var s = getSettings();
+  var sys = BASE_SYSTEM_PROMPT + '\n\n';
+
+  if (s.pde) {
+    sys += `### Processing code
+Complete runnable Processing Java sketch in a \`\`\`processing block.
+Requirements:
+- import processing.svg.*; (and processing.pdf.*; when useful)
+- int seed = <number>; at top. Call randomSeed(seed); noiseSeed(seed); first in setup().
+- Canvas 1080×764. White background. noFill() and stroke() only. Never fill().
+- Continuous paths: beginShape()/vertex()/endShape() for connected geometry; line() only for isolated strokes.
+- SVG export: createGraphics(width,height,SVG,filename) with beginDraw()/dispose()/endDraw(). Filename includes seed.
+- Also saveFrame() for .jpg. noLoop() at end of setup().
+- boolean SHOW_TEXT toggle. Include prompt + date + model (${MODEL}) in header comment.
+- Text labels (10pt, #c84870): XY coordinates at line start/end points.
+- Footer (16pt, #c84870): bottom-right corner with template-specified branding and date.
+- Header: top-left, line count / max lines.
+- Store all lines in an array and redraw them for SVG export.
+- Comment for a novice creative coding student.
+- Organize into named functions. Expose parameters as named constants at top.\n\n`;
+  }
+
+  if (s.pde && s.pdeExp) {
+    sys += `### How it works (Processing)
+Plain-language guide — no code blocks, readable text only.
+**System:** one sentence on the algorithm.
+**Parameters:** bullet list — \`CONSTANT_NAME\` — what it controls — range/values.
+**SHOW_TEXT:** what text labels show, how to toggle.
+**Export:** files saved, naming pattern.
+**Tips:** 2–3 first things to tweak.\n\n`;
+  }
+
+  if (s.p5) {
+    var ctrlRules = [];
+    if (s.textBtn)     ctrlRules.push('Add a p.createButton("Text: On / Off") that toggles all canvas text (coordinates, footer, header) and redraws.');
+    if (s.lineTextBtn) ctrlRules.push('Add a p.createButton("Line Labels: On / Off") that toggles XY coordinate labels at line endpoints and redraws.');
+    if (s.reseedBtn)   ctrlRules.push('Add a p.createButton("\u27f3 Reseed") that picks a new random seed and redraws the entire sketch.');
+    if (s.sliders)     ctrlRules.push('Add p.createSlider() controls for meaningful parameters (density, count, scale, etc). Label each. Attach .input() to redraw.');
+    var ctrlBlock = ctrlRules.length
+      ? 'REQUIRED CONTROLS (real HTML elements, not drawn on canvas):\n' + ctrlRules.map(function(r){return '- '+r;}).join('\n')
+      : 'Do NOT add any interactive controls.';
+    sys += "### p5 sketch\n" +
+      "p5.js instance-mode function in a ```p5instance block — no HTML wrapper, no script tags.\n" +
+      "Format:\n```p5instance\nfunction(p) {\n  let seed = 12345;\n  p.setup = function() {\n    p.createCanvas(540, 383);\n    p.background(255);\n    p.randomSeed(seed); p.noiseSeed(seed);\n    drawSketch(); p.noLoop();\n  };\n  function drawSketch() { /* drawing */ }\n  p.draw = function() {};\n}\n```\n" +
+      "Canvas 540x383. White bg. noFill. Black strokes. \"let seed = <number>;\" at top.\n" +
+      ctrlBlock + "\n\n";
+  }
+
+  if (s.p5 && s.p5Exp) {
+    sys += `### How it works (p5.js)
+Same structure as Processing explanation but specific to p5.js:
+**System:** **Parameters:** **Controls:** (list interactive controls and what they do) **Tips:**\n\n`;
+  }
+
+  sys += 'Generate exactly and only the sections above. No preamble, no apologies.';
+  return sys;
+}
+
+// ── Build user prompt (task + template additions) ─────────────
+function buildUserPrompt(task) {
+  var d = new Date().toLocaleDateString('de-DE', {year:'numeric',month:'2-digit',day:'2-digit'});
+
+  if (currentTemplate === 'custom' && customTemplate.body.trim()) {
+    // Use the custom template, replacing [TASK] with the actual task
+    var body = customTemplate.body.replace(/\[TASK\]/g, task);
+    return body + '\n\nDate: ' + d;
+  }
+
+  // dMA template
+  return 'Generate a plotter sketch:\n' +
+    'Screen: 1080×764 | BG: White | Stroke: Black | Weight: 1 | FR: 12 | Date: ' + d + '\n' +
+    DMA_PROMPT_ADDITION + '\n\nTask: ' + task;
+}
+
+// ── Parse response ────────────────────────────────────────────
+function parseResponse(text) {
+  var r = { title:'', desc:'', pdecode:'', pdeexp:'', p5code:'', p5exp:'' };
+  var tm = text.match(/^###\s+(.+)/m);
+  if (tm) r.title = tm[1].trim();
+  var pi  = text.indexOf('### Processing code');
+  var wi  = text.indexOf('### How it works (Processing)');
+  var p5i = text.indexOf('### p5 sketch');
+  var w5i = text.indexOf('### How it works (p5.js)');
+  function between(from, stops) {
+    var si = text.indexOf(from); if (si < 0) return '';
+    var ei = text.length;
+    stops.forEach(function(t){ var i=text.indexOf(t,si+1); if(i>si&&i<ei) ei=i; });
+    return text.substring(si,ei).replace(/^[^\n]*\n/,'').trim();
+  }
+  var secs=[pi,wi,p5i,w5i].filter(function(x){return x>0;}).sort(function(a,b){return a-b;});
+  var first=secs.length?secs[0]:text.length;
+  r.desc=text.substring(0,first).replace(/^###[^\n]*\n/,'').trim();
+  if(pi>-1){var blk=between('### Processing code',['### How it works (Processing)','### p5 sketch','### How it works (p5.js)']);var fm=blk.match(/```(?:processing|java)?\n([\s\S]*?)```/);r.pdecode=fm?fm[1].trim():blk;}
+  if(wi>-1) r.pdeexp=between('### How it works (Processing)',['### p5 sketch','### How it works (p5.js)']);
+  if(p5i>-1){var blk2=between('### p5 sketch',['### How it works (p5.js)']);var fp=blk2.match(/```p5instance\n([\s\S]*?)```/);if(fp){r.p5code=fp[1].trim();}else{var fn2=blk2.match(/(function\s*\(p\)[\s\S]*)/);r.p5code=fn2?fn2[1].trim():'';}}
+  if(w5i>-1) r.p5exp=between('### How it works (p5.js)',[]);
+  return r;
+}
+
+// ── API call (provider-aware router) ──────────────────────────
+async function callClaude(task, attachments) {
+  if (!Array.isArray(chatHistory)) chatHistory = [];
+  var base = buildUserPrompt(task);
+  var provider = providerFor(MODEL);
+  if (provider === 'gemini') {
+    return await callGemini(task, base, attachments);
+  } else if (provider === 'academic') {
+    return await callAcademicCloud(task, base, attachments);
+  } else {
+    return await callAnthropic(task, base, attachments);
+  }
+}
+
+// ── Academic Cloud / SAIA (OpenAI-compatible) ─────────────────
+async function callAcademicCloud(task, base, attachments) {
+  var ACADEMIC_URL = 'https://chat-ai.academiccloud.de/v1/chat/completions';
+  var key = apiKeys.academic || ACADEMIC_CLOUD_KEY_DEFAULT;
+
+  var userContent = base;
+  if (attachments && attachments.length) {
+    userContent = '[Attachments omitted — Academic Cloud text-only]\n' + base;
+  }
+
+  var messages = [
+    { role: 'system', content: buildSysPrompt() }
+  ];
+  // Include prior conversation history (simplified to text)
+  for (var i = 0; i < chatHistory.length; i++) {
+    var h = chatHistory[i];
+    var role = h.role === 'assistant' ? 'assistant' : 'user';
+    var text = typeof h.content === 'string' ? h.content
+      : (Array.isArray(h.content) ? h.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : '');
+    if (text) messages.push({ role: role, content: text });
+  }
+  messages.push({ role: 'user', content: userContent });
+
+  chatHistory.push({ role: 'user', content: userContent });
+
+  var res = await fetch(ACADEMIC_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + key
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: messages,
+      temperature: 0.7
+    })
+  });
+
+  if (!res.ok) {
+    var err = await res.json().catch(function(){return{};});
+    var msg = (err && err.error && err.error.message) ? err.error.message : ('HTTP ' + res.status);
+    throw new Error('Academic Cloud: ' + msg);
+  }
+
+  var data = await res.json();
+  var raw = data.choices && data.choices[0] && data.choices[0].message
+    ? data.choices[0].message.content : '';
+  if (!raw) throw new Error('Academic Cloud: empty response');
+
+  chatHistory.push({ role: 'assistant', content: raw });
+  var parsed = parseResponse(raw);
+  parsed.actualModel = data.model || MODEL;
+  parsed.requestedModel = MODEL;
+  return parsed;
+}
+
+// ── Anthropic (Claude) ────────────────────────────────────────
+async function callAnthropic(task, base, attachments) {
+  var msgContent;
+  if (attachments && attachments.length) {
+    msgContent = [];
+    for (var i=0;i<attachments.length;i++) {
+      var f=attachments[i];
+      if(f.type.startsWith('image/')){
+        msgContent.push({type:'image',source:{type:'base64',media_type:f.type,data:f.b64}});
+      } else {
+        msgContent.push({type:'text',text:'[Attached: '+f.name+']\n'+atob(f.b64)});
+      }
+    }
+    msgContent.push({type:'text',text:base});
+  } else {
+    msgContent = base;
+  }
+  chatHistory.push({role:'user',content:msgContent});
+  var hdrs={
+    'Content-Type':'application/json',
+    'anthropic-version':'2023-06-01'
+  };
+  if(apiKeys.anthropic){
+    hdrs['x-api-key']=apiKeys.anthropic;
+    // Required only when calling from a browser standalone (claude.ai injects this internally)
+    hdrs['anthropic-dangerous-direct-browser-access']='true';
+  }
+  var body = {model:MODEL, max_tokens:9000, system:buildSysPrompt(), messages:chatHistory};
+  if (thinkingBudget > 0 && isClaudeModel(MODEL)) {
+    body.thinking = { type: 'enabled', budget_tokens: thinkingBudget };
+    body.max_tokens = Math.max(9000, thinkingBudget + 4000); // ensure headroom
+  }
+  var res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:hdrs,
+    body:JSON.stringify(body)
+  });
+  if(!res.ok){
+    var e=await res.json().catch(function(){return{};});
+    throw new Error('Anthropic: ' + (e&&e.error&&e.error.message?e.error.message:'HTTP '+res.status));
+  }
+  var data=await res.json();
+  var raw=(data.content||[]).map(function(b){return b.text||'';}).join('');
+  chatHistory.push({role:'assistant',content:raw});
+  var parsed = parseResponse(raw);
+  parsed.actualModel = data.model || '(unknown)';
+  parsed.requestedModel = MODEL;
+  return parsed;
+}
+
+// ── Google Gemini ─────────────────────────────────────────────
+// Gemini uses generativelanguage.googleapis.com, different request shape.
+// Roles: 'user' / 'model' (not 'assistant'). Content is in `parts` array.
+// System prompt goes in a separate `systemInstruction` field.
+async function callGemini(task, base, attachments) {
+  if (!apiKeys.gemini) {
+    throw new Error('Gemini API key required. Click the Gemini tab in the key banner.');
+  }
+
+  // Build the parts array for the user message
+  var parts = [];
+  if (attachments && attachments.length) {
+    for (var i=0;i<attachments.length;i++) {
+      var f = attachments[i];
+      if (f.type.startsWith('image/')) {
+        parts.push({ inline_data: { mime_type: f.type, data: f.b64 } });
+      } else {
+        // Gemini doesn't have a separate "document" type — inline as text
+        parts.push({ text: '[Attached: ' + f.name + ']\n' + atob(f.b64) });
+      }
+    }
+  }
+  parts.push({ text: base });
+
+  // Convert chatHistory (Anthropic-shaped) to Gemini's contents array
+  // Anthropic history items use role:'user'|'assistant' with content as string OR array of blocks
+  // Gemini wants role:'user'|'model' with parts array
+  var contents = [];
+  for (var j=0; j<chatHistory.length; j++) {
+    var h = chatHistory[j];
+    var role = h.role === 'assistant' ? 'model' : 'user';
+    var hParts = [];
+    if (typeof h.content === 'string') {
+      hParts.push({ text: h.content });
+    } else if (Array.isArray(h.content)) {
+      for (var k=0; k<h.content.length; k++) {
+        var b = h.content[k];
+        if (b.type === 'text') hParts.push({ text: b.text });
+        else if (b.type === 'image' && b.source && b.source.type === 'base64') {
+          hParts.push({ inline_data: { mime_type: b.source.media_type, data: b.source.data } });
+        }
+      }
+    }
+    if (hParts.length) contents.push({ role: role, parts: hParts });
+  }
+  // Append the new user message
+  contents.push({ role: 'user', parts: parts });
+
+  // Push to chatHistory (Anthropic shape) so future turns include this exchange
+  var historyContent = parts.length === 1 ? base : parts.map(function(p){
+    if (p.text) return { type:'text', text:p.text };
+    if (p.inline_data) return { type:'image', source:{ type:'base64', media_type:p.inline_data.mime_type, data:p.inline_data.data } };
+    return null;
+  }).filter(Boolean);
+  chatHistory.push({ role:'user', content: historyContent });
+
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent';
+  var body = {
+    systemInstruction: { parts: [{ text: buildSysPrompt() }] },
+    contents: contents,
+    generationConfig: { maxOutputTokens: 9000, temperature: 1.0 }
+  };
+
+  var res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKeys.gemini },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    var err = await res.json().catch(function(){return{};});
+    var msg = (err && err.error && err.error.message) ? err.error.message : ('HTTP ' + res.status);
+    throw new Error('Gemini: ' + msg);
+  }
+
+  var data = await res.json();
+  // Extract text from the first candidate
+  var raw = '';
+  if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+    raw = data.candidates[0].content.parts.map(function(p){ return p.text || ''; }).join('');
+  }
+  if (!raw) {
+    // Common cause: the response was filtered or hit a token limit before producing text
+    var reason = data.candidates && data.candidates[0] ? data.candidates[0].finishReason : 'unknown';
+    throw new Error('Gemini returned no text (finishReason: ' + reason + ')');
+  }
+
+  chatHistory.push({ role: 'assistant', content: raw });
+  var parsed = parseResponse(raw);
+  parsed.actualModel = data.modelVersion || MODEL;
+  parsed.requestedModel = MODEL;
+  return parsed;
+}
+
+// ── Model picker ──────────────────────────────────────────────
+var modelDropOpen = false;
+var thinkingBudget = 0;
+
+var MODEL_LABELS = {
+  'claude-sonnet-4-6':           'Claude Sonnet 4.6 ★',
+  'claude-opus-4-7-latest':      'Claude Opus 4.7',
+  'claude-sonnet-4-6-latest':    'Claude Sonnet 4.6 ★',
+  'claude-haiku-4-5-latest':     'Claude Haiku 4.5',
+  'gemini-flash-latest':         'Gemini Flash (Latest)',
+  'gemini-3-flash-preview':      'Gemini 3 Flash ★',
+  'gemini-3.1-flash-lite-preview':'Gemini 3.1 Flash-Lite',
+  'gemini-3.1-pro-preview':      'Gemini 3.1 Pro',
+  'gemini-3-flash':              'Gemini 3 Flash',
+  'gemini-3.1-flash-lite':       'Gemini 3.1 Flash-Lite',
+  'gemini-2.5-pro':              'Gemini 2.5 Pro',
+  'gemini-2.5-flash':            'Gemini 2.5 Flash',
+  'gemini-2.5-flash-lite':       'Gemini 2.5 Flash-Lite',
+  'gemini-2.5-pro-paid':                    'Gemini 2.5 Pro (Paid)',
+  'qwen3-coder-30b-a3b-instruct':           'Qwen3 Coder 30B ★',
+  'deepseek-r1-distill-llama-70b':          'DeepSeek R1 Distill 70B',
+  'llama-3.3-70b-instruct':                 'LLaMA 3.3 70B',
+  'mistral-large-3-675b-instruct-2512':     'Mistral Large 3'
+};
+
+function isClaudeModel(m){ return m && m.indexOf('claude') === 0; }
+
+function updateThinkingBar() {
+  var bar = G('thinking-bar');
+  if (isClaudeModel(MODEL) && MODEL !== 'claude-sonnet-4-6') {
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+    thinkingBudget = 0;
+    G('thinking-toggle').classList.remove('on');
+    G('thinking-state').textContent = 'Off';
+  }
+}
+
+G('thinking-toggle').addEventListener('click', function() {
+  var on = !this.classList.contains('on');
+  this.classList.toggle('on', on);
+  G('thinking-state').textContent = on ? 'On' : 'Off';
+  thinkingBudget = on ? 8000 : 0; // adaptive: 8k tokens when on
+});
+
+// Accordion toggle
+var accordionOpen = false;
+G('md-apikey-toggle').addEventListener('click', function(e) {
+  e.stopPropagation();
+  accordionOpen = !accordionOpen;
+  G('md-accordion').classList.toggle('open', accordionOpen);
+  G('md-toggle-icon').classList.toggle('open', accordionOpen);
+  if (accordionOpen) G('keybanner').classList.remove('hidden');
+});
+
+function setModel(modelId, label) {
+  var prev = MODEL;
+  MODEL = modelId;
+  var displayLabel = label || MODEL_LABELS[modelId] || modelId;
+  G('model-btn-label').textContent = displayLabel;
+  G('cl-sub-model').textContent = displayLabel;
+  document.querySelectorAll('.md-item').forEach(function(el){
+    el.classList.toggle('active-model', el.dataset.model === modelId);
+  });
+  updateThinkingBar();
+  if (providerFor(prev) !== providerFor(MODEL)) {
+    chatHistory = [];
+    addBubble('Switched to <strong>' + displayLabel + '</strong>. Chat history reset.', 'claude');
+  }
+  updateKeyBanner(); // auto-update key input for new provider
+  saveState();
+}
+
+function openModelDrop() {
+  modelDropOpen = true;
+  var drop = G('model-drop'), btn = G('model-btn');
+  drop.classList.add('open'); btn.classList.add('open');
+  var br = btn.getBoundingClientRect();
+  drop.style.top  = (br.bottom + 4) + 'px';
+  drop.style.left = br.left + 'px';
+  requestAnimationFrame(function(){
+    var r = drop.getBoundingClientRect();
+    if (r.right > window.innerWidth - 8) drop.style.left = Math.max(8, window.innerWidth - r.width - 8) + 'px';
+    if (r.bottom > window.innerHeight - 8) drop.style.top = Math.max(8, br.top - Math.min(r.height, window.innerHeight*0.7) - 4) + 'px';
+  });
+}
+function closeModelDrop() {
+  modelDropOpen = false;
+  G('model-drop').classList.remove('open');
+  G('model-btn').classList.remove('open');
+  G('md-tooltip').style.display = 'none';
+}
+G('model-btn').addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (modelDropOpen) closeModelDrop(); else openModelDrop();
+});
+
+document.querySelectorAll('.md-item').forEach(function(el) {
+  el.addEventListener('click', function() {
+    var modelId = el.dataset.model;
+    if (!modelId) return;
+    var label = el.querySelector('.md-name') ? el.querySelector('.md-name').textContent : modelId;
+    setModel(modelId, label);
+    closeModelDrop();
+  });
+  var tip = el.dataset.tip;
+  if (tip) {
+    el.addEventListener('mouseenter', function(e) {
+      var tt = G('md-tooltip'); tt.textContent = tip; tt.style.display = 'block';
+      var x = e.clientX+16, y = e.clientY+8;
+      if (x+250 > window.innerWidth) x = e.clientX-256;
+      tt.style.left=x+'px'; tt.style.top=y+'px';
+    });
+    el.addEventListener('mousemove', function(e) {
+      var tt = G('md-tooltip');
+      var x = e.clientX+16, y = e.clientY+8;
+      if (x+250>window.innerWidth) x=e.clientX-256;
+      tt.style.left=x+'px'; tt.style.top=y+'px';
+    });
+    el.addEventListener('mouseleave', function(){ G('md-tooltip').style.display='none'; });
+  }
+});
+document.addEventListener('click', function(e) {
+  if (modelDropOpen && !G('model-drop').contains(e.target) && e.target!==G('model-btn')) closeModelDrop();
+});
+
+// API model check
+async function checkAvailableModels(provider) {
+  if (provider === 'anthropic') {
+    try {
+      var res = await fetch('https://api.anthropic.com/v1/models', {
+        headers:{'x-api-key':apiKeys.anthropic,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}
+      });
+      if (!res.ok) throw new Error('HTTP '+res.status);
+      var data = await res.json();
+      var names = (data.data||[]).map(function(m){return '&nbsp;&nbsp;<code>'+m.id+'</code>';}).join('<br>');
+      addBubble('✓ <strong>Anthropic key valid.</strong> Models available:<br>'+(names||'(none)'), 'claude');
+    } catch(e) { addBubble('⚠ Anthropic key check failed: '+e.message,'claude','err'); }
+  } else if (provider === 'gemini') {
+    try {
+      var res2 = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+apiKeys.gemini);
+      if (!res2.ok) throw new Error('HTTP '+res2.status);
+      var data2 = await res2.json();
+      var names2 = (data2.models||[]).filter(function(m){return m.name&&m.name.indexOf('gemini')>-1;})
+        .slice(0,14).map(function(m){return '&nbsp;&nbsp;<code>'+m.name.replace('models/','')+'</code>';}).join('<br>');
+      addBubble('✓ <strong>Gemini key valid.</strong> Models available:<br>'+(names2||'(none)'), 'claude');
+    } catch(e2) { addBubble('⚠ Gemini key check failed: '+e2.message,'claude','err'); }
+  }
+}
+
+// Session manager
+var SESSIONS_KEY = 'plotterStudio_sessions';
+function loadSessions(){ try{return JSON.parse(localStorage.getItem(SESSIONS_KEY)||'[]');}catch(e){return[];} }
+function saveSessions(arr){ try{localStorage.setItem(SESSIONS_KEY,JSON.stringify(arr));}catch(e){} }
+function renderSessionList(){
+  var sessions=loadSessions(), list=G('session-list'), empty=G('session-empty');
+  list.innerHTML='';
+  if(!sessions.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  sessions.slice().reverse().forEach(function(s,ri){
+    var idx=sessions.length-1-ri;
+    var item=document.createElement('div'); item.className='session-item';
+    var d=new Date(s.ts);
+    var ds=d.toLocaleDateString('de-DE')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    item.innerHTML='<span class=session-item-name>'+(s.name||'Untitled')+'</span>'+
+      '<span class=session-item-date>'+ds+'</span>'+
+      '<button class=session-item-del title=Delete>×</button>';
+    item.querySelector('.session-item-del').addEventListener('click',function(e){
+      e.stopPropagation(); var arr=loadSessions(); arr.splice(idx,1); saveSessions(arr); renderSessionList();
+    });
+    item.addEventListener('click',function(){
+      loadSession(s); closeSessionPanel();
+      addBubble('Session <strong>'+(s.name||'Untitled')+'</strong> loaded.','claude');
+    });
+    list.appendChild(item);
+  });
+}
+function saveCurrentSession(){
+  var name=G('session-name-input').value.trim()||('Session '+new Date().toLocaleDateString('de-DE'));
+  var sessions=loadSessions();
+  sessions.push({name:name,ts:Date.now(),chatHistory:chatHistory,stored:stored,
+    model:MODEL,settings:getSettings(),currentTemplate:currentTemplate,customTemplate:customTemplate});
+  if(sessions.length>20) sessions=sessions.slice(-20);
+  saveSessions(sessions); G('session-name-input').value='';
+  renderSessionList(); addBubble('Session <strong>'+name+'</strong> saved.','claude');
+}
+function loadSession(s){
+  if(Array.isArray(s.chatHistory)) chatHistory=s.chatHistory;
+  if(s.stored) stored=Object.assign({title:'',desc:'',pdecode:'',p5code:'',pdeexp:'',p5exp:''},s.stored);
+  if(s.model){MODEL=s.model; var lbl=MODEL_LABELS[s.model]||s.model; G('model-btn-label').textContent=lbl; G('cl-sub-model').textContent=lbl;}
+  if(s.settings) applySettings(s.settings);
+  if(s.customTemplate) customTemplate=s.customTemplate;
+  if(s.currentTemplate) setActiveTpl(s.currentTemplate);
+  restorePanels(); updateThinkingBar();
+}
+function openSessionPanel(){ renderSessionList(); G('session-panel').classList.add('open'); G('session-overlay').classList.add('open'); }
+function closeSessionPanel(){ G('session-panel').classList.remove('open'); G('session-overlay').classList.remove('open'); }
+G('session-btn').addEventListener('click',function(e){e.stopPropagation();openSessionPanel();});
+G('session-close').addEventListener('click',closeSessionPanel);
+G('session-overlay').addEventListener('click',closeSessionPanel);
+G('session-save-btn').addEventListener('click',saveCurrentSession);
+
+// Reset
+G('reset-btn').addEventListener('click',function(){G('reset-confirm').classList.add('open');});
+G('rc-cancel').addEventListener('click',function(){G('reset-confirm').classList.remove('open');});
+G('rc-ok').addEventListener('click',function(){
+  try{['plotterStudio_v8_2','plotterStudio_theme','plotterStudio_apiKey',
+    'plotterStudio_apiKey_anthropic','plotterStudio_apiKey_gemini',SESSIONS_KEY].forEach(function(k){localStorage.removeItem(k);});}catch(e){}
+  G('reset-confirm').classList.remove('open'); location.reload();
+});
+
+// ── Template system ───────────────────────────────────────────
+var tplOpen = false;
+
+function setActiveTpl(tpl) {
+  currentTemplate = tpl;
+  G('tpl-dma').classList.toggle('active-tpl', tpl === 'dma');
+  G('tpl-custom-item').classList.toggle('active-tpl', tpl === 'custom');
+  var label = tpl === 'custom' ? (customTemplate.name || 'Custom') : 'dMA Creative Coding';
+  G('tpl-btn').innerHTML = '⊞ ' + label + ' ▾';
+  saveState();
+}
+
+G('tpl-btn').addEventListener('click', function(e) {
+  e.stopPropagation();
+  tplOpen = !tplOpen;
+  var drop = G('tpl-drop');
+  G('tpl-btn').classList.toggle('active', tplOpen);
+  if (tplOpen) {
+    drop.classList.add('open');
+    var br = G('tpl-btn').getBoundingClientRect();
+    drop.style.left = br.left + 'px';
+    drop.style.top  = (br.bottom + 4) + 'px';
+  } else {
+    drop.classList.remove('open');
+  }
+});
+
+document.addEventListener('click', function(e) {
+  if (tplOpen && !G('tpl-drop').contains(e.target) && e.target !== G('tpl-btn')) {
+    tplOpen = false;
+    G('tpl-drop').classList.remove('open');
+    G('tpl-btn').classList.remove('active');
+  }
+});
+
+G('tpl-dma').addEventListener('click', function() {
+  setActiveTpl('dma');
+  tplOpen = false;
+  G('tpl-drop').classList.remove('open');
+  G('tpl-btn').classList.remove('active');
+  addBubble('Template: <strong>dMA Creative Coding</strong> active.', 'claude');
+});
+
+G('tpl-custom-item').addEventListener('click', function() {
+  tplOpen = false;
+  G('tpl-drop').classList.remove('open');
+  G('tpl-btn').classList.remove('active');
+  openTemplateEditor();
+});
+
+// Template editor
+function openTemplateEditor() {
+  G('tpl-name-input').value = customTemplate.name || '';
+  G('tpl-textarea').value   = customTemplate.body || '';
+  G('tpl-editor').classList.add('open');
+  G('tpl-editor-overlay').classList.add('open');
+}
+function closeTemplateEditor() {
+  G('tpl-editor').classList.remove('open');
+  G('tpl-editor-overlay').classList.remove('open');
+}
+
+G('tpl-save-btn').addEventListener('click', function() {
+  var name = G('tpl-name-input').value.trim() || 'Custom';
+  var body = G('tpl-textarea').value.trim();
+  customTemplate = { name: name, body: body };
+  setActiveTpl('custom');
+  closeTemplateEditor();
+  addBubble('Template <strong>' + name + '</strong> saved and active.', 'claude');
+  saveState();
+});
+G('tpl-cancel-btn').addEventListener('click', closeTemplateEditor);
+G('tpl-editor-close').addEventListener('click', closeTemplateEditor);
+G('tpl-editor-overlay').addEventListener('click', closeTemplateEditor);
+
+// ── Downloads ─────────────────────────────────────────────────
+function downloadBlob(blob, filename) {
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+  document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(url);},3000);
+}
+function downloadText(text, filename, mime) {
+  if(isPlaceholder(text)){var vis=G('code-display').textContent;if(!isPlaceholder(vis))text=vis;}
+  if(isPlaceholder(text)){addBubble('Nothing to download yet — generate a sketch first.','claude');return;}
+  downloadBlob(new Blob([text],{type:mime||'text/plain'}),filename);
+}
+function downloadPNG(canvasEl,filename){
+  if(!canvasEl){addBubble('No canvas found.','claude');return;}
+  canvasEl.toBlob(function(blob){if(!blob){addBubble('Could not capture canvas.','claude');return;}downloadBlob(blob,filename);},'image/png');
+}
+function slugFromTitle(){return(stored.title||'sketch').toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,32);}
+
+function buildStandaloneHtml(fnStr, title, slug) {
+  if(!fnStr||fnStr.trim()==='') return '';
+  var safeTitle=(title||'Plotter Sketch').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  var lines=[];
+  lines.push('<!DOCTYPE html>','<html lang="en">','<head>','<meta charset="UTF-8">','<title>'+safeTitle+'</title>');
+  lines.push('<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#eeebe6;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:monospace}canvas{display:block;box-shadow:0 4px 24px rgba(0,0,0,.18);max-width:100%;height:auto}#controls{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}button{padding:5px 14px;background:#c06820;color:#fff;border:none;border-radius:3px;font-family:monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}button:hover{background:#d97828}</style>');
+  lines.push('</head>','<body>','<div id="c"></div>','<div id="controls"><button onclick="reseed()">Reseed</button><button onclick="savePNG()">Save PNG</button></div>');
+  lines.push('<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"><\/script>','<script>');
+  lines.push('var _slug="'+slug+'",_seed=Math.floor(Math.random()*999999),_inst=null;');
+  lines.push('var _fn='+fnStr+';');
+  lines.push('function launch(s){if(_inst)_inst.remove();var fs=_fn.toString().replace(/let seed\\s*=\\s*\\d+\\s*;/,"let seed = "+s+";");_inst=new p5(eval("("+fs+")"),document.getElementById("c"));_seed=s;}');
+  lines.push('function reseed(){launch(Math.floor(Math.random()*999999));}');
+  lines.push('function savePNG(){var cv=document.querySelector("#c canvas");if(!cv)return;cv.toBlob(function(b){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=_slug+"_seed_"+_seed+".png";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);},"image/png");}');
+  lines.push('launch(_seed);','<\/script>','<\/body>','<\/html>');
+  return lines.join('\n');
+}
+function triggerHtmlDownload(){
+  var fn=stored.p5code||lastFnP5;
+  if(!fn||fn.trim()===''){addBubble('Nothing to download yet.','claude');return;}
+  var html=buildStandaloneHtml(fn,stored.title||'Plotter Sketch',slugFromTitle());
+  downloadBlob(new Blob([html],{type:'text/html'}),'plotter_'+slugFromTitle()+'.html');
+}
+
+G('dlpde-btn').addEventListener('click',function(){downloadText(stored.pdecode,'plotter_'+slugFromTitle()+'.pde','text/plain');});
+G('dlp5-btn').addEventListener('click',function(){
+  var code=stored.p5code;
+  if(!code||code.trim()===''){addBubble('Nothing to download yet.','claude');return;}
+  var out='// p5.js sketch — Plotter Studio\n// Mount: new p5(sketch, containerElement);\nvar sketch='+code+';\n';
+  downloadBlob(new Blob([out],{type:'text/javascript'}),'plotter_'+slugFromTitle()+'.js');
+});
+G('dlhtml-btn').addEventListener('click',triggerHtmlDownload);
+G('dlhtml-preview-btn').addEventListener('click',triggerHtmlDownload);
+
+// ── Resizable panels ──────────────────────────────────────────
+function makeVSplit(handleId,panA,panB){
+  var h=G(handleId),drag=false,sx=0,sA=0,sB=0;
+  h.addEventListener('mousedown',function(e){e.preventDefault();drag=true;h.classList.add('dragging');sx=e.clientX;sA=panA.offsetWidth;sB=panB.offsetWidth;document.body.style.cursor='col-resize';document.body.style.userSelect='none';});
+  document.addEventListener('mousemove',function(e){if(!drag)return;var d=e.clientX-sx,nA=Math.max(80,sA+d),nB=Math.max(80,sB-d);if(nA<80||nB<80)return;panA.style.flex='0 0 '+nA+'px';panB.style.flex='0 0 '+nB+'px';});
+  document.addEventListener('mouseup',function(){if(!drag)return;drag=false;h.classList.remove('dragging');document.body.style.cursor='';document.body.style.userSelect='';});
+}
+function makeHSplit(handleId,topEl,botEl,appEl){
+  var h=G(handleId),drag=false,sy=0,sT=0;
+  h.addEventListener('mousedown',function(e){e.preventDefault();drag=true;h.classList.add('dragging');sy=e.clientY;sT=topEl.offsetHeight;document.body.style.cursor='row-resize';document.body.style.userSelect='none';});
+  document.addEventListener('mousemove',function(e){if(!drag)return;var total=appEl.offsetHeight-h.offsetHeight,nT=Math.max(60,Math.min(total-60,sT+(e.clientY-sy)));topEl.style.flex='0 0 '+nT+'px';botEl.style.flex='1';});
+  document.addEventListener('mouseup',function(){if(!drag)return;drag=false;h.classList.remove('dragging');document.body.style.cursor='';document.body.style.userSelect='';});
+}
+makeVSplit('vh-cp',G('pc'),G('pp'));
+makeHSplit('hh-main',G('top-row'),G('bot-row'),G('app'));
+makeVSplit('vh-ch',G('code-panel'),G('how-panel'));
+
+// ── Fullscreen ────────────────────────────────────────────────
+G('fsbtn').addEventListener('click',function(){G('fs-overlay').classList.add('on');if(lastFnP5)runP5_FS(lastFnP5);});
+G('fs-close').addEventListener('click',function(){G('fs-overlay').classList.remove('on');if(p5instFS){p5instFS.remove();p5instFS=null;}G('fs-p5w').innerHTML='';});
+G('fs-reseed').addEventListener('click',function(){if(lastFnP5)runP5_FS(lastFnP5,Math.floor(Math.random()*999999));});
+G('fs-dl-png').addEventListener('click',function(){downloadPNG(document.querySelector('#fs-p5w canvas'),'plotter_'+slugFromTitle()+'_preview.png');});
+function runP5_FS(fnStr,seed){
+  if(p5instFS){p5instFS.remove();p5instFS=null;}var w=G('fs-p5w');w.innerHTML='';
+  var fn=fnStr;if(seed!==undefined)fn=fn.replace(/let seed\s*=\s*\d+\s*;/,'let seed = '+seed+';');
+  try{p5instFS=new p5(eval('('+fn+')'),w);}catch(e){console.error('FS p5 error',e);}
+}
+
+// ── Copy ──────────────────────────────────────────────────────
+G('cpbtn').addEventListener('click',function(){
+  var c = currentTab==='pde' ? (stored.pdecode||'') : (stored.p5code||'');
+  if(isPlaceholder(c)){addBubble('Nothing to copy yet.','claude');return;}
+  navigator.clipboard.writeText(c).then(function(){addBubble('Code copied to clipboard.','claude');}).catch(function(){});
+});
+
+// ── Tabs ──────────────────────────────────────────────────────
+function switchTab(mode){
+  currentTab=mode;
+  G('tab-pde').classList.toggle('active',mode==='pde');
+  G('tab-p5').classList.toggle('active',mode==='p5');
+  var code = mode==='pde'?(stored.pdecode||'// Processing code not generated.'):(stored.p5code||'// p5.js code not generated.');
+  setCodeDisplay(code, mode);
+  G('how-label').textContent = mode==='pde' ? 'How it works · Processing' : 'How it works · p5.js';
+  showHowto(mode);
+}
+function showHowto(mode){
+  G('howto-pde').style.display=mode==='pde'?'block':'none';
+  G('howto-p5').style.display=mode==='p5'?'block':'none';
+  var has=mode==='pde'?!!stored.pdeexp:!!stored.p5exp;
+  G('how-ph').style.display=has?'none':'flex';
+}
+
+// ── localStorage ──────────────────────────────────────────────
+var LS_KEY='plotterStudio_v8_2'; // bumped to invalidate pre-fix corrupted state
+
+function saveState(){
+  try{
+    // Defensive: only save if chatHistory is actually an array
+    var safeHistory = Array.isArray(chatHistory) ? chatHistory : [];
+    localStorage.setItem(LS_KEY,JSON.stringify({
+      history:safeHistory,stored:stored,settings:getSettings(),
+      model:MODEL,
+      currentTemplate:currentTemplate,
+      customTemplate:customTemplate
+    }));
+  }catch(e){console.warn('localStorage save failed',e);}
+}
+
+function loadState(){
+  try{
+    var raw=localStorage.getItem(LS_KEY);if(!raw)return;
+    var s=JSON.parse(raw);
+
+    // Validate every field — never trust localStorage blindly
+    if(s.history && Array.isArray(s.history)) chatHistory = s.history;
+    else chatHistory = [];
+
+    if(s.stored && typeof s.stored === 'object' && !Array.isArray(s.stored)) {
+      stored = Object.assign({title:'',desc:'',pdecode:'',p5code:'',pdeexp:'',p5exp:''}, s.stored);
+    }
+
+    if(s.settings && typeof s.settings === 'object') applySettings(s.settings);
+
+    if(s.model && typeof s.model === 'string'){
+      // Restore saved model using setModel (which also updates the button label)
+      var savedLabel = MODEL_LABELS[s.model] || s.model;
+      MODEL = s.model;
+      G('model-btn-label').textContent = savedLabel;
+      G('cl-sub-model').textContent = savedLabel;
+      // Mark active in dropdown
+      document.querySelectorAll('.md-item').forEach(function(el){
+        el.classList.toggle('active-model', el.dataset.model === s.model);
+      });
+    }
+
+    if(s.customTemplate && typeof s.customTemplate === 'object'){
+      customTemplate = {
+        name: typeof s.customTemplate.name === 'string' ? s.customTemplate.name : 'Custom',
+        body: typeof s.customTemplate.body === 'string' ? s.customTemplate.body : ''
+      };
+    }
+
+    if(s.currentTemplate === 'dma' || s.currentTemplate === 'custom') setActiveTpl(s.currentTemplate);
+
+    if(stored.pdecode||stored.p5code){restorePanels();addBubble('Session restored from last visit.','claude');}
+  }catch(e){
+    console.warn('localStorage load failed — clearing corrupted state', e);
+    try { localStorage.removeItem(LS_KEY); } catch(e2) {}
+    chatHistory = [];
+  }
+}
+
+// Manual reset for recovery
+function resetSession() {
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+  chatHistory = [];
+  stored = { title:'', desc:'', pdecode:'', p5code:'', pdeexp:'', p5exp:'' };
+  location.reload();
+}
+window.resetSession = resetSession;
+function getSettings(){return{
+  pde:G('opt-pde').checked, pdeExp:G('opt-pde-exp').checked,
+  p5:G('opt-p5').checked, p5Exp:G('opt-p5-exp').checked,
+  textBtn:G('opt-text-btn').checked, lineTextBtn:G('opt-linetext-btn').checked,
+  reseedBtn:G('opt-reseed-btn').checked, sliders:G('opt-sliders').checked
+};}
+function applySettings(s){
+  if(s.pde!==undefined)       G('opt-pde').checked         = s.pde;
+  if(s.pdeExp!==undefined)    G('opt-pde-exp').checked     = s.pdeExp;
+  if(s.p5!==undefined)        G('opt-p5').checked          = s.p5;
+  if(s.p5Exp!==undefined)     G('opt-p5-exp').checked      = s.p5Exp;
+  if(s.textBtn!==undefined)   G('opt-text-btn').checked    = s.textBtn;
+  if(s.lineTextBtn!==undefined) G('opt-linetext-btn').checked = s.lineTextBtn;
+  if(s.reseedBtn!==undefined) G('opt-reseed-btn').checked  = s.reseedBtn;
+  if(s.sliders!==undefined)   G('opt-sliders').checked     = s.sliders;
+}
+document.querySelectorAll('.sp-cb').forEach(function(cb){cb.addEventListener('change',saveState);});
+
+// ── Syntax highlighter ───────────────────────────────────────
+// Lightweight tokenizer — runs client-side, no deps
+function highlightCode(code, mode) {
+  // Escape HTML first
+  var s = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  var pdeKW = /\b(void|int|float|boolean|String|char|byte|long|double|color|PShape|PFont|PImage|PVector|PGraphics|ArrayList|HashMap|true|false|null|new|return|if|else|for|while|do|switch|case|break|continue|class|extends|implements|import|package|public|private|protected|static|final|abstract|this|super|try|catch|finally|throw|throws)\b/g;
+  var pdeType = /\b(setup|draw|settings|size|fullScreen|noLoop|loop|push|pop|pushMatrix|popMatrix|translate|rotate|scale|background|fill|noFill|stroke|noStroke|strokeWeight|line|rect|ellipse|circle|arc|triangle|quad|beginShape|endShape|vertex|curveVertex|bezierVertex|point|text|textSize|textFont|loadFont|loadImage|image|save|saveFrame|createGraphics|beginDraw|endDraw|dispose|width|height|mouseX|mouseY|mousePressed|keyPressed|random|noise|noiseSeed|randomSeed|map|constrain|lerp|dist|abs|sqrt|sin|cos|tan|atan2|PI|TWO_PI|HALF_PI|TAU|MAX_FLOAT|MIN_FLOAT|frameCount|frameRate|millis)\b/g;
+  var p5KW   = /\b(function|let|const|var|return|if|else|for|while|do|switch|case|break|continue|class|new|true|false|null|undefined|typeof|instanceof|async|await|import|export|default|of|in)\b/g;
+  var p5Type = /\b(p\.setup|p\.draw|p\.createCanvas|p\.background|p\.fill|p\.noFill|p\.stroke|p\.noStroke|p\.strokeWeight|p\.line|p\.rect|p\.ellipse|p\.circle|p\.arc|p\.beginShape|p\.endShape|p\.vertex|p\.text|p\.textSize|p\.noLoop|p\.loop|p\.random|p\.noise|p\.noiseSeed|p\.randomSeed|p\.map|p\.constrain|p\.lerp|p\.dist|p\.abs|p\.sqrt|p\.sin|p\.cos|p\.tan|p\.atan2|p\.push|p\.pop|p\.translate|p\.rotate|p\.scale|p\.createSlider|p\.createButton|p\.createCheckbox|p\.createElement|p\.mouseX|p\.mouseY|p\.width|p\.height|p\.frameRate|p\.millis|p\.PI|p\.TWO_PI)\b/g;
+
+  // Comments first (highest priority)
+  s = s.replace(/(\/\/[^\n]*)/g, '<span class="hl-cmt">$1</span>');
+  s = s.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="hl-cmt">$1</span>');
+  // Strings (after comments are wrapped, just apply globally — comments are already safe)
+  s = s.replace(/"(?:[^"\\]|\\.)*"/g, function(m){ return m.indexOf('<span') === -1 ? '<span class="hl-str">' + m + '</span>' : m; });
+  s = s.replace(/'(?:[^'\\]|\\.)*'/g, function(m){ return (m.indexOf('<span') === -1 && m.indexOf('class=') === -1) ? '<span class="hl-str">' + m + '</span>' : m; });
+  // Import/preprocessor
+  s = s.replace(/\b(import|#include|#define)\b[^\n]*/g, '<span class="hl-pp">$&</span>');
+
+  if (mode === 'pde') {
+    s = s.replace(pdeKW,  '<span class="hl-kw">$1</span>');
+    s = s.replace(pdeType,'<span class="hl-type">$1</span>');
+  } else {
+    s = s.replace(p5KW,   '<span class="hl-kw">$1</span>');
+    s = s.replace(p5Type, '<span class="hl-type">$1</span>');
+    // JS function calls: word(
+    s = s.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)(?=\s*\()/g, function(m, fn) {
+      // Don't double-wrap already-spanned text
+      return m.indexOf('<span') === -1 ? '<span class="hl-fn">' + fn + '</span>' : m;
+    });
+  }
+  // Numbers (not part of color codes or identifiers)
+  s = s.replace(/\b(\d+\.?\d*f?)\b/g, function(m){ return '<span class="hl-num">' + m + '</span>'; });
+  return s;
+}
+
+function setCodeDisplay(code, mode) {
+  var el = G('code-display');
+  el.className = mode + '-mode';
+  el.innerHTML = highlightCode(code, mode === 'pde' ? 'pde' : 'p5');
+}
+
+// ── Concept cleaner ──────────────────────────────────────────
+// Surgical: removes AI artifacts, preserves technical vocabulary
+function cleanConceptText(text) {
+  if (!text) return text;
+  return text
+    .replace(/—/g, ',')                          // em-dash → comma
+    .replace(/–/g, '-')                           // en-dash → hyphen
+    .replace(/^[-•*]\s+/gm, '')                   // hyphen/bullet at line start
+    .replace(/^\d+\.\s+/gm, '')                   // numbered list items
+    .replace(/\n{3,}/g, '\n\n')                   // 3+ blank lines → 2
+    .replace(/\*\*(.+?)\*\*/g, '$1')              // **bold** markdown → plain
+    .replace(/\*(.+?)\*/g, '$1')                  // *italic* → plain
+    .replace(/ {2,}/g, ' ')                       // multiple spaces
+    .trim();
+}
+
+// ── Howto formatter with color headers ───────────────────────
+function fmtHowto(text, mode) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g, function(m, inner) {
+      if (inner.trim().endsWith(':')) return '<span class="how-hdr">' + inner + '</span>';
+      return '<span class="hw-bold">' + inner + '</span>';
+    })
+    .replace(/`([^`]+)`/g,'<span class="hw-code">$1</span>')
+    .replace(/^[-•]\s/gm,'<span class="hw-bullet">▸</span> ');
+}
+
+// ── Easter egg: triple-click "ready" ─────────────────────────
+var statusClickCount = 0, statusClickTimer = null;
+G('slbl').addEventListener('click', function() {
+  statusClickCount++;
+  if (statusClickTimer) clearTimeout(statusClickTimer);
+  statusClickTimer = setTimeout(function(){ statusClickCount = 0; }, 800);
+  if (statusClickCount >= 3) {
+    statusClickCount = 0;
+    G('about-overlay').classList.add('open');
+  }
+});
+G('about-overlay').addEventListener('click', function(e){
+  if (e.target === this) this.classList.remove('open');
+});
+
+function showPreviewActions(v){G('prv-actions').style.display=v?'flex':'none';}
+function renderAll(r){
+  // Only overwrite stored fields if the new value is non-empty
+  if(r.title)   stored.title   = cleanConceptText(r.title);
+  if(r.desc)    stored.desc    = cleanConceptText(r.desc);
+  if(r.pdecode) stored.pdecode = r.pdecode;
+  if(r.p5code)  stored.p5code  = r.p5code;
+  if(r.pdeexp)  stored.pdeexp  = r.pdeexp;
+  if(r.p5exp)   stored.p5exp   = r.p5exp;
+  // Keep actualModel/requestedModel on the result object (not stored)
+  G('cph').style.display='none';
+  G('ctitle').textContent=stored.title||'';G('ctitle').style.display='block';
+  G('cbody').textContent=stored.desc||'';G('cbody').style.display='block';
+  setCodeDisplay(currentTab==='pde'?(stored.pdecode||'// Processing code not generated.'):(stored.p5code||'// p5.js code not generated.'), currentTab);
+  if(stored.pdeexp){var pel=G('howto-pde');pel.innerHTML=fmtHowto(stored.pdeexp,'pde');pel.className='howto-body pde-how';}
+  if(stored.p5exp){var p5el=G('howto-p5');p5el.innerHTML=fmtHowto(stored.p5exp,'p5');p5el.className='howto-body p5-how';}
+  showHowto(currentTab);
+  // Always re-run preview with best available p5 code (new or carried-over)
+  var fnToRun = stored.p5code || lastFnP5;
+  if(fnToRun){ lastFnP5=fnToRun; runP5(fnToRun); showPreviewActions(true); }
+  saveState();
+}
+function restorePanels(){
+  if(stored.title){G('cph').style.display='none';G('ctitle').textContent=stored.title;G('ctitle').style.display='block';G('cbody').textContent=stored.desc;G('cbody').style.display='block';}
+  setCodeDisplay(currentTab==='pde'?(stored.pdecode||'// Processing code not generated.'):(stored.p5code||'// p5.js code not generated.'), currentTab);
+  if(stored.pdeexp){var pel=G('howto-pde');if(pel){pel.innerHTML=fmtHowto(stored.pdeexp,'pde');pel.className='howto-body pde-how';}}
+  if(stored.p5exp){var p5el=G('howto-p5');if(p5el){p5el.innerHTML=fmtHowto(stored.p5exp,'p5');p5el.className='howto-body p5-how';}}
+  showHowto(currentTab);
+  if(stored.p5code){lastFnP5=stored.p5code;runP5(stored.p5code);showPreviewActions(true);}
+}
+function runP5(fnStr,seed){
+  if(p5inst){p5inst.remove();p5inst=null;}
+  var w=G('p5w');Array.from(w.children).forEach(function(c){if(c.id!=='pph')c.remove();});
+  var fn=fnStr;if(seed!==undefined)fn=fn.replace(/let seed\s*=\s*\d+\s*;/,'let seed = '+seed+';');
+  try{p5inst=new p5(eval('('+fn+')'),w);G('pph').style.display='none';}
+  catch(e){console.error('p5 error',e);addBubble('Preview error: '+e.message,'claude','err');}
+}
+G('rbtn').addEventListener('click',function(){if(lastFnP5)runP5(lastFnP5,Math.floor(Math.random()*999999));});
+
+// ── Chat helpers ──────────────────────────────────────────────
+function fmtTime(d){return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+G('welcome-ts').textContent=fmtTime(new Date());
+function addBubble(html,role,cls){
+  var msgs=G('msgs'),typing=G('typing');
+  var grp=document.createElement('div');grp.className='mgrp '+role;
+  if(role==='claude'){var s=document.createElement('div');s.className='msender';s.innerHTML='<span class="mini-av">✦</span> Assistant';grp.appendChild(s);}
+  var b=document.createElement('div');b.className='bubble'+(cls?' '+cls:'');b.innerHTML=html;grp.appendChild(b);
+  var ts=document.createElement('div');ts.className='mts';ts.textContent=fmtTime(new Date());grp.appendChild(ts);
+  msgs.insertBefore(grp,typing);msgs.scrollTop=msgs.scrollHeight;
+}
+function setTyping(on){G('typing').classList.toggle('on',on);if(on)G('msgs').scrollTop=9999;}
+
+// ── Send ──────────────────────────────────────────────────────
+async function send(){
+  var inp=G('cin'),text=inp.value.trim();if(!text)return;
+  inp.value='';
+  var attachments=pendingFiles.filter(Boolean);pendingFiles=[];G('attach-chips').innerHTML='';
+  addBubble(text+(attachments.length?' [+'+attachments.length+' file(s)]':''),'user');
+  setTyping(true);setStatus('run','generating…');setVeil(true);
+  G('cph').style.display='flex';G('ctitle').style.display='none';G('cbody').style.display='none';
+  G('code-display').textContent='// Generating…';
+  G('howto-pde').style.display='none';G('howto-p5').style.display='none';G('how-ph').style.display='flex';
+  G('csend').disabled=true;
+  try{
+    var r=await callClaude(text,attachments);
+    renderAll(r);
+
+    // Verify: was the requested model actually used?
+    var match = r.actualModel && r.actualModel.indexOf(r.requestedModel.replace(/-\d{8}$/, '')) > -1;
+    var modelLine = match
+      ? '✓ Model used: <strong style="color:var(--grn)">' + r.actualModel + '</strong>'
+      : '⚠ <strong style="color:var(--pink)">Model mismatch</strong> — requested <code>' + r.requestedModel + '</code> but actually used <code>' + r.actualModel + '</code>';
+
+    addBubble(
+      'Done — all panels updated.<br>' + modelLine + '<br>' +
+      '<button class="dl-btn" onclick="document.getElementById(\'dlpde-btn\').click()">↓ .pde</button>'+
+      '<button class="dl-btn" onclick="document.getElementById(\'dlp5-btn\').click()">↓ .js</button>'+
+      '<button class="dl-btn" onclick="triggerHtmlDownload()">↓ .html</button>',
+      'claude'
+    );
+    setStatus('ok','ready');
+  }catch(e){
+    console.error(e);addBubble('Error: '+e.message,'claude','err');setStatus('err','error');
+  }finally{
+    setTyping(false);setVeil(false);G('csend').disabled=false;
+  }
+}
+G('csend').addEventListener('click',send);
+G('cin').addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();send();}});
+
+// ── File attachment ───────────────────────────────────────────
+G('attach-btn').addEventListener('click',function(){G('file-input').click();});
+G('file-input').addEventListener('change',async function(){
+  for(var i=0;i<this.files.length;i++){
+    var f=this.files[i],b64=await toB64(f),idx=pendingFiles.length;
+    pendingFiles.push({name:f.name,type:f.type||'text/plain',b64:b64});addChip(f.name,idx);
+  }this.value='';
+});
+function toB64(file){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(file);});}
+function addChip(name,idx){var chips=G('attach-chips'),c=document.createElement('div');c.className='chip';c.dataset.idx=idx;c.innerHTML='📄 '+name+' <span class="chip-x" onclick="removeChip('+idx+')">×</span>';chips.appendChild(c);}
+function removeChip(idx){pendingFiles[idx]=null;var c=document.querySelector('.chip[data-idx="'+idx+'"]');if(c)c.remove();}
+
+// ── Settings popup ────────────────────────────────────────────
+var settingsOpen=false;
+G('settings-btn').addEventListener('click',function(e){
+  e.stopPropagation();settingsOpen=!settingsOpen;
+  var pop=G('settings-pop');G('settings-btn').classList.toggle('active',settingsOpen);
+  if(settingsOpen){pop.classList.add('open');var br=G('settings-btn').getBoundingClientRect();pop.style.left=Math.max(8,br.right-290)+'px';requestAnimationFrame(function(){pop.style.top=(br.top-pop.offsetHeight-8)+'px';});}
+  else{pop.classList.remove('open');}
+});
+document.addEventListener('click',function(e){
+  if(settingsOpen&&!G('settings-pop').contains(e.target)){settingsOpen=false;G('settings-pop').classList.remove('open');G('settings-btn').classList.remove('active');saveState();}
+});
+
+// ── API key set ───────────────────────────────────────────────
+G('kset').addEventListener('click', function() {
+  var v = G('kinput').value.trim();
+  if (!v) return;
+  var prov = getCurrentProvider();
+  apiKeys[prov] = v;
+  try { localStorage.setItem('plotterStudio_apiKey_' + prov, v); } catch(e) {}
+  updateKeyStatusDots();
+  addBubble((prov === 'anthropic' ? 'Anthropic' : prov === 'gemini' ? 'Gemini' : 'Academic Cloud') + ' API key saved.', 'claude');
+  if (prov !== 'academic') checkAvailableModels(prov);
+  updateKeyBanner(); // auto-hides if satisfied
+});
+
+// ── Chat minimise ─────────────────────────────────────────────
+var mini=false;
+G('ctog').addEventListener('click',function(){mini=!mini;G('chat').classList.toggle('mini',mini);G('ctog').textContent=mini?'+':'−';});
+
+// ── Drag ──────────────────────────────────────────────────────
+(function(){
+  var pod=G('chat'),hdr=G('chdr');var drag=false,ox=0,oy=0,sx=0,sy=0;
+  hdr.addEventListener('mousedown',function(e){if(e.target.classList.contains('hbtn'))return;drag=true;sx=e.clientX;sy=e.clientY;var rr=pod.getBoundingClientRect();ox=rr.left;oy=rr.top;e.preventDefault();});
+  document.addEventListener('mousemove',function(e){if(!drag)return;pod.style.right='auto';pod.style.bottom='auto';pod.style.left=Math.max(0,ox+(e.clientX-sx))+'px';pod.style.top=Math.max(0,oy+(e.clientY-sy))+'px';});
+  document.addEventListener('mouseup',function(){drag=false;});
+})();
+
+// ── Loading veil ──────────────────────────────────────────────
+var vmsgs=['Seeding the noise field…','Subdividing the plane…','Calculating flow vectors…','Ordering paths for the plotter…','Building the generative system…','Hatching the composition…'];
+var vtick=null;
+function setVeil(on){
+  G('veil').classList.toggle('on',on);
+  if(on){var i=0;G('vsub').textContent=vmsgs[0];vtick=setInterval(function(){i=(i+1)%vmsgs.length;G('vsub').textContent=vmsgs[i];},1800);}
+  else clearInterval(vtick);
+}
+function setStatus(s,l){G('sdot').className='sd '+s;G('slbl').textContent=l;}
+
+// ── Nav tab switching ─────────────────────────────────────────
+var inspP5Instance = null;
+
+function switchNav(tab) {
+  var isInspiration = tab === 'inspiration';
+  G('nav-studio').classList.toggle('active', tab === 'studio');
+  G('nav-inspiration').classList.toggle('active', isInspiration);
+  G('app').style.display = isInspiration ? 'none' : 'flex';
+  G('inspiration-overlay').classList.toggle('open', isInspiration);
+  G('chat').style.display = isInspiration ? 'none' : 'flex';
+
+  if (isInspiration && !inspP5Instance) {
+    startInspirationAnimation();
+  } else if (!isInspiration && inspP5Instance) {
+    // Pause loop to save CPU when not visible
+    inspP5Instance.noLoop();
+  } else if (isInspiration && inspP5Instance) {
+    inspP5Instance.loop();
+  }
+}
+
+function startInspirationAnimation() {
+  var wrap = G('insp-canvas-wrap');
+
+  // Track real mouse position globally so the p5 canvas can read it
+  if (!window._inspMouseMoveHandler) {
+    window._inspMouseMoveHandler = function(e) {
+      window._inspMouseX = e.clientX;
+      window._inspMouseY = e.clientY;
+    };
+    window.addEventListener('mousemove', window._inspMouseMoveHandler);
+  }
+
+  var sketch = function(p) {
+    // ── Particle flow field (from code 2) ──
+    var number_of_particles = 3000;
+    var number_of_particle_sets = 6;
+    var particle_sets = [];
+    var nzoom = 10;
+
+    // ── Morphing form (from code 1) adapted as subtle layer ──
+    var formResolution = 15;
+    var stepSize = 1.2;
+    var initRadius = 120;
+    var fx = [], fy = [];
+    var fcx, fcy;
+
+    p.setup = function() {
+      var c = p.createCanvas(wrap.offsetWidth, wrap.offsetHeight);
+      c.parent(wrap);
+      p.randomSeed(p.floor(p.random(9999999)));
+      p.background(10);
+      p.noFill();
+
+      // Init morphing form
+      fcx = p.width * 0.5;
+      fcy = p.height * 0.5;
+      var angle = p.radians(360 / formResolution);
+      for (var i = 0; i < formResolution; i++) {
+        fx.push(p.cos(angle * i) * initRadius);
+        fy.push(p.sin(angle * i) * initRadius);
+      }
+
+      // Init particle sets
+      for (var j = 0; j < number_of_particle_sets; j++) {
+        var ps = [];
+        for (var i = 0; i < number_of_particles; i++) {
+          ps.push({
+            x: p.randomGaussian(p.width / 2, p.width * 0.15),
+            y: p.randomGaussian(p.height * 0.6, p.height * 0.12),
+            angle: p.random(p.TWO_PI),
+            val: 0
+          });
+        }
+        particle_sets.push(ps);
+      }
+    };
+
+    p.draw = function() {
+      // Very slight fade to trail effect
+      p.fill(10, 10, 10, 6);
+      p.noStroke();
+      p.rect(0, 0, p.width, p.height);
+      p.noFill();
+
+      // ── Draw morphing form (subtle amber ghost) — follows mouse ──
+      var canvasRect = p.canvas.getBoundingClientRect();
+      var targetX = (window._inspMouseX !== undefined) ? window._inspMouseX - canvasRect.left : p.width / 2;
+      var targetY = (window._inspMouseY !== undefined) ? window._inspMouseY - canvasRect.top  : p.height / 2;
+      fcx += (targetX - fcx) * 0.05;
+      fcy += (targetY - fcy) * 0.05;
+      for (var i = 0; i < formResolution; i++) {
+        fx[i] += p.random(-stepSize, stepSize);
+        fy[i] += p.random(-stepSize, stepSize);
+      }
+      p.stroke(192, 104, 32, 18);
+      p.strokeWeight(0.8);
+      p.beginShape();
+      p.curveVertex(fx[formResolution-1]+fcx, fy[formResolution-1]+fcy);
+      for (var i = 0; i < formResolution; i++) {
+        p.curveVertex(fx[i]+fcx, fy[i]+fcy);
+      }
+      p.curveVertex(fx[0]+fcx, fy[0]+fcy);
+      p.curveVertex(fx[1]+fcx, fy[1]+fcy);
+      p.endShape();
+
+      // ── Draw particle flow field ──
+      p.strokeWeight(0.6);
+      particle_sets.forEach(function(particles, idx) {
+        particles.forEach(function(pt) {
+          // update
+          pt.x += p.cos(pt.angle);
+          pt.y += p.sin(pt.angle);
+
+          // wrap edges softly
+          if (pt.x < -50) pt.x = p.width + 50;
+          if (pt.x > p.width + 50) pt.x = -50;
+          if (pt.y < -50) pt.y = p.height + 50;
+          if (pt.y > p.height + 50) pt.y = -50;
+
+          var nx = p.map(pt.y, 0, p.height, 3, 0.5) * p.map(pt.x, 0, p.width, -1, 1);
+          var ny = 2 * p.map(pt.y, 0, p.height, 3, 0.5) * p.map(pt.y, 0, p.height, -1, 1);
+          var nval = (p.noise(nx + 42, ny - 23) + 0.045 * (idx - number_of_particle_sets / 2)) % 1;
+          pt.angle += 3 * p.map(nval, 0, 1, -1, 1);
+          pt.val = nval;
+
+          // display only particles on the isoline band
+          if (pt.val > 0.478 && pt.val < 0.522) {
+            // alternate between amber and a cool tone per set
+            if (idx % 3 === 0) p.stroke(192, 104, 32, 22);
+            else if (idx % 3 === 1) p.stroke(80, 140, 160, 18);
+            else p.stroke(220, 220, 210, 12);
+            p.push();
+            p.translate(pt.x, pt.y);
+            p.rotate(pt.angle);
+            p.point(0, 0);
+            p.pop();
+          }
+        });
+      });
+    };
+
+    p.windowResized = function() {
+      p.resizeCanvas(wrap.offsetWidth, wrap.offsetHeight);
+      p.background(10);
+    };
+  };
+
+  inspP5Instance = new p5(sketch, wrap);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+setStatus('ok','ready');
+
+// Theme toggle — persists in localStorage independently
+// ── Accent color system ───────────────────────────────────────
+function hexToRgb(hex) {
+  var r = parseInt(hex.slice(1,3),16);
+  var g = parseInt(hex.slice(3,5),16);
+  var b = parseInt(hex.slice(5,7),16);
+  return {r:r,g:g,b:b};
+}
+function lighten(hex, amount) {
+  var c = hexToRgb(hex);
+  return 'rgb('+Math.min(255,c.r+amount)+','+Math.min(255,c.g+amount)+','+Math.min(255,c.b+amount)+')';
+}
+function applyAccent(acc, achi, accdim) {
+  var root = document.documentElement;
+  root.style.setProperty('--acc',    acc);
+  root.style.setProperty('--acchi',  achi  || lighten(acc, 20));
+  root.style.setProperty('--accdim', accdim || 'rgba('+hexToRgb(acc).r+','+hexToRgb(acc).g+','+hexToRgb(acc).b+',.13)');
+  // Mark active swatch
+  document.querySelectorAll('.ctp-swatch').forEach(function(s){
+    s.classList.toggle('active', s.dataset.acc === acc);
+  });
+  try { localStorage.setItem('plotterStudio_accent', JSON.stringify({acc:acc,achi:achi,accdim:accdim})); } catch(e){}
+}
+
+// Swatch clicks
+document.querySelectorAll('.ctp-swatch').forEach(function(s){
+  s.addEventListener('click', function(){
+    applyAccent(s.dataset.acc, s.dataset.achi, s.dataset.accdim);
+    G('ctp-custom-input').value = s.dataset.acc;
+  });
+});
+// Custom color input
+G('ctp-custom-input').addEventListener('input', function(){
+  var hex = this.value;
+  var c = hexToRgb(hex);
+  var achi   = 'rgb('+Math.min(255,c.r+20)+','+Math.min(255,c.g+20)+','+Math.min(255,c.b+20)+')';
+  var accdim = 'rgba('+c.r+','+c.g+','+c.b+',.13)';
+  applyAccent(hex, achi, accdim);
+});
+
+// Color theme popup
+var colorPopOpen = false;
+G('color-theme-btn').addEventListener('click', function(e){
+  e.stopPropagation();
+  colorPopOpen = !colorPopOpen;
+  var pop = G('color-theme-pop');
+  pop.classList.toggle('open', colorPopOpen);
+  if (colorPopOpen) {
+    var br = G('color-theme-btn').getBoundingClientRect();
+    pop.style.right = (window.innerWidth - br.right) + 'px';
+    pop.style.top   = (br.bottom + 6) + 'px';
+    pop.style.left  = 'auto';
+  }
+});
+document.addEventListener('click', function(e){
+  if (colorPopOpen && !G('color-theme-pop').contains(e.target)){
+    colorPopOpen = false;
+    G('color-theme-pop').classList.remove('open');
+  }
+});
+// Load saved accent
+try {
+  var savedAccent = localStorage.getItem('plotterStudio_accent');
+  if (savedAccent) {
+    var a = JSON.parse(savedAccent);
+    applyAccent(a.acc, a.achi, a.accdim);
+    G('ctp-custom-input').value = a.acc;
+  }
+} catch(e) {}
+
+// ── Light/dark theme — also applies to inspiration page ───────
+function applyTheme(theme){
+  if(theme==='light'){
+    document.body.classList.add('light');
+    G('theme-btn').textContent='☀';
+    // Make inspiration overlay adapt: show lighter bg instead of dark
+    G('inspiration-overlay').classList.toggle('light-insp', true);
+  } else {
+    document.body.classList.remove('light');
+    G('theme-btn').textContent='☾';
+    G('inspiration-overlay').classList.toggle('light-insp', false);
+  }
+}
+function toggleTheme(){
+  var next = document.body.classList.contains('light') ? 'dark' : 'light';
+  applyTheme(next);
+  try{localStorage.setItem('plotterStudio_theme',next);}catch(e){}
+}
+G('theme-btn').addEventListener('click',toggleTheme);
+try{
+  var savedTheme = localStorage.getItem('plotterStudio_theme');
+  if(savedTheme==='light') applyTheme('light');
+  else applyTheme('dark');
+}catch(e){applyTheme('dark');}
+
+// ═══════════════════════════════════════════════════════════
+//  CONCEPT PANEL — Subtle turtle seed animation, mouse-reactive
+// ═══════════════════════════════════════════════════════════
+(function() {
+  var canvas = document.getElementById('concept-anim-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H, cx, cy;
+  var radius = 43, seedlength = 5, seedhairs = 8, numseeds = 200;
+  var seeds = [];
+  var frame = 0;
+  var mouse = { x: -9999, y: -9999 };
+  var ACC_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--acc').trim() || '#c06820';
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+    cx = W / 2; cy = H / 2;
+  }
+
+  function rnd(min, max) { return Math.random() * (max - min) + min; }
+
+  function createSeed() {
+    var r  = rnd(radius * 0.92, radius * 1.08) * (Math.min(W, H) / 140);
+    var f  = rnd(0, Math.PI);
+    var q  = rnd(0, Math.PI * 2);
+    var x  = r * Math.sin(f) * Math.cos(q);
+    var y  = r * Math.sin(f) * Math.sin(q);
+    var z  = r * Math.cos(f);
+    var hairs = [];
+    for (var j = 0; j < seedhairs; j++) {
+      hairs.push({
+        angle: rnd(0, Math.PI * 2),
+        len:   rnd(seedlength * 0.5, seedlength * 1.2) * (Math.min(W, H) / 140)
+      });
+    }
+    return { x: x, y: y, z: z, hairs: hairs, born: frame, life: rnd(180, 360) };
+  }
+
+  function drawSeed(s, alpha) {
+    var px = cx + s.x, py = cy + s.y;
+    var depth = (s.z + radius * 1.2) / (radius * 2.4);
+    var a = alpha * (0.2 + depth * 0.35); // subtler max alpha
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = ACC_COLOR;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.arc(px, py, 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = ACC_COLOR;
+    ctx.fill();
+    s.hairs.forEach(function(h) {
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(px + Math.cos(h.angle) * h.len, py + Math.sin(h.angle) * h.len);
+      ctx.stroke();
+    });
+  }
+
+  function tick() {
+    if (!document.getElementById('cph') || document.getElementById('cph').style.display === 'none') {
+      requestAnimationFrame(tick); return;
+    }
+    if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) resize();
+    // Faster trail fade = shorter trails
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#080808';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+
+    if (frame % 9 === 0 && seeds.length < numseeds) seeds.push(createSeed());
+
+    seeds = seeds.filter(function(s) {
+      var age = frame - s.born;
+      var t = age / s.life;
+      var alpha = t < 0.12 ? t / 0.12 : t > 0.75 ? 1 - (t - 0.75) / 0.25 : 1;
+      drawSeed(s, alpha * 0.55);
+      return age < s.life;
+    });
+
+    // Rotate + mouse nudge
+    var cosR = Math.cos(0.002), sinR = Math.sin(0.002);
+    seeds.forEach(function(s) {
+      var nx = s.x * cosR - s.y * sinR;
+      var ny = s.x * sinR + s.y * cosR;
+      s.x = nx; s.y = ny;
+      s.hairs.forEach(function(h) { h.angle += 0.003; });
+
+      // Gentle drift toward mouse (very subtle)
+      var px = cx + s.x, py = cy + s.y;
+      var mdx = mouse.x - px, mdy = mouse.y - py;
+      var md = Math.sqrt(mdx*mdx + mdy*mdy);
+      if (md > 0 && md < 120) {
+        var pull = (1 - md / 120) * 0.012;
+        s.x += (mdx / md) * pull;
+        s.y += (mdy / md) * pull;
+      }
+    });
+
+    frame++;
+    if (frame % 120 === 0) ACC_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--acc').trim() || '#c06820';
+    requestAnimationFrame(tick);
+  }
+
+  // Mouse tracking on the concept panel
+  var cph = document.getElementById('cph');
+  if (cph) {
+    cph.addEventListener('mousemove', function(e) {
+      var rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    });
+    cph.addEventListener('mouseleave', function() { mouse.x = -9999; mouse.y = -9999; });
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  for (var i = 0; i < numseeds; i++) {
+    var s = createSeed();
+    s.born = frame - Math.floor(Math.random() * s.life);
+    seeds.push(s);
+  }
+  tick();
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  PREVIEW PANEL — Dot field covering whole canvas, soft mouse repulsion
+// ═══════════════════════════════════════════════════════════
+(function() {
+  var canvas = document.getElementById('preview-anim-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H;
+  var NUM = 260;
+  var dots = [];
+  var mouse = { x: -9999, y: -9999 };
+  var REPEL_R = 70, REPEL_STR = 0.6;
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth  || canvas.parentElement.offsetWidth;
+    H = canvas.height = canvas.offsetHeight || canvas.parentElement.offsetHeight;
+  }
+
+  function mkDot() {
+    return {
+      // home position — dot drifts around this
+      hx: Math.random() * (W || 400),
+      hy: Math.random() * (H || 300),
+      // actual position
+      x: 0, y: 0,
+      // velocity (used only for repulsion response)
+      vx: 0, vy: 0,
+      r:    Math.random() * 1.2 + 0.4,
+      // each dot has its own slow drift frequency & phase
+      freqX: (Math.random() * 0.4 + 0.1) * 0.001,
+      freqY: (Math.random() * 0.4 + 0.1) * 0.001,
+      phX: Math.random() * Math.PI * 2,
+      phY: Math.random() * Math.PI * 2,
+      ampX: Math.random() * 14 + 4,
+      ampY: Math.random() * 10 + 4,
+      // alpha rhythm
+      baseAlpha: Math.random() * 0.25 + 0.08,
+      alphaPh: Math.random() * Math.PI * 2,
+      alphaSpd: Math.random() * 0.0008 + 0.0003
+    };
+  }
+
+  function initDots() {
+    dots = [];
+    for (var i = 0; i < NUM; i++) dots.push(mkDot());
+  }
+
+  function tick() {
+    var pph = document.getElementById('pph');
+    if (!pph || pph.style.display === 'none') { requestAnimationFrame(tick); return; }
+    if (canvas.offsetWidth && (canvas.offsetWidth !== W || canvas.offsetHeight !== H)) { resize(); initDots(); }
+    ctx.clearRect(0, 0, W, H);
+    var now = performance.now();
+    var DOT = getComputedStyle(document.documentElement).getPropertyValue('--txdim').trim() || '#555';
+
+    dots.forEach(function(p) {
+      // Sine-wave home drift
+      var tx = p.hx + Math.sin(now * p.freqX + p.phX) * p.ampX;
+      var ty = p.hy + Math.cos(now * p.freqY + p.phY) * p.ampY;
+
+      // Return toward drift home (spring — absorbs repulsion over time)
+      p.vx += (tx - p.x) * 0.012;
+      p.vy += (ty - p.y) * 0.012;
+
+      // Mouse repulsion — push dots gently backward
+      var dx = p.x - mouse.x, dy = p.y - mouse.y;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < REPEL_R && dist > 0.5) {
+        var force = (1 - dist / REPEL_R) * REPEL_STR;
+        p.vx += (dx / dist) * force;
+        p.vy += (dy / dist) * force;
+      }
+
+      p.vx *= 0.88; p.vy *= 0.88; // dampen
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Soft alpha fade in/out
+      var a = p.baseAlpha * (0.45 + 0.55 * Math.sin(now * p.alphaSpd + p.alphaPh));
+      ctx.globalAlpha = Math.max(0, a);
+      ctx.fillStyle = DOT;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  }
+
+  function onMouseMove(e) {
+    var rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  }
+  function onMouseLeave() { mouse.x = -9999; mouse.y = -9999; }
+
+  var pph = document.getElementById('pph');
+  if (pph) {
+    pph.addEventListener('mousemove', onMouseMove);
+    pph.addEventListener('mouseleave', onMouseLeave);
+  }
+
+  resize();
+  initDots();
+  // Set initial positions to home
+  dots.forEach(function(p) { p.x = p.hx; p.y = p.hy; });
+  window.addEventListener('resize', function() { resize(); initDots(); });
+  tick();
+})();
+
+loadState();
+initApiKeyUI();
+
+// ── Expose functions needed by inline HTML handlers ──────────
+window.switchNav = switchNav;
+window.switchTab = switchTab;
+window.removeChip = removeChip;
+window.triggerHtmlDownload = triggerHtmlDownload;
+
+}); // end DOMContentLoaded
+</script>
+
+<!-- About easter egg -->
+<div id="about-overlay">
+  <div class="about-box">
+    <button class="about-close" onclick="document.getElementById('about-overlay').classList.remove('open')">✕</button>
+    <div class="about-wave">👋</div>
+    <div class="about-title">Was gibts Digga!???</div>
+    <div class="about-sub">
+      Created just for fun by<br>
+      <span class="about-acc">Andis Boehm</span><br>
+      with <span class="about-acc">Claude</span> and<br>
+      way too much time.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
