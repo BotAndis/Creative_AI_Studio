@@ -1146,7 +1146,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
       </div>
       <div class="md-id">mistral-large-3-675b-instruct-2512</div>
     </div>
-    <div class="md-hint">💡 Academic Cloud key: <code>c8657e2d9d0f4b1c4953a6509989da78</code> — or enter your own above.</div>
+    <div class="md-hint">💡 Enter your Academic Cloud (SAIA) API key above to use these models.</div>
 
   </div><!-- end accordion -->
 
@@ -1223,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 var MODEL = 'claude-sonnet-4-6';
 var apiKeys = { anthropic: '', gemini: '', academic: '' };
-var ACADEMIC_CLOUD_KEY_DEFAULT = 'c8657e2d9d0f4b1c4953a6509989da78';
+var ACADEMIC_CLOUD_KEY_DEFAULT = '';
 var ACADEMIC_MODELS = ['qwen3-coder-30b-a3b-instruct','deepseek-r1-distill-llama-70b','llama-3.3-70b-instruct','mistral-large-3-675b-instruct-2512'];
 var activeKeyTab = 'anthropic';
 var chatHistory = [];
@@ -1262,7 +1262,7 @@ function updateKeyStatusDots() {
   var da = G('key-sdot-anthropic'), dg = G('key-sdot-gemini'), dac = G('key-sdot-academic');
   if (da) da.classList.toggle('set', !!apiKeys.anthropic || IS_CLAUDE_AI);
   if (dg) dg.classList.toggle('set', !!apiKeys.gemini);
-  if (dac) dac.classList.toggle('set', !!(apiKeys.academic || ACADEMIC_CLOUD_KEY_DEFAULT));
+  if (dac) dac.classList.toggle('set', !!apiKeys.academic);
 }
 
 // Switch which provider's key is shown in the input
@@ -1293,7 +1293,7 @@ function updateKeyBanner() {
     var hasCurrent = !!apiKeys.academic;
     hint.innerHTML = hasCurrent
       ? '✓ Academic Cloud key set. <a onclick="clearKeyFor(\'academic\')" style="cursor:pointer">Remove</a>'
-      : '✓ Built-in Academic Cloud key active. Paste your own above to override.';
+      : 'Enter your Academic Cloud (SAIA) key above.';
   } else {
     icon.textContent = 'A';
     icon.className = 'key-prov-icon';
@@ -1311,7 +1311,7 @@ function updateKeyBanner() {
 
   // Hide banner if current provider key is already set (or it's claude.ai + anthropic)
   var satisfied = prov === 'anthropic' ? (!!apiKeys.anthropic || IS_CLAUDE_AI)
-                : prov === 'academic'  ? true  // always satisfied — built-in key
+                : prov === 'academic'  ? !!apiKeys.academic
                 : !!apiKeys.gemini;
   if (satisfied) {
     G('keybanner').classList.add('hidden');
