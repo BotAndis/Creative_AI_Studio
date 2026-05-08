@@ -21,6 +21,7 @@ Supported providers include:
 - Anthropic [How to get a Anthropic API key](docs/anthropic-api-key.md)
 - Google Gemini [How to get a Gemini API key](docs/gemini-api-key.md)
 - Academic Cloud SAIA [How to get a Academic Cloud API key](https://docs.hpc.gwdg.de/services/ai-services/saia/index.html)
+- LUHKI2 API KEY ??? [Maybe comming soon, I doubt it]
 
 This is the best option if you want control over model choice, local edits, custom prompts, proxy settings, or future modifications. Gemini supports API-key-based integration through Google AI Studio, and Anthropic supports its Messages API for direct app integration.
 
