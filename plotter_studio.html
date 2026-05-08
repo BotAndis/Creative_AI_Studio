@@ -2686,7 +2686,7 @@ function autoSaveCurrentSession(silent){
   var sessions=loadSessions();
   var sessionData = buildSessionSnapshot('Auto Save');
   sessionData.isAutosave = true;
-  var existingIndex = sessions.findIndex(function(s){ return !!s.isAutosave; });
+  var existingIndex = sessions.findIndex(function(s){ return s.isAutosave; });
   if(existingIndex >= 0) sessions[existingIndex] = sessionData;
   else sessions.push(sessionData);
   if(sessions.length>MAX_SESSIONS){
@@ -2696,7 +2696,10 @@ function autoSaveCurrentSession(silent){
       sessions.splice(removable,1);
       adjustSelectedIndexOnRemoval(removable);
     }
-    if(sessions.length>MAX_SESSIONS) sessions=sessions.slice(-MAX_SESSIONS);
+    while(sessions.length>MAX_SESSIONS){
+      sessions.shift();
+      adjustSelectedIndexOnRemoval(0);
+    }
   }
   saveSessions(sessions);
   if(!silent) addBubble('Auto-save snapshot updated.','claude');
@@ -2721,7 +2724,7 @@ function toggleAutosave(){
 }
 function renderSessionList(){
   var sessions=loadSessions(), list=G('session-list'), empty=G('session-empty');
-  if(selectedSessionIndex >= sessions.length) selectedSessionIndex = sessions.length-1;
+  if(selectedSessionIndex >= sessions.length) selectedSessionIndex = -1;
   list.innerHTML='';
   if(!sessions.length){empty.style.display='block'; selectedSessionIndex = -1; updateSessionLoadButton(); return;}
   empty.style.display='none';
@@ -2743,9 +2746,10 @@ function renderSessionList(){
     });
     item.querySelector('.session-item-del').addEventListener('click',function(e){
       e.stopPropagation();
-      sessions.splice(idx,1);
+      var arr = loadSessions();
+      arr.splice(idx,1);
       adjustSelectedIndexOnRemoval(idx);
-      saveSessions(sessions);
+      saveSessions(arr);
       renderSessionList();
     });
     item.addEventListener('click',function(){
@@ -2976,7 +2980,12 @@ makeVSplit('vh-ch',G('code-panel'),G('how-panel'));
 
 // ── Fullscreen ────────────────────────────────────────────────
 G('fsbtn').addEventListener('click',function(){G('fs-overlay').classList.add('on');if(lastFnP5)runP5_FS(lastFnP5);});
-G('fs-close').addEventListener('click',function(){G('fs-overlay').classList.remove('on');if(p5instFS){p5instFS.remove();p5instFS=null;}G('fs-p5w').innerHTML='';});
+function closeFullscreenOverlay(){
+  G('fs-overlay').classList.remove('on');
+  if(p5instFS){p5instFS.remove();p5instFS=null;}
+  G('fs-p5w').innerHTML='';
+}
+G('fs-close').addEventListener('click',closeFullscreenOverlay);
 G('fs-reseed').addEventListener('click',function(){if(lastFnP5)runP5_FS(lastFnP5,Math.floor(Math.random()*999999));});
 G('fs-dl-png').addEventListener('click',function(){downloadPNG(document.querySelector('#fs-p5w canvas'),'plotter_'+slugFromTitle()+'_preview.png');});
 function runP5_FS(fnStr,seed){
@@ -3320,7 +3329,7 @@ G('dbg-overlay').addEventListener('click',function(e){if(e.target===this)this.cl
 function closeOpenMenusAndOverlays(){
   var closed = false;
   if(G('dbg-overlay').classList.contains('open')){ G('dbg-overlay').classList.remove('open'); closed = true; }
-  if(G('fs-overlay').classList.contains('on')){ G('fs-close').click(); closed = true; }
+  if(G('fs-overlay').classList.contains('on')){ closeFullscreenOverlay(); closed = true; }
   if(G('session-panel').classList.contains('open')){ closeSessionPanel(); closed = true; }
   if(settingsOpen){
     settingsOpen=false;
