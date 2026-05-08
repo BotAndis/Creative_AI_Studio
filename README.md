@@ -1,5 +1,17 @@
 # Generative Plotter Studio
 
+## About
+
+Plotter Studio is a browser-based AI creative coding tool for pen-plotter workflows, designed to generate editable Processing and p5.js sketches with live preview support.
+
+## Project Information
+
+- **Project type:** Single-file web app (vanilla HTML/CSS/JavaScript)
+- **Main app files:** `plotter_studio.html`, `plotter_studio_artifact.html`
+- **Optional local helper:** `saia_proxy.py` (Python proxy for SAIA/CORS)
+- **Runtime requirements:** Modern browser, and Python 3 only if using the local proxy
+- **License:** MIT
+
 There are two ways to use Plotter Studio:
 
 ## Option 1 — Use the Claude Artifact
