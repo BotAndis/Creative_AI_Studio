@@ -16,7 +16,7 @@ There are two ways to use Plotter Studio:
 
 ## Option 1 — Use the Claude Artifact
 
-This is the easiest option. No install, no setup, no API key management on your side.
+This is the easiest option. No install, no setup, no API key management on your side [API KEYs DO NOT WORK HERE].
 
 Open the public artifact here:
 
