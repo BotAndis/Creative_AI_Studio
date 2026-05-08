@@ -81,7 +81,7 @@ http://localhost:8765/
 
 Best for quick usage in a Claude artifact environment.
 
-1. Open the artifact edition (`plotter_studio_artifact.html`) in your artifact-compatible environment.
+1. Open the artifact edition (`plotter_studio_artifact.html`) in a `claude.ai` artifact environment.
 2. Keep default Claude model (or select available model).
 3. Enter your prompt in chat and send.
 4. Download generated files (`.pde`, `.js`, `.html`) from the response buttons.
@@ -123,7 +123,7 @@ You can set keys through several paths:
 5. **Code-level fallback path (Academic Cloud only)**  
    `ACADEMIC_CLOUD_KEY_DEFAULT` variable in both HTML files can provide a default SAIA key.
 
-> ⚠️ Security warning: localStorage keys and in-file fallback keys are sensitive credentials. Never commit real API keys, never share screenshots exposing keys, and avoid hardcoding keys for production deployments.
+> ⚠️ Security warning: localStorage keys and in-file fallback keys are sensitive credentials. Never commit real API keys, never share screenshots exposing keys, and avoid hardcoding keys for production deployments. For production, prefer server-side secrets via environment variables or a dedicated secret manager.
 
 ---
 
