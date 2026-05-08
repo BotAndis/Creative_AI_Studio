@@ -3372,6 +3372,10 @@ G('dbg-close').addEventListener('click',function(e){e.stopPropagation();G('dbg-o
 G('dbg-overlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 function closeOpenMenusAndOverlays(){
   var closed = false;
+  if(G('inspiration-overlay').classList.contains('open')){
+    switchNav('studio');
+    closed = true;
+  }
   if(G('dbg-overlay').classList.contains('open')){ G('dbg-overlay').classList.remove('open'); closed = true; }
   if(G('fs-overlay').classList.contains('on')){ closeFullscreenOverlay(); closed = true; }
   if(G('session-panel').classList.contains('open')){ closeSessionPanel(); closed = true; }
