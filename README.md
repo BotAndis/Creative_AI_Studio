@@ -31,6 +31,14 @@ cd Plotter-Studio
 
 No npm, no build step, no bundler.
 
+### Direct Claude artifact access
+
+You can open the public artifact directly here:
+
+https://claude.ai/public/artifacts/9be3b773-3073-400b-a249-96ee83578ad3
+
+⚠️ Note: via this direct public artifact link, API-based features do not work.
+
 ### Optional: SAIA proxy (only if CORS blocks browser requests)
 
 ```bash
