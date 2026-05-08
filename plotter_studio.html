@@ -3808,10 +3808,11 @@ try {
 var textColorPopOpen = false;
 function applyMutedTextColor(txtColor){
   if(!txtColor) return;
+  var txtColorLower = txtColor.toLowerCase();
   document.body.style.setProperty('--txdim', txtColor);
   document.body.style.setProperty('--txlo', txtColor);
   document.querySelectorAll('.tcp-swatch').forEach(function(s){
-    s.classList.toggle('active', s.dataset.txt.toLowerCase() === txtColor.toLowerCase());
+    s.classList.toggle('active', s.dataset.txt.toLowerCase() === txtColorLower);
   });
   try { localStorage.setItem('plotterStudio_textColor', txtColor); } catch(e){}
 }
