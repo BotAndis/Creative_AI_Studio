@@ -1,4 +1,4 @@
-# Plotter Studio
+# Generative Plotter Studio
 
 Plotter Studio is a browser-based creative coding tool for pen-plotter workflows.  
 You describe a sketch in natural language, and it generates:
@@ -75,6 +75,16 @@ http://localhost:8765/
 
 ---
 
+## Security
+
+- API keys are sensitive credentials.
+- Never commit real keys to this repository.
+- Never share screenshots that expose keys.
+- Avoid hardcoding keys in files for production usage.
+- Prefer server-side secret handling (environment variables or a secret manager) for production deployments.
+
+---
+
 ## How to use
 
 ### Option 1 — Artifact mode (no manual Anthropic key in claude.ai)
@@ -123,7 +133,7 @@ You can set keys through several paths:
 5. **Code-level fallback path (Academic Cloud only)**  
    `ACADEMIC_CLOUD_KEY_DEFAULT` variable in both HTML files can provide a default SAIA key.
 
-> ⚠️ Security warning: localStorage keys and in-file fallback keys are sensitive credentials. Never commit real API keys, never share screenshots exposing keys, and avoid hardcoding keys for production deployments. For production, prefer server-side secrets via environment variables or a dedicated secret manager.
+> ⚠️ Security warning: localStorage keys and in-file fallback keys are sensitive credentials.
 
 ---
 
