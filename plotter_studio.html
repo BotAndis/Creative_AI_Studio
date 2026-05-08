@@ -976,7 +976,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
     <span class="tpl-dot"></span>dMA Creative Coding
   </div>
   <div class="tpl-item" id="tpl-edit-dma-item">
-    <span class="tpl-dot"></span>Edit dMA Template…
+    <span class="tpl-dot"></span>Edit dMA Template...
   </div>
   <div class="tpl-item" data-tpl="custom" id="tpl-custom-item">
     <span class="tpl-dot"></span>Custom…
@@ -2818,7 +2818,12 @@ function loadSession(s){
   else sessionTokens={input:0,output:0,requests:0};
   if(s.model){MODEL=s.model; var lbl=MODEL_LABELS[s.model]||s.model; G('model-btn-label').textContent=lbl; G('cl-sub-model').textContent=lbl;}
   if(s.settings) applySettings(s.settings);
-  if(s.dmaTemplate) dmaTemplate=s.dmaTemplate;
+  if(s.dmaTemplate && typeof s.dmaTemplate === 'object'){
+    dmaTemplate = {
+      name: 'dMA Creative Coding',
+      body: typeof s.dmaTemplate.body === 'string' ? s.dmaTemplate.body : DMA_PROMPT_DEFAULT
+    };
+  }
   if(s.customTemplate) customTemplate=s.customTemplate;
   if(s.currentTemplate) setActiveTpl(s.currentTemplate);
   restorePanels(); updateThinkingBar();
@@ -2903,7 +2908,7 @@ G('tpl-edit-dma-item').addEventListener('click', function() {
 
 // Template editor
 function openTemplateEditor(which) {
-  editingTemplate = which === 'dma' ? 'dma' : 'custom';
+  editingTemplate = (which === 'dma' || which === 'custom') ? which : 'custom';
   if(editingTemplate === 'dma'){
     G('tpl-editor-title').textContent = 'dMA Template';
     G('tpl-name-input').value = dmaTemplate.name || 'dMA Creative Coding';
