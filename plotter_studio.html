@@ -3531,7 +3531,7 @@ async function send(){
   G('csend').disabled=true;
   try{
     var plan = getGenerationPlan(getSettings());
-    if (!plan.hasCode) throw new Error('Enable at least one code target (Processing or p5.js) in settings.');
+    if (!plan.hasCode) throw new Error('No code generation enabled. Please enable at least one code target (Processing or p5.js) in the settings panel.');
     setDbgFlow('plan', 'Pipeline ' + (plan.usePipeline ? 'on' : 'off') + ' · ' + plan.phases.join(' → '), 'plan');
 
     var r;
