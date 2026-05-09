@@ -1712,7 +1712,7 @@ function buildPhasePrompt(phase, s) {
   var sys = BASE_SYSTEM_PROMPT + '\n\n';
 
   if (phase === 'concept') {
-    sys += 'OUTPUT: Generate ONLY a concept. Return exactly:\n### [Concept Title]\nTwo or three sentences describing what the viewer sees, which generative system drives it, and why it works as a plotted drawing.\n\nThen append one final line exactly in this format:\nUser prompt: <the user request>\n\nCRITICAL: Do NOT output any code (no Processing, no p5.js, no Java, no JavaScript). Do NOT include ```code blocks```. ONLY return the ### title, 2-3 sentence description, and final User prompt line. Nothing else.\n\nIf this is a follow-up request that modifies a previous sketch, describe how the concept evolves — what was there before and what changes.';
+    sys += 'OUTPUT: Generate ONLY a concept. Return exactly:\n### [Concept Title]\nTwo or three sentences describing what the viewer sees, which generative system drives it, and why it works as a plotted drawing.\n\nThen append this final section, separated by two line breaks:\n### User Prompt\n<the user request>\n\nCRITICAL: Do NOT output any code (no Processing, no p5.js, no Java, no JavaScript). Do NOT include ```code blocks```. ONLY return the ### title, 2-3 sentence description, and final ### User Prompt section. Nothing else.\n\nIf this is a follow-up request that modifies a previous sketch, describe how the concept evolves — what was there before and what changes.';
     return sys;
   }
 
@@ -1839,10 +1839,11 @@ function setVeilPhase(phase, state, detail) {
 
 function appendUserPromptToConcept(desc, task) {
   var conceptDesc = (desc || '').trim();
-  var userPromptLine = 'User prompt: ' + task;
-  if (/User prompt:\s*[^\n]+$/.test(conceptDesc)) return conceptDesc;
-  if (!conceptDesc) return userPromptLine;
-  return conceptDesc + '\n\n' + userPromptLine;
+  var userPromptSection = '### User Prompt\n' + task;
+  if (/^###\s*User Prompt\s*$/im.test(conceptDesc)) return conceptDesc;
+  conceptDesc = conceptDesc.replace(/\n*User prompt:\s*[^\n]+\s*$/i, '').trim();
+  if (!conceptDesc) return userPromptSection;
+  return conceptDesc + '\n\n' + userPromptSection;
 }
 
 function isLikelySyntaxError(msg) {
