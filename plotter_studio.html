@@ -1840,7 +1840,7 @@ function setVeilPhase(phase, state, detail) {
 function appendUserPromptToConcept(desc, task) {
   var conceptDesc = (desc || '').trim();
   var userPromptLine = 'User prompt: ' + task;
-  if (/\nUser prompt:\s*[^\n]+$/m.test(conceptDesc) || /^User prompt:\s*[^\n]+$/m.test(conceptDesc)) return conceptDesc;
+  if (/User prompt:\s*[^\n]+$/m.test(conceptDesc)) return conceptDesc;
   if (!conceptDesc) return userPromptLine;
   return conceptDesc + '\n\n' + userPromptLine;
 }
@@ -2055,7 +2055,7 @@ async function generatePipeline(task, attachments, plan) {
         pdePrompt = 'Implement this concept as a Processing Java sketch:\n\n' + conceptContext + '\n\nUser request: ' + task;
       }
       if (result.p5code) {
-        pdePrompt += '\n\nReference p5.js preview code for geometry/structure consistency:\n```p5instance\n' + result.p5code + '\n```';
+        pdePrompt += '\n\nReference p5.js preview code for geometry/structure consistency:\n```p5instance\n' + result.p5code.substring(0, 1200) + '\n```';
       }
       var pdeResult = await callPhase('pde', pdePrompt, null, provider, s);
       setDbgFlow('parse', 'Parsing Processing output', 'pde');
