@@ -1712,7 +1712,7 @@ function buildPhasePrompt(phase, s) {
   var sys = BASE_SYSTEM_PROMPT + '\n\n';
 
   if (phase === 'concept') {
-    sys += 'OUTPUT: Generate ONLY a concept. Return exactly:\n### [Concept Title]\nTwo or three sentences describing what the viewer sees, which generative system drives it, and why it works as a plotted drawing.\n\nCRITICAL: Do NOT output any code (no Processing, no p5.js, no Java, no JavaScript). Do NOT include ```code blocks```. ONLY return the ### title and 2-3 sentence description. Nothing else.\n\nIf this is a follow-up request that modifies a previous sketch, describe how the concept evolves — what was there before and what changes.';
+    sys += 'OUTPUT: Generate ONLY a concept. Return exactly:\n### [Concept Title]\nTwo or three sentences describing what the viewer sees, which generative system drives it, and why it works as a plotted drawing.\n\nThen append one final line exactly in this format:\nUser prompt: <the user request>\n\nCRITICAL: Do NOT output any code (no Processing, no p5.js, no Java, no JavaScript). Do NOT include ```code blocks```. ONLY return the ### title, 2-3 sentence description, and final User prompt line. Nothing else.\n\nIf this is a follow-up request that modifies a previous sketch, describe how the concept evolves — what was there before and what changes.';
     return sys;
   }
 
@@ -1786,14 +1786,29 @@ function trimHistory() {
 var PIPELINE_ENABLED = true; // can be toggled in settings
 
 // Phase display names
-var PHASE_LABELS = { concept:'Concept', p5:'p5.js Preview', pde:'Processing Code', explain:'Explanations' };
+var PHASE_LABELS = {
+  concept:'Concept',
+  p5:'p5.js Preview',
+  p5fix:'p5.js Bug Fix',
+  p5exp:'p5.js Explanation',
+  pde:'Processing Code',
+  pdefix:'Processing Bug Fix',
+  pdeexp:'Processing Explanation'
+};
 
 function getGenerationPlan(s) {
   var cfg = s || getSettings();
   var phases = ['concept'];
-  if (cfg.p5) phases.push('p5');
-  if (cfg.pde) phases.push('pde');
-  if ((cfg.pde && cfg.pdeExp) || (cfg.p5 && cfg.p5Exp)) phases.push('explain');
+  if (cfg.p5) {
+    phases.push('p5');
+    if (cfg.autofix) phases.push('p5fix');
+    if (cfg.p5Exp) phases.push('p5exp');
+  }
+  if (cfg.pde) {
+    phases.push('pde');
+    if (cfg.autofix) phases.push('pdefix');
+    if (cfg.pdeExp) phases.push('pdeexp');
+  }
   var hasCode = !!(cfg.p5 || cfg.pde);
   return {
     settings: cfg,
@@ -1820,6 +1835,59 @@ function setVeilPhase(phase, state, detail) {
   var el = G('vp-' + phase);
   if (el) { el.className = 'vp-step ' + state; }
   if (detail !== undefined) G('veil-detail').textContent = detail;
+}
+
+function appendUserPromptToConcept(desc, task) {
+  var conceptDesc = (desc || '').trim();
+  var userPromptLine = 'User prompt: ' + task;
+  if (conceptDesc.indexOf('User prompt:') > -1) return conceptDesc;
+  if (!conceptDesc) return userPromptLine;
+  return conceptDesc + '\n\n' + userPromptLine;
+}
+
+function isLikelySyntaxError(msg) {
+  if (!msg) return false;
+  var t = String(msg).toLowerCase();
+  return t.indexOf('syntax') > -1 ||
+    t.indexOf('unexpected token') > -1 ||
+    t.indexOf('unexpected identifier') > -1 ||
+    t.indexOf('unterminated') > -1 ||
+    t.indexOf('missing') > -1 ||
+    t.indexOf('expected') > -1;
+}
+
+function findLikelySyntaxIssues(code) {
+  if (!code) return [];
+  var issues = [];
+  var stack = [];
+  var openers = { '(':')', '{':'}', '[':']' };
+  var closers = { ')':'(', '}':'{', ']':'[' };
+  var inString = false;
+  var quote = '';
+  var escaped = false;
+
+  for (var i = 0; i < code.length; i++) {
+    var ch = code[i];
+    if (inString) {
+      if (escaped) { escaped = false; continue; }
+      if (ch === '\\') { escaped = true; continue; }
+      if (ch === quote) { inString = false; quote = ''; }
+      continue;
+    }
+    if (ch === '"' || ch === '\'') { inString = true; quote = ch; continue; }
+    if (openers[ch]) { stack.push(ch); continue; }
+    if (closers[ch]) {
+      if (!stack.length || stack[stack.length - 1] !== closers[ch]) {
+        issues.push('Mismatched bracket near character ' + (i + 1));
+      } else {
+        stack.pop();
+      }
+    }
+  }
+
+  if (inString) issues.push('Unclosed string literal');
+  if (stack.length) issues.push('Unclosed brackets: ' + stack.join(' '));
+  return issues;
 }
 
 async function generatePipeline(task, attachments, plan) {
@@ -1852,7 +1920,7 @@ async function generatePipeline(task, attachments, plan) {
     setDbgFlow('parse', 'Parsing concept output', 'concept');
     var conceptParsed = parseResponse(conceptResult.text);
     result.title = conceptParsed.title;
-    result.desc = conceptParsed.desc;
+    result.desc = appendUserPromptToConcept(conceptParsed.desc, task);
     result.actualModel = conceptResult.model;
     result.requestedModel = MODEL;
     setVeilPhase('concept', 'done', '✓ Concept: ' + (result.title || 'done'));
@@ -1907,11 +1975,11 @@ async function generatePipeline(task, attachments, plan) {
         showPreviewActions(true);
 
         // Auto-fix: if sketch had errors and auto-fix is enabled, try once more
-        if (p5err && AUTOFIX_ENABLED) {
-          setVeilPhase('p5', 'active', '🔧 Auto-fixing preview error…');
-          setStatus('run', 'phase ' + p5idx + '/' + phases.length + ' — auto-fix…');
+        if (p5err && AUTOFIX_ENABLED && isLikelySyntaxError(p5err)) {
+          setVeilPhase('p5fix', 'active', '🔧 Fixing p5.js syntax error…');
+          setStatus('run', 'phase ' + (phases.indexOf('p5fix') + 1) + '/' + phases.length + ' — p5.js bug-fix…');
           try {
-            var fixPrompt = 'The following p5.js sketch has a runtime error:\n\nError: ' + p5err + '\n\nOriginal code:\n```\n' + result.p5code + '\n```\n\nFix the error and return the corrected sketch. NEVER use document.getElementById(), document.querySelector(), p.select(), appendChild, or any direct DOM access. Use ONLY p5 instance methods (p.createButton, p.createSlider, p.createDiv, etc.). Store slider references in variables and read with .value() — never use p.slider() or p.this.\n\nUser request: ' + task;
+            var fixPrompt = 'The following p5.js sketch has a SYNTAX error.\n\nError: ' + p5err + '\n\nOriginal code:\n```p5instance\n' + result.p5code + '\n```\n\nSTRICT TASK: Fix only syntax errors. Do not redesign, refactor, or change behavior beyond what is required to make syntax valid. Return only the corrected complete p5.js sketch in ### p5 sketch format.\n\nUser request: ' + task;
             var fixResult = await callPhase('p5', fixPrompt, null, provider, s);
             setDbgFlow('parse', 'Parsing p5 auto-fix output', 'p5');
             var fixParsed = parseResponse(fixResult.text);
@@ -1921,24 +1989,51 @@ async function generatePipeline(task, attachments, plan) {
               lastFnP5 = fixParsed.p5code;
               var fixErr = runP5(fixParsed.p5code);
               if (!fixErr) {
-                setVeilPhase('p5', 'done', '✓ p5.js fixed & running');
+                setVeilPhase('p5fix', 'done', '✓ p5.js syntax fixed');
                 addBubble('🔧 Auto-fixed preview error: <code>' + escHtml(p5err) + '</code>', 'claude');
               } else {
-                setVeilPhase('p5', 'done', '⚠ p5.js auto-fix partial');
+                setVeilPhase('p5fix', 'done', '⚠ p5.js bug-fix partial');
               }
             }
           } catch(fixE) {
             console.error('Auto-fix failed:', fixE);
-            setVeilPhase('p5', 'done', '⚠ Auto-fix failed');
+            setVeilPhase('p5fix', 'done', '⚠ p5.js bug-fix failed');
           }
-        } else if (!p5err) {
-          // no error, already marked done above
+        } else if (phases.indexOf('p5fix') > -1) {
+          if (!p5err) {
+            setVeilPhase('p5fix', 'done', '✓ No p5.js syntax issues found');
+          } else {
+            setVeilPhase('p5fix', 'done', '✓ p5.js bug-fix skipped (non-syntax error)');
+          }
         }
       }
     } catch(e) {
       console.error('Pipeline p5 phase failed:', e);
       setVeilPhase('p5', 'fail', '✗ p5.js failed: ' + e.message);
       errors.push('p5.js: ' + e.message);
+    }
+  }
+
+  // ── p5.js explanation ──
+  if (phases.indexOf('p5exp') > -1 && result.p5code) {
+    setVeilPhase('p5exp', 'active', 'Writing p5.js explanation…');
+    setStatus('run', 'phase ' + (phases.indexOf('p5exp') + 1) + '/' + phases.length + ' — p5.js explanation…');
+    try {
+      var p5ExpPrompt = 'Write explanation for this p5.js sketch.\n\n' + conceptContext +
+        '\n\np5.js code:\n```\n' + (result.p5code || '').substring(0, 1200) + '\n```';
+      var p5ExplainSettings = {
+        pde: false, pdeExp: false,
+        p5: true, p5Exp: true
+      };
+      var p5ExpResult = await callPhase('explain', p5ExpPrompt, null, provider, p5ExplainSettings);
+      setDbgFlow('parse', 'Parsing p5 explanation output', 'p5exp');
+      var p5ExpParsed = parseResponse(p5ExpResult.text);
+      result.p5exp = p5ExpParsed.p5exp;
+      setVeilPhase('p5exp', 'done', '✓ p5.js explanation ready');
+    } catch (e) {
+      console.error('Pipeline p5 explanation phase failed:', e);
+      setVeilPhase('p5exp', 'fail', '✗ p5.js explanation failed: ' + e.message);
+      errors.push('p5.js explanation: ' + e.message);
     }
   }
 
@@ -1959,6 +2054,9 @@ async function generatePipeline(task, attachments, plan) {
       } else {
         pdePrompt = 'Implement this concept as a Processing Java sketch:\n\n' + conceptContext + '\n\nUser request: ' + task;
       }
+      if (result.p5code) {
+        pdePrompt += '\n\nReference p5.js preview code for geometry/structure consistency:\n```p5instance\n' + result.p5code + '\n```';
+      }
       var pdeResult = await callPhase('pde', pdePrompt, null, provider, s);
       setDbgFlow('parse', 'Parsing Processing output', 'pde');
       var pdeParsed = parseResponse(pdeResult.text);
@@ -1968,6 +2066,34 @@ async function generatePipeline(task, attachments, plan) {
       if (result.pdecode) {
         setCodeDisplay(result.pdecode, 'pde');
       }
+
+      if (result.pdecode && AUTOFIX_ENABLED && phases.indexOf('pdefix') > -1) {
+        var syntaxIssues = findLikelySyntaxIssues(result.pdecode);
+        if (syntaxIssues.length) {
+          setVeilPhase('pdefix', 'active', '🔧 Fixing Processing syntax issues…');
+          setStatus('run', 'phase ' + (phases.indexOf('pdefix') + 1) + '/' + phases.length + ' — Processing bug-fix…');
+          try {
+            var pdeFixPrompt = 'The following Processing sketch has likely syntax errors:\n- ' + syntaxIssues.join('\n- ') +
+              '\n\nOriginal code:\n```processing\n' + result.pdecode + '\n```\n\nSTRICT TASK: Fix only syntax errors. Do not redesign or alter visual behavior unless required by syntax validity. Return only the corrected complete Processing code in ### Processing code format.';
+            var pdeFixResult = await callPhase('pde', pdeFixPrompt, null, provider, s);
+            setDbgFlow('parse', 'Parsing Processing bug-fix output', 'pdefix');
+            var pdeFixParsed = parseResponse(pdeFixResult.text);
+            if (pdeFixParsed.pdecode) {
+              result.pdecode = pdeFixParsed.pdecode;
+              setCodeDisplay(result.pdecode, 'pde');
+              setVeilPhase('pdefix', 'done', '✓ Processing syntax fixed');
+            } else {
+              setVeilPhase('pdefix', 'done', '⚠ Processing bug-fix partial');
+            }
+          } catch (fixErr) {
+            console.error('Processing bug-fix failed:', fixErr);
+            setVeilPhase('pdefix', 'fail', '✗ Processing bug-fix failed: ' + fixErr.message);
+            errors.push('Processing bug-fix: ' + fixErr.message);
+          }
+        } else {
+          setVeilPhase('pdefix', 'done', '✓ No Processing syntax issues found');
+        }
+      }
     } catch(e) {
       console.error('Pipeline pde phase failed:', e);
       setVeilPhase('pde', 'fail', '✗ Processing failed: ' + e.message);
@@ -1975,25 +2101,26 @@ async function generatePipeline(task, attachments, plan) {
     }
   }
 
-  // ── Phase 4: Explanations ──
-  if (phases.indexOf('explain') > -1) {
-    setVeilPhase('explain', 'active', 'Writing code explanations…');
-    setStatus('run', 'phase ' + phases.length + '/' + phases.length + ' — explanations…');
+  // ── Processing explanation ──
+  if (phases.indexOf('pdeexp') > -1 && result.pdecode) {
+    setVeilPhase('pdeexp', 'active', 'Writing Processing explanation…');
+    setStatus('run', 'phase ' + (phases.indexOf('pdeexp') + 1) + '/' + phases.length + ' — Processing explanation…');
     try {
-      var codeCtx = '';
-      if (result.p5code) codeCtx += '\n\np5.js code:\n```\n' + result.p5code.substring(0, 800) + '\n```';
-      if (result.pdecode) codeCtx += '\n\nProcessing code:\n```\n' + result.pdecode.substring(0, 800) + '\n```';
-      var expPrompt = 'Write explanations for this sketch:\n\n' + conceptContext + codeCtx;
-      var expResult = await callPhase('explain', expPrompt, null, provider, s);
-      setDbgFlow('parse', 'Parsing explanation output', 'explain');
-      var expParsed = parseResponse(expResult.text);
-      result.pdeexp = expParsed.pdeexp;
-      result.p5exp = expParsed.p5exp;
-      setVeilPhase('explain', 'done', '✓ Explanations ready');
+      var pdeExpPrompt = 'Write explanation for this Processing sketch:\n\n' + conceptContext +
+        '\n\nProcessing code:\n```\n' + (result.pdecode || '').substring(0, 1200) + '\n```';
+      var pdeExplainSettings = {
+        pde: true, pdeExp: true,
+        p5: false, p5Exp: false
+      };
+      var pdeExpResult = await callPhase('explain', pdeExpPrompt, null, provider, pdeExplainSettings);
+      setDbgFlow('parse', 'Parsing Processing explanation output', 'pdeexp');
+      var pdeExpParsed = parseResponse(pdeExpResult.text);
+      result.pdeexp = pdeExpParsed.pdeexp;
+      setVeilPhase('pdeexp', 'done', '✓ Processing explanation ready');
     } catch(e) {
-      console.error('Pipeline explain phase failed:', e);
-      setVeilPhase('explain', 'fail', '✗ Explanations failed: ' + e.message);
-      errors.push('Explanations: ' + e.message);
+      console.error('Pipeline Processing explanation phase failed:', e);
+      setVeilPhase('pdeexp', 'fail', '✗ Processing explanation failed: ' + e.message);
+      errors.push('Processing explanation: ' + e.message);
     }
   }
 
@@ -3417,11 +3544,11 @@ async function send(){
     renderAll(r);
 
     // Auto-fix for single-shot mode — use focused p5 phase caller, not full callClaude
-    if (lastP5Error && AUTOFIX_ENABLED && r.p5code) {
+    if (lastP5Error && AUTOFIX_ENABLED && r.p5code && isLikelySyntaxError(lastP5Error)) {
       setStatus('run', 'auto-fixing preview…');
       G('veil-detail').textContent = '🔧 Auto-fixing preview error: ' + lastP5Error;
       try {
-        var fixMsg = 'The following p5.js sketch has a runtime error:\n\nError: ' + lastP5Error + '\n\nOriginal code:\n```\n' + r.p5code + '\n```\n\nFix the error and return the corrected sketch. NEVER use document.getElementById(), document.querySelector(), p.select(), appendChild, or any direct DOM access. Use ONLY p5 instance methods (p.createButton, p.createSlider, p.createDiv, etc.). Store slider references in variables and read them with .value() — never use p.slider() or p.this.';
+        var fixMsg = 'The following p5.js sketch has a SYNTAX error:\n\nError: ' + lastP5Error + '\n\nOriginal code:\n```p5instance\n' + r.p5code + '\n```\n\nSTRICT TASK: Fix only syntax errors. Do not redesign, refactor, or change behavior beyond syntax validity. Return only the corrected complete p5.js sketch in ### p5 sketch format.';
         var fixResult = await callPhase('p5', fixMsg, null, providerFor(MODEL), getSettings());
         var fixParsed = parseResponse(fixResult.text);
         if (fixParsed.p5code) {
