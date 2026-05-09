@@ -426,6 +426,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 /* ── API KEY ── */
 #keybanner{padding:0;background:var(--surf3);border-bottom:1px solid var(--brd);flex-shrink:0;display:flex;flex-direction:column}
 #keybanner.hidden{display:none}
+.ui-hidden{display:none !important}
 .key-prov-icon{width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:0;transition:background .2s}
 .key-prov-icon.gemini{background:#4285f4}
 #key-status-dots{display:flex;gap:4px;align-items:center;flex-shrink:0}
@@ -894,19 +895,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
     <div class="cl-avatar">✦</div>
     <div class="cl-info">
       <div class="cl-name">Plotter Assistant</div>
-      <div class="cl-sub" id="cl-sub-model">claude-sonnet-4</div>
+      <div class="cl-sub" id="cl-sub-model"></div>
     </div>
     <button class="hbtn" id="ctog">−</button>
   </div>
 
   <!-- Model + Template toolbar -->
   <div id="chat-toolbar">
-    <span class="tb-label">Model</span>
-    <button id="model-btn" class="model-btn">
+    <span class="tb-label ui-hidden">Model</span>
+    <button id="model-btn" class="model-btn ui-hidden">
       <span id="model-btn-label">Claude Sonnet 4.6</span>
       <span class="model-btn-arrow">▾</span>
     </button>
-    <div class="tb-divider"></div>
+    <div class="tb-divider ui-hidden"></div>
     <button id="tpl-btn">⊞ Template ▾</button>
     <div class="tb-divider"></div>
     <button id="reset-btn" class="tb-icon-btn tb-icon-danger" title="Reset all data">⟳</button>
@@ -919,7 +920,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
     <span class="thinking-label" style="color:var(--txdim);font-size:7.5px">Adaptive reasoning before answering</span>
   </div>
 
-  <div id="keybanner">
+  <div id="keybanner" class="ui-hidden">
     <div class="key-row">
       <span class="key-prov-icon" id="key-prov-icon">A</span>
       <input id="kinput" type="password" placeholder="API key…">
@@ -937,7 +938,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
   <div id="msgs">
     <div class="mgrp claude">
       <div class="msender"><span class="mini-av">✦</span> Assistant</div>
-      <div class="bubble">Hi! Describe a plotter sketch. Download buttons appear once a sketch is generated. Use the toolbar above to switch models or templates.</div>
+      <div class="bubble">Hi! Describe a plotter sketch. Download buttons appear once a sketch is generated. Use the toolbar above for templates and reset.</div>
       <div class="mts" id="welcome-ts"></div>
     </div>
     <div id="typing">
@@ -1029,7 +1030,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 </div>
 
 <!-- Model picker dropdown -->
-<div id="model-drop"><div id="model-drop-scroll" onwheel="this.scrollTop+=event.deltaY;event.preventDefault();">
+<div id="model-drop" class="ui-hidden"><div id="model-drop-scroll" onwheel="this.scrollTop+=event.deltaY;event.preventDefault();">
 
   <!-- ── BASE (always visible) ── -->
   <div class="md-section-label">No Key Required</div>
@@ -1294,7 +1295,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
   <div class="rc-body">
     <div class="rc-icon">⟳</div>
     <div class="rc-title">Reset All Data?</div>
-    <div class="rc-sub">This clears all sessions, chat history, generated code, API keys, and settings. This cannot be undone.</div>
+    <div class="rc-sub">This clears all sessions, chat history, generated code, and settings. This cannot be undone.</div>
     <div class="rc-btns">
       <button id="rc-cancel">Cancel</button>
       <button id="rc-ok">Reset Everything</button>
@@ -1355,7 +1356,8 @@ document.addEventListener('DOMContentLoaded', function() {
 //  Model selector · Template system · Full system prompt
 // ══════════════════════════════════════════════════════════════
 
-var MODEL = 'claude-sonnet-4-6';
+var DEFAULT_MODEL = 'claude-sonnet-4-6';
+var MODEL = DEFAULT_MODEL;
 var apiKeys = { anthropic: '', gemini: '', academic: '' };
 var ACADEMIC_CLOUD_KEY_DEFAULT = '';
 var academicCorsProxy = '';
@@ -1372,6 +1374,8 @@ var currentTemplate = 'dma'; // 'dma' | 'custom'
 var customTemplate  = { name:'Custom', body:'' };
 
 function G(id){ return document.getElementById(id); }
+var ASSISTANT_SUBTITLE = 'Creative coding assistant';
+G('cl-sub-model').textContent = ASSISTANT_SUBTITLE;
 
 // ── Provider router ───────────────────────────────────────────
 // Maps a model string to the API provider name
@@ -1505,12 +1509,7 @@ function initApiKeyUI() {
   updateKeyStatusDots();
   updateKeyBanner(); // sets banner state based on current MODEL's provider
 
-  if (apiKeys.anthropic || apiKeys.gemini) {
-    var parts = [];
-    if (apiKeys.anthropic) parts.push('Anthropic');
-    if (apiKeys.gemini)    parts.push('Gemini');
-    addBubble('🔑 ' + parts.join(' & ') + ' key(s) loaded. <a style="cursor:pointer;color:var(--acc)" onclick="clearKeyFor(\'anthropic\')">Remove Anthropic</a> / <a style="cursor:pointer;color:var(--acc)" onclick="clearKeyFor(\'gemini\')">Remove Gemini</a>', 'claude');
-  }
+  // Key status is managed silently in this UI variant.
 }
 
 // ── PLACEHOLDERS ──────────────────────────────────────────────
@@ -2084,7 +2083,7 @@ function setModel(modelId, label) {
   forcedKeyProvider = null; // reset forced provider so banner follows model
   var displayLabel = label || MODEL_LABELS[modelId] || modelId;
   G('model-btn-label').textContent = displayLabel;
-  G('cl-sub-model').textContent = displayLabel;
+  G('cl-sub-model').textContent = ASSISTANT_SUBTITLE;
   document.querySelectorAll('.md-item').forEach(function(el){
     el.classList.toggle('active-model', el.dataset.model === modelId);
   });
@@ -2370,7 +2369,6 @@ function saveState(){
   try{
     localStorage.setItem(PREFS_KEY, JSON.stringify({
       settings: getSettings(),
-      model: MODEL,
       currentTemplate: currentTemplate,
       customTemplate: customTemplate
     }));
@@ -2385,15 +2383,11 @@ function loadState(){
 
     if(s.settings && typeof s.settings === 'object') applySettings(s.settings);
 
-    if(s.model && typeof s.model === 'string'){
-      var savedLabel = MODEL_LABELS[s.model] || s.model;
-      MODEL = s.model;
-      G('model-btn-label').textContent = savedLabel;
-      G('cl-sub-model').textContent = savedLabel;
-      document.querySelectorAll('.md-item').forEach(function(el){
-        el.classList.toggle('active-model', el.dataset.model === s.model);
-      });
-    }
+    MODEL = DEFAULT_MODEL;
+    G('model-btn-label').textContent = MODEL_LABELS[DEFAULT_MODEL] || DEFAULT_MODEL;
+    document.querySelectorAll('.md-item').forEach(function(el){
+      el.classList.toggle('active-model', el.dataset.model === MODEL);
+    });
 
     if(s.customTemplate && typeof s.customTemplate === 'object'){
       customTemplate = {
