@@ -7,24 +7,12 @@ Plotter Studio is a browser-based AI creative coding tool for pen-plotter workfl
 ## Project Information
 
 - **Project type:** Single-file web app (vanilla HTML/CSS/JavaScript)
-- **Main app files:** `plotter_studio.html`, `plotter_studio_artifact.html`
+- **Main app file:** `plotter_studio.html`
 - **Optional local helper:** `saia_proxy.py` (Python proxy for SAIA/CORS)
 - **Runtime requirements:** Modern browser, and Python 3 only if using the local proxy
 - **License:** MIT
 
-There are two ways to use Plotter Studio:
-
-## Option 1 — Use the Claude Artifact
-
-This is the easiest option. No install, no setup, no API key management on your side [API KEYs DO NOT WORK HERE].
-
-Open the public artifact here:
-
-[https://claude.ai/public/artifacts/9be3b773-3073-400b-a249-96ee83578ad3](https://claude.ai/public/artifacts/9be3b773-3073-400b-a249-96ee83578ad3)
-
-Open The Link or drag & drop the .html file into a Claude.ai chat... this creates the artifact automatically.
-
-## Option 2 — Run Locally with Your Own API Key
+## Run Locally with Your Own API Key
 
 This is the flexible option. You open the HTML file locally in your browser and use your own provider key.
 
@@ -59,10 +47,9 @@ git clone https://github.com/BotAndis/Plotter-Studio.git
 cd Plotter-Studio
 ```
 
-Then open one of these files directly in your browser:
+Then open this file directly in your browser:
 
-- `plotter_studio.html` — full version
-- `plotter_studio_artifact.html` — artifact-focused version
+- `plotter_studio.html`
 
 There is no npm setup, build step, or bundler.
 
@@ -153,8 +140,7 @@ SAIA is handled through an OpenAI-compatible chat-completions flow in this proje
 - Multiple provider support
 - Optional proxy support for SAIA
 - Downloadable generated outputs
-- Artifact-focused lightweight variant
-- Full version with extra pipeline and debug tooling
+- Multi-phase pipeline with debug tooling
 
 ---
 
@@ -173,7 +159,6 @@ This section explains how the app is structured internally.
 Main files:
 
 - `plotter_studio.html`
-- `plotter_studio_artifact.html`
 - `saia_proxy.py`
 
 ---
@@ -446,51 +431,10 @@ This system is visual only and does not affect provider calls or code generation
 
 ---
 
-## Full Version vs Artifact Version
+## Note on Artifact HTML
 
-`plotter_studio_artifact.html` is a stripped-down sibling, not a replacement for `plotter_studio.html`.
-
-### Full version includes
-
-- multi-phase pipeline
-- follow-up context
-- session save/load
-- debug overlay
-- auto-fix
-- token tracking
-- richer export and logging behavior
-
-### Artifact version keeps
-
-- dark UI
-- model picker
-- API key input
-- proxy URL input
-- single prompt to single generation
-- p5 live preview
-- Processing code panel
-- explanation panels
-- local preference storage
-
-### Artifact version removes
-
-- pipeline mode
-- concept/pde/explain multi-phase flow
-- persistent follow-up context
-- session save/load panel
-- debug overlay
-- auto-fix toggle
-- export of debug/chat logs
-- token tracking
-- session naming
-
-### Result
-
-- smaller code size
-- one prompt = one fresh generation
-- no persistent state between runs
-
-Claude artifacts appear in a dedicated window to the right of the main chat, which is why the artifact version feels different from the standalone local browser experience.
+`plotter_studio_artifact.html` is not part of the recommended workflow.  
+Use `plotter_studio.html` as the primary app file.
 
 ---
 
@@ -509,7 +453,6 @@ Google explicitly documents API-key-based Gemini integration, while also noting 
 ## Repository Files
 
 - `plotter_studio.html` — full feature app
-- `plotter_studio_artifact.html` — artifact-focused variant
 - `saia_proxy.py` — optional local SAIA CORS proxy
 
 ---
