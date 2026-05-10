@@ -3101,7 +3101,7 @@ try{
   var pph    = document.getElementById('pph');
   var previewContainer = document.getElementById('prv') || pph;
   var canvas = document.getElementById('preview-anim-canvas');
-  if (!canvas || !pph || !previewContainer) return;
+  if (!canvas || !pph) return;
   var ctx = canvas.getContext('2d');
   var W = 0, H = 0;
   var NUM   = 180;
