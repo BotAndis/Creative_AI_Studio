@@ -4524,14 +4524,16 @@ try{
         var sx0 = cx + p.x * projZ;
         var sy0 = cy + p.y * projZ;
         var dx = sx0 - mouse.x, dy = sy0 - mouse.y;
-        var d2 = dx*dx + dy*dy, R = 150;
+        var d2 = dx*dx + dy*dy, R = 190;
         if (d2 < R*R && d2 > 1) {
           var dist = Math.sqrt(d2);
-          var force = (1 - dist / R) * 1.8;
+          var force = Math.pow(1 - dist / R, 1.4) * 2.6;
           var angle = Math.atan2(dy, dx);
-          p.vx += Math.cos(angle) * force * 2.5;
-          p.vy += Math.sin(angle) * force * 2.5;
-          p.vz -= force * 12;
+          var fx = Math.cos(angle) * force;
+          var fy = Math.sin(angle) * force;
+          p.vx += fx * 3.2;
+          p.vy += fy * 3.2;
+          p.vz -= force * 15;
         }
       }
 
@@ -4557,12 +4559,15 @@ try{
     requestAnimationFrame(tick);
   }
 
-  pph.addEventListener('mousemove', function(e) {
+  function updatePreviewMouse(e) {
     var rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
     mouse.inside = true;
-  });
+  }
+  var moveEvt = window.PointerEvent ? 'pointermove' : 'mousemove';
+  pph.addEventListener(moveEvt, updatePreviewMouse);
+  pph.addEventListener('mouseenter', function() { mouse.inside = true; });
   pph.addEventListener('mouseleave', function() { mouse.inside = false; });
 
   // init after layout — retry a few times to catch lazy flex layout
