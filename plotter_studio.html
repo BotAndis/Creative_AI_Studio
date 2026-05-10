@@ -3199,10 +3199,16 @@ function getTemplatePromptValue(which) {
 function getTemplatePromptName(which) {
   return which === 'dma' ? 'dMA Creative Coding' : (customTemplate.name || 'Custom');
 }
-function getPromptEditorDefaultValue(key, s) {
+function getPromptEditorFallbackValue(key, s) {
   if (key === 'base') return getTemplatePromptValue(editingTemplate);
+  if (key === 'system') return DEFAULT_BASE_SYSTEM_PROMPT;
+  return getDefaultPhasePrompt(key, s);
+}
+function getPromptEditorDefaultValue(key, s) {
+  var fallback = getPromptEditorFallbackValue(key, s);
+  if (key === 'base') return fallback;
   if (key === 'system') return getSystemPromptText();
-  return getPromptOverride(key) || getDefaultPhasePrompt(key, s);
+  return getPromptOverride(key) || fallback;
 }
 function normalizePromptOverride(value, defaultValue) {
   var trimmed = (value || '').trim();
@@ -3267,6 +3273,7 @@ function renderPromptEditor() {
     var area = document.createElement('textarea');
     area.className = 'tpl-prompt-textarea';
     area.dataset.promptKey = section.key;
+    area.dataset.fallbackPrompt = getPromptEditorFallbackValue(section.key, editorSettings);
     area.placeholder = section.placeholder;
     area.value = getPromptEditorDefaultValue(section.key, editorSettings);
     body.appendChild(area);
@@ -3309,11 +3316,26 @@ function savePromptEditor() {
     setActiveTpl('custom');
   }
 
-  promptTemplates.system = normalizePromptOverride(systemArea ? systemArea.value : '', DEFAULT_BASE_SYSTEM_PROMPT);
-  promptTemplates.concept = normalizePromptOverride(conceptArea ? conceptArea.value : '', getDefaultPhasePrompt('concept', currentSettings));
-  promptTemplates.p5 = normalizePromptOverride(p5Area ? p5Area.value : '', getDefaultPhasePrompt('p5', currentSettings));
-  promptTemplates.pde = normalizePromptOverride(pdeArea ? pdeArea.value : '', getDefaultPhasePrompt('pde', currentSettings));
-  promptTemplates.explain = normalizePromptOverride(explainArea ? explainArea.value : '', getDefaultPhasePrompt('explain', currentSettings));
+  promptTemplates.system = normalizePromptOverride(
+    systemArea ? systemArea.value : '',
+    systemArea ? systemArea.dataset.fallbackPrompt : DEFAULT_BASE_SYSTEM_PROMPT
+  );
+  promptTemplates.concept = normalizePromptOverride(
+    conceptArea ? conceptArea.value : '',
+    conceptArea ? conceptArea.dataset.fallbackPrompt : getDefaultPhasePrompt('concept', currentSettings)
+  );
+  promptTemplates.p5 = normalizePromptOverride(
+    p5Area ? p5Area.value : '',
+    p5Area ? p5Area.dataset.fallbackPrompt : getDefaultPhasePrompt('p5', currentSettings)
+  );
+  promptTemplates.pde = normalizePromptOverride(
+    pdeArea ? pdeArea.value : '',
+    pdeArea ? pdeArea.dataset.fallbackPrompt : getDefaultPhasePrompt('pde', currentSettings)
+  );
+  promptTemplates.explain = normalizePromptOverride(
+    explainArea ? explainArea.value : '',
+    explainArea ? explainArea.dataset.fallbackPrompt : getDefaultPhasePrompt('explain', currentSettings)
+  );
 
   document.querySelectorAll('.tpl-model-select').forEach(function(sel){
     var key = sel.dataset.modelKey;
