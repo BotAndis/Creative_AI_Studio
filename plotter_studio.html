@@ -770,7 +770,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 </style>
 
 <div id="bar">
-  <button id="doc-btn" class="doc-btn" title="Open README documentation">Documentation</button>
+  <button id="docs-btn" class="doc-btn" title="Open README documentation">Documentation</button>
   <div class="nav-tab active" id="nav-studio" onclick="switchNav('studio')">
     <span class="tab-dot"></span>
     Studio
@@ -3669,33 +3669,42 @@ function fmtHowto(text, mode) {
 }
 
 // ── Documentation overlay (README) ────────────────────────────
-var README_FALLBACK =
+var readmeFallback =
 '# Generative Plotter Studio\n\n' +
-'README.md could not be loaded automatically in this browser context.\n\n' +
-'Open README.md from the project root to view full documentation.';
+'README.md could not be loaded automatically (often due to file:// restrictions or CORS).\n\n' +
+'Open README.md in the project root to view full documentation.';
+var readmeLoading = 'Loading README.md...';
 var docsLoaded = false;
+var docsLoadPromise = null;
 function loadDocumentation() {
   if (docsLoaded) return Promise.resolve();
+  if (docsLoadPromise) return docsLoadPromise;
   var content = G('docs-content');
-  content.textContent = 'Loading README.md...';
-  return fetch('README.md')
+  content.textContent = readmeLoading;
+  docsLoadPromise = fetch('README.md')
     .then(function(res){
-      if(!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) throw new Error('Failed to load README.md: HTTP ' + res.status + ' ' + res.statusText);
       return res.text();
     })
     .then(function(text){
       content.textContent = text;
       docsLoaded = true;
     })
-    .catch(function(){
-      content.textContent = README_FALLBACK;
+    .catch(function(err){
+      console.warn('Failed to load README.md:', err);
+      var detail = (err && err.message) ? ('\n\nDetails: ' + err.message) : '';
+      content.textContent = readmeFallback + detail;
+    })
+    .finally(function(){
+      docsLoadPromise = null;
     });
+  return docsLoadPromise;
 }
 function openDocumentation(){
   G('docs-overlay').classList.add('open');
   loadDocumentation();
 }
-G('doc-btn').addEventListener('click', openDocumentation);
+G('docs-btn').addEventListener('click', openDocumentation);
 var statusClickCount = 0, statusClickTimer = null;
 G('slbl').addEventListener('click', function() {
   statusClickCount++;
@@ -4642,7 +4651,7 @@ window.triggerHtmlDownload = triggerHtmlDownload;
       <button class="docs-close" onclick="document.getElementById('docs-overlay').classList.remove('open')">✕</button>
     </div>
     <div class="docs-body">
-      <pre id="docs-content">Loading README.md...</pre>
+      <pre id="docs-content"></pre>
     </div>
   </div>
 </div>
