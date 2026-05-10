@@ -245,42 +245,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 .md-section-label::before{content:'';flex:1;height:1px;background:var(--brd);display:none}
 .md-section-label.free-label{color:var(--grn);border-top-color:rgba(111,168,119,.2)}
 .md-section-label.paid-label{color:#5898b8;border-top-color:rgba(88,152,184,.2)}
-/* Accordion toggle row */
-.md-apikey-toggle{
-  display:flex;align-items:center;gap:8px;padding:9px 12px;
-  cursor:pointer;background:rgba(192,104,32,.07);
-  border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);
-  font-size:9.5px;color:var(--acc);font-weight:500;letter-spacing:.04em;
-  transition:background .16s;flex-shrink:0;
-}
-.md-apikey-toggle:hover{background:rgba(192,104,32,.14)}
-.md-toggle-icon{font-size:9px;transition:transform .18s;flex-shrink:0}
-.md-toggle-icon.open{transform:rotate(90deg)}
-/* Accordion body */
-.md-accordion{display:none;flex-direction:column;overflow:hidden}
-.md-accordion.open{display:flex}
-/* API key info banner inside accordion */
-.md-key-info{padding:8px 12px;background:var(--surf3);border-bottom:1px solid var(--brd);flex-shrink:0}
-.md-key-info-row{display:flex;align-items:center;gap:6px;font-size:8.5px;margin-bottom:3px}
-.md-key-info-row:last-child{margin-bottom:0}
-.md-key-prov{color:var(--txdim);font-size:8px;letter-spacing:.1em;text-transform:uppercase;width:70px;flex-shrink:0}
-.md-key-info a{color:var(--acc);text-decoration:none;font-size:8.5px}
-.md-key-info a:hover{text-decoration:underline}
 /* Tags — now multiple per item */
 .md-tags{display:flex;gap:3px;flex-wrap:wrap;flex-shrink:0}
 .tag-free{background:rgba(111,168,119,.18);color:var(--grn);border:1px solid rgba(111,168,119,.3)}
 .tag-paid{background:rgba(88,152,184,.12);color:#5898b8}
 
-/* ── CORS PROXY ROW ── */
-.md-cors-row{display:flex;align-items:center;gap:5px;padding:5px 12px 6px;background:rgba(192,104,32,.05);border-top:1px solid var(--brd)}
-.md-cors-label{font-size:7.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--txdim);flex-shrink:0;white-space:nowrap}
-.md-cors-input{flex:1;background:var(--bg);border:1px solid var(--brd);border-radius:3px;color:var(--txt);font-family:var(--font);font-size:8px;padding:4px 6px;outline:none;min-width:0}
-.md-cors-input:focus{border-color:var(--acc)}
-.md-cors-input.active{border-color:var(--grn);color:var(--grn)}
-.md-cors-btn{padding:0 7px;height:22px;background:var(--acc);color:#fff;border:none;border-radius:3px;font-family:var(--font);font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;flex-shrink:0}
-.md-cors-btn:hover{background:var(--acchi)}
-.md-cors-clear{background:none;border:1px solid var(--brd);color:var(--txdim)}
-.md-cors-clear:hover{background:rgba(200,60,60,.12);border-color:rgba(200,60,60,.4);color:#c44}
 /* ── PROVIDER SUB-ACCORDIONS ── */
 .md-prov-toggle{display:flex;align-items:center;gap:7px;padding:7px 12px;cursor:pointer;background:var(--surf3);border-top:1px solid var(--brd);font-size:8.5px;color:var(--txt);letter-spacing:.14em;text-transform:uppercase;transition:background .14s;flex-shrink:0;user-select:none;font-weight:500}
 .md-prov-toggle:hover{background:var(--surf2)}
@@ -288,7 +257,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 .md-ptog-icon.open{transform:rotate(90deg)}
 .md-prov-body{display:none;flex-direction:column}
 .md-prov-body.open{display:flex}
-.md-prov-toggle .key-sdot{margin-left:auto}
 /* ── THINKING BAR ── */
 #thinking-bar{padding:5px 10px;border-bottom:1px solid var(--brd);display:none;align-items:center;gap:8px;flex-shrink:0;background:rgba(192,104,32,.05);}
 #thinking-bar.visible{display:flex}
@@ -1089,66 +1057,41 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
     </div>
     <div class="md-prov-body open" id="prov-body-gemini">
       <div class="md-section-label free-label" style="border-top:none">Free Tier</div>
-      <div class="md-item md-recommended" data-model="gemini-3-flash-preview" data-provider="gemini"
-           data-tip="★ Recommended free Gemini. Best balance of reasoning and speed in the Gemini 3 series. Preview model, actively updated by Google.">
-        <div class="md-item-main"><span class="md-name">Gemini 3 Flash</span>
-          <div class="md-tags"><span class="md-tag tag-rec">★ Recommended</span></div>
-        </div><div class="md-id">gemini-3-flash-preview</div>
-      </div>
-      <div class="md-item" data-model="gemini-flash-latest" data-provider="gemini"
-           data-tip="Developer alias that always routes to the newest stable Flash model. Won't break when older models retire next month.">
-        <div class="md-item-main"><span class="md-name">Gemini Flash (Latest Alias)</span>
-          <div class="md-tags"><span class="md-tag tag-alias">Alias</span></div>
+      <div class="md-item md-recommended" data-model="gemini-flash-latest" data-provider="gemini"
+           data-tip="★ Best Choice. Gemini 3.1 Flash — the all-rounder alias. Fast enough for autocomplete, smart enough to code. Always routes to the newest stable Flash. 15 RPM · 1,500/day · 1M TPM.">
+        <div class="md-item-main"><span class="md-name">Gemini 3.1 Flash</span>
+          <div class="md-tags"><span class="md-tag tag-rec">★ Best Choice</span><span class="md-tag tag-alias">Alias</span></div>
         </div><div class="md-id">gemini-flash-latest</div>
       </div>
-      <div class="md-item" data-model="gemini-3.1-flash-lite-preview" data-provider="gemini"
-           data-tip="Ultra-fast and low-cost. Best for simple high-volume tasks. Not ideal for complex plotter generation.">
-        <div class="md-item-main"><span class="md-name">Gemini 3.1 Flash-Lite</span>
-          <div class="md-tags"><span class="md-tag tag-fast">Fast</span></div>
-        </div><div class="md-id">gemini-3.1-flash-lite-preview</div>
-      </div>
-      <div class="md-item" data-model="gemini-2.5-pro" data-provider="gemini"
-           data-tip="Complex logic and coding. Limited daily requests on free tier. Good quality but may hit rate limits.">
-        <div class="md-item-main"><span class="md-name">Gemini 2.5 Pro</span>
-          <div class="md-tags"><span class="md-tag tag-std">Pro</span><span class="md-tag tag-dep">⚠ Jun 17</span></div>
-        </div><div class="md-id">gemini-2.5-pro</div>
-      </div>
-      <div class="md-item" data-model="gemini-2.5-flash" data-provider="gemini"
-           data-tip="Stable Gemini 2.5 Flash. Reliable but retiring June 17.">
-        <div class="md-item-main"><span class="md-name">Gemini 2.5 Flash</span>
-          <div class="md-tags"><span class="md-tag tag-dep">⚠ Jun 17</span></div>
-        </div><div class="md-id">gemini-2.5-flash</div>
-      </div>
-      <div class="md-item" data-model="gemini-2.5-flash-lite" data-provider="gemini"
-           data-tip="Lightweight Gemini 2.5. Retiring July 22 — avoid for new projects.">
-        <div class="md-item-main"><span class="md-name">Gemini 2.5 Flash-Lite</span>
-          <div class="md-tags"><span class="md-tag tag-dep">⚠ Jul 22</span></div>
-        </div><div class="md-id">gemini-2.5-flash-lite</div>
-      </div>
-      <div class="md-section-label paid-label">Paid Only</div>
-      <div class="md-item" data-model="gemini-3.1-pro-preview" data-provider="gemini"
-           data-tip="Most capable Gemini. Frontier-level reasoning and agentic workflows. Requires billing.">
-        <div class="md-item-main"><span class="md-name">Gemini 3.1 Pro</span>
-          <div class="md-tags"><span class="md-tag tag-power">Most Capable</span></div>
-        </div><div class="md-id">gemini-3.1-pro-preview</div>
-      </div>
-      <div class="md-item" data-model="gemini-3-flash" data-provider="gemini"
-           data-tip="Production-grade Gemini 3 Flash with high rate limits. Best for heavy usage.">
-        <div class="md-item-main"><span class="md-name">Gemini 3 Flash</span>
-          <div class="md-tags"><span class="md-tag tag-std">Production</span></div>
-        </div><div class="md-id">gemini-3-flash</div>
-      </div>
       <div class="md-item" data-model="gemini-3.1-flash-lite" data-provider="gemini"
-           data-tip="Most cost-efficient Gemini for massive scale. Very low price per token.">
-        <div class="md-item-main"><span class="md-name">Gemini 3.1 Flash-Lite</span>
-          <div class="md-tags"><span class="md-tag tag-fast">Cost-Efficient</span></div>
+           data-tip="The fastest. Lower logic than Pro, but you can spam requests without hitting limits. 15 RPM · 1,500/day · 1M TPM.">
+        <div class="md-item-main"><span class="md-name">Gemini 3.1 Flash Lite</span>
+          <div class="md-tags"><span class="md-tag tag-fast">Fastest</span></div>
         </div><div class="md-id">gemini-3.1-flash-lite</div>
       </div>
-      <div class="md-item" data-model="gemini-2.5-pro-paid" data-provider="gemini"
-           data-tip="Stable enterprise Gemini 2.5 Pro. High throughput.">
-        <div class="md-item-main"><span class="md-name">Gemini 2.5 Pro (Paid)</span>
-          <div class="md-tags"><span class="md-tag tag-std">Enterprise</span></div>
+      <div class="md-item" data-model="gemini-2.5-flash" data-provider="gemini"
+           data-tip="The stable workhorse. Reliable fallback if the 3.1 series acts creative. 15 RPM · 1,500/day · 1M TPM.">
+        <div class="md-item-main"><span class="md-name">Gemini 2.5 Flash</span>
+          <div class="md-tags"><span class="md-tag tag-std">Stable</span></div>
+        </div><div class="md-id">gemini-2.5-flash</div>
+      </div>
+      <div class="md-item" data-model="gemini-3.1-pro-preview" data-provider="gemini"
+           data-tip="The Flagship. Highest reasoning for modern frameworks and complex refactoring. 2 RPM · 50/day · 32K TPM.">
+        <div class="md-item-main"><span class="md-name">Gemini 3.1 Pro Preview</span>
+          <div class="md-tags"><span class="md-tag tag-power">Flagship</span></div>
+        </div><div class="md-id">gemini-3.1-pro-preview</div>
+      </div>
+      <div class="md-item" data-model="gemini-2.5-pro" data-provider="gemini"
+           data-tip="The Stable Pro. Excellent at following strict coding conventions and documentation. 2 RPM · 50/day · 32K TPM.">
+        <div class="md-item-main"><span class="md-name">Gemini 2.5 Pro</span>
+          <div class="md-tags"><span class="md-tag tag-std">Stable Pro</span></div>
         </div><div class="md-id">gemini-2.5-pro</div>
+      </div>
+      <div class="md-item" data-model="deep-research-pro-preview-12-2025" data-provider="gemini"
+           data-tip="Problem Solver. Uses Thinking mode to plan structures. Best for impossible bugs. 1 RPM · 25/day · 32K TPM.">
+        <div class="md-item-main"><span class="md-name">Deep Research Pro</span>
+          <div class="md-tags"><span class="md-tag tag-power">Thinking</span></div>
+        </div><div class="md-id">deep-research-pro-preview-12-2025</div>
       </div>
       <div class="md-hint">Key: <a href="https://aistudio.google.com/api-keys" target="_blank">aistudio.google.com/api-keys</a></div>
     </div>
@@ -1380,7 +1323,7 @@ G('cl-sub-model').textContent = ASSISTANT_SUBTITLE;
 // ── Provider router ───────────────────────────────────────────
 // Maps a model string to the API provider name
 function providerFor(model) {
-  if (model && model.indexOf('gemini') === 0) return 'gemini';
+  if (model && (model.indexOf('gemini') === 0 || model.indexOf('deep-research') === 0)) return 'gemini';
   if (model && ACADEMIC_MODELS.indexOf(model) > -1) return 'academic';
   return 'anthropic';
 }
@@ -2030,16 +1973,12 @@ var MODEL_LABELS = {
   'claude-opus-4-7-latest':      'Claude Opus 4.7',
   'claude-sonnet-4-6-latest':    'Claude Sonnet 4.6 ★',
   'claude-haiku-4-5-latest':     'Claude Haiku 4.5',
-  'gemini-flash-latest':         'Gemini Flash (Latest)',
-  'gemini-3-flash-preview':      'Gemini 3 Flash ★',
-  'gemini-3.1-flash-lite-preview':'Gemini 3.1 Flash-Lite',
-  'gemini-3.1-pro-preview':      'Gemini 3.1 Pro',
-  'gemini-3-flash':              'Gemini 3 Flash',
-  'gemini-3.1-flash-lite':       'Gemini 3.1 Flash-Lite',
-  'gemini-2.5-pro':              'Gemini 2.5 Pro',
-  'gemini-2.5-flash':            'Gemini 2.5 Flash',
-  'gemini-2.5-flash-lite':       'Gemini 2.5 Flash-Lite',
-  'gemini-2.5-pro-paid':                    'Gemini 2.5 Pro (Paid)',
+  'gemini-flash-latest':                    'Gemini 3.1 Flash ★',
+  'gemini-3.1-flash-lite':                  'Gemini 3.1 Flash Lite',
+  'gemini-2.5-flash':                       'Gemini 2.5 Flash',
+  'gemini-3.1-pro-preview':                 'Gemini 3.1 Pro Preview',
+  'gemini-2.5-pro':                         'Gemini 2.5 Pro',
+  'deep-research-pro-preview-12-2025':      'Deep Research Pro',
   'qwen3-coder-30b-a3b-instruct':           'Qwen3 Coder 30B ★',
   'deepseek-r1-distill-llama-70b':          'DeepSeek R1 Distill 70B',
   'llama-3.3-70b-instruct':                 'LLaMA 3.3 70B',
