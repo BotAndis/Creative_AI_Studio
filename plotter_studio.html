@@ -4494,7 +4494,7 @@ try{
   var NUM   = 180;
   var FOV   = 420;
   var DEPTH = 260;
-  var mouse = { x: -9999, y: -9999, inside: false };
+  var mouse = { x: -9999, y: -9999, tx: -9999, ty: -9999, sx: -9999, sy: -9999, inside: false };
 
   function getSize() {
     // #pph is position:absolute inside #prv — use #prv for dimensions
@@ -4567,6 +4567,13 @@ try{
     ctx.fillRect(0, 0, W, H);
     ctx.globalAlpha = 1;
 
+    if (mouse.inside) {
+      mouse.sx += (mouse.tx - mouse.sx) * 0.08;
+      mouse.sy += (mouse.ty - mouse.sy) * 0.08;
+      mouse.x = mouse.sx;
+      mouse.y = mouse.sy;
+    }
+
     pts.forEach(function(p) {
       var tx = p.bx + Math.sin(now * p.fx + p.px) * p.ax;
       var ty = p.by + Math.cos(now * p.fy + p.py) * p.ay;
@@ -4580,21 +4587,21 @@ try{
         var projZ = FOV / (FOV + p.z + DEPTH);
         var sx0 = cx + p.x * projZ;
         var sy0 = cy + p.y * projZ;
-        var dx = sx0 - mouse.x, dy = sy0 - mouse.y;
-        var d2 = dx*dx + dy*dy, R = 190;
+        var dx = sx0 - mouse.sx, dy = sy0 - mouse.sy;
+        var d2 = dx*dx + dy*dy, R = 95;
         if (d2 < R*R && d2 > 1) {
           var dist = Math.sqrt(d2);
-          var force = Math.pow(1 - dist / R, 1.4) * 2.6;
+          var force = Math.pow(1 - dist / R, 1.4) * 1.45;
           var angle = Math.atan2(dy, dx);
           var fx = Math.cos(angle) * force;
           var fy = Math.sin(angle) * force;
-          p.vx += fx * 3.2;
-          p.vy += fy * 3.2;
-          p.vz -= force * 15;
+          p.vx += fx * 1.8;
+          p.vy += fy * 1.8;
+          p.vz -= force * 8;
         }
       }
 
-      p.vx *= 0.94; p.vy *= 0.94; p.vz *= 0.92;
+      p.vx *= 0.90; p.vy *= 0.90; p.vz *= 0.88;
       p.x += p.vx; p.y += p.vy; p.z += p.vz;
 
       var zOff = p.z + DEPTH;
@@ -4618,8 +4625,14 @@ try{
 
   function updatePreviewMouse(e) {
     var rect = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - rect.left;
-    mouse.y = e.clientY - rect.top;
+    mouse.tx = e.clientX - rect.left;
+    mouse.ty = e.clientY - rect.top;
+    if (!mouse.inside) {
+      mouse.sx = mouse.tx;
+      mouse.sy = mouse.ty;
+      mouse.x = mouse.tx;
+      mouse.y = mouse.ty;
+    }
     mouse.inside = true;
   }
   var moveEvt = window.PointerEvent ? 'pointermove' : 'mousemove';
@@ -4629,6 +4642,10 @@ try{
     mouse.inside = false;
     mouse.x = -9999;
     mouse.y = -9999;
+    mouse.tx = -9999;
+    mouse.ty = -9999;
+    mouse.sx = -9999;
+    mouse.sy = -9999;
   });
 
   // init after layout — retry a few times to catch lazy flex layout
