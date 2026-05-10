@@ -3099,8 +3099,9 @@ try{
 // ═══════════════════════════════════════════════════════════
 (function() {
   var pph    = document.getElementById('pph');
+  var previewContainer = document.getElementById('prv') || pph;
   var canvas = document.getElementById('preview-anim-canvas');
-  if (!canvas || !pph) return;
+  if (!canvas || !pph || !previewContainer) return;
   var ctx = canvas.getContext('2d');
   var W = 0, H = 0;
   var NUM   = 180;
@@ -3235,9 +3236,13 @@ try{
     mouse.inside = true;
   }
   var moveEvt = window.PointerEvent ? 'pointermove' : 'mousemove';
-  pph.addEventListener(moveEvt, updatePreviewMouse);
-  pph.addEventListener('mouseenter', function() { mouse.inside = true; });
-  pph.addEventListener('mouseleave', function() { mouse.inside = false; });
+  previewContainer.addEventListener(moveEvt, updatePreviewMouse);
+  previewContainer.addEventListener('mouseenter', function() { mouse.inside = true; });
+  previewContainer.addEventListener('mouseleave', function() {
+    mouse.inside = false;
+    mouse.x = -9999;
+    mouse.y = -9999;
+  });
 
   // init after layout — retry a few times to catch lazy flex layout
   setTimeout(init, 50);
