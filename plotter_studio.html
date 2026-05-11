@@ -3201,14 +3201,14 @@ function setSessionPanelPosition(left, top){
   panel.style.top = pos.top + 'px';
   panel.dataset.positioned = '1';
 }
-var SESSION_DOCK_HOVER_DELAY_MS = 360;
+var SESSION_DOCK_HOVER_DELAY_MILLISECONDS = 360;
 var SESSION_INITIAL_TOP_MARGIN_PX = 16;
 var SESSION_INITIAL_TOP_OFFSET_PX = 60;
 var SESSION_MIN_DOCK_OVERLAP_RATIO = 0.35;
 var sessionDockState = {
   docked: false,
   holdTimer: null,
-  holdDelay: SESSION_DOCK_HOVER_DELAY_MS,
+  holdDelay: SESSION_DOCK_HOVER_DELAY_MILLISECONDS,
   gap: 10,
   leftOffset: 0,
   dockThreshold: 26,
@@ -3244,7 +3244,7 @@ function playSessionDockBurst(){
   burst.style.setProperty('--dock-burst-x', burstX + 'px');
   burst.style.setProperty('--dock-burst-y', burstY + 'px');
   burst.classList.remove('bursting');
-  // Force reflow to restart the same keyframe animation cleanly.
+  // Force a reflow after removing the class so re-adding it replays the burst from frame 0.
   void burst.offsetWidth;
   burst.classList.add('bursting');
 }
@@ -3265,7 +3265,9 @@ function sessionCanDock(rect){
   var chatRect = G('chat').getBoundingClientRect();
   var isNearChatBottom = Math.abs(rect.top - (chatRect.bottom + sessionDockState.gap)) <= sessionDockState.dockThreshold;
   var overlap = Math.min(rect.right, chatRect.right) - Math.max(rect.left, chatRect.left);
-  return isNearChatBottom && overlap > 0 && overlap >= Math.min(rect.width, chatRect.width) * sessionDockState.minOverlapRatio;
+  var hasPositiveOverlap = overlap > 0;
+  var meetsMinimumOverlap = overlap >= Math.min(rect.width, chatRect.width) * sessionDockState.minOverlapRatio;
+  return isNearChatBottom && hasPositiveOverlap && meetsMinimumOverlap;
 }
 function queueSessionDock(rect){
   if(sessionDockState.docked) return;
