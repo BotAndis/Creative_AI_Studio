@@ -2,19 +2,29 @@
 
 ## About
 
-Plotter Studio is a browser-based AI creative coding tool for pen-plotter workflows, designed to generate editable Processing and p5.js sketches with live preview support.
+Plotter Studio is a browser-based vibe coding tool for Experimental drawing and generative art. Designed to create pen-plotter svgs, designed to generate editable creative code for Processing and p5.js sketches with live preview support, customizable Prompt presets, Multi-phase pipeline with debug tooling. Usable with API or as an embedded AI Artifact.
 
-## Project Information
+---
 
-- **Project type:** Single-file web app (vanilla HTML/CSS/JavaScript)
-- **Main app file:** `plotter_studio.html`
-- **Optional local helper:** `saia_proxy.py` (Python proxy for SAIA/CORS)
-- **Runtime requirements:** Modern browser, and Python 3 only if using the local proxy
-- **License:** MIT
+## Quick Feature Overview
+
+- Single-file browser app
+- No build system
+- Live p5.js preview
+- Processing code generation
+- Optional explanation panels
+- Multiple provider support
+- Proxy support for SAIA
+- Downloadable generated outputs
+- Multi-phase pipeline with debug tooling
+
+---
 
 ##
 Demo Artifact:
-https://claude.ai/public/artifacts/83b28324-d48d-4303-ab9e-908f2db17923
+[https://claude.ai/public/artifacts/83b28324-d48d-4303-ab9e-908f2db17923](https://claude.ai/public/artifacts/83b28324-d48d-4303-ab9e-908f2db17923)
+
+---
 
 ## Run Locally with Your Own API Key
 
@@ -47,7 +57,7 @@ This is the best option if you want control over model choice, local edits, cust
 Clone the repository:
 
 ```bash
-git clone https://github.com/BotAndis/Plotter-Studio.git
+git clone [https://github.com/BotAndis/Plotter-Studio.git](https://github.com/BotAndis/Plotter-Studio.git)
 cd Plotter-Studio
 ```
 
@@ -95,21 +105,6 @@ Do **not** share:
 
 ---
 
-## What Plotter Studio Does
-
-Plotter Studio is a browser-first AI creative coding studio for pen-plotter workflows.
-
-It generates:
-
-- **Processing (Java)** sketches for plotter-oriented output
-- **p5.js** sketches for live browser preview
-- Explanations of the generative system
-- Downloadable outputs for further editing and export
-
-The goal is not just image generation. The goal is an editable, code-first workflow for generative drawing.
-
----
-
 ## Supported Providers
 
 Plotter Studio can route requests to different providers depending on the selected model.
@@ -119,7 +114,7 @@ Plotter Studio can route requests to different providers depending on the select
 Anthropic requests use the Messages API at:
 
 ```text
-https://api.anthropic.com/v1/messages
+[https://api.anthropic.com/v1/messages](https://api.anthropic.com/v1/messages)
 ```
 
 Anthropic documents the Messages API as the main multi-turn interface for Claude model calls.
@@ -134,17 +129,13 @@ SAIA is handled through an OpenAI-compatible chat-completions flow in this proje
 
 ---
 
-## Quick Feature Overview
+## Project Information
 
-- Single-file browser app
-- No build system
-- Live p5.js preview
-- Processing code generation
-- Optional explanation panels
-- Multiple provider support
-- Optional proxy support for SAIA
-- Downloadable generated outputs
-- Multi-phase pipeline with debug tooling
+- **Project type:** Single-file web app (vanilla HTML/CSS/JavaScript)
+- **Main app file:** `plotter_studio.html`
+- **Optional local helper:** `saia_proxy.py` (Python proxy for SAIA/CORS)
+- **Runtime requirements:** Modern browser, and Python 3 only if using the local proxy
+- **License:** MIT
 
 ---
 
@@ -196,7 +187,7 @@ This lets one UI talk to multiple backends without changing the frontend workflo
 Endpoint:
 
 ```text
-https://api.anthropic.com/v1/messages
+[https://api.anthropic.com/v1/messages](https://api.anthropic.com/v1/messages)
 ```
 
 Typical headers:
@@ -214,6 +205,7 @@ Typical request body includes:
 - optional `thinking`
 
 Anthropic’s Messages API is the documented structure for Claude conversations.
+
 #### Gemini
 
 Endpoint pattern:
@@ -239,7 +231,7 @@ Google documents Gemini API key management in Google AI Studio and explicit key-
 Base endpoint:
 
 ```text
-https://chat-ai.academiccloud.de/v1/chat/completions
+[https://chat-ai.academiccloud.de/v1/chat/completions](https://chat-ai.academiccloud.de/v1/chat/completions)
 ```
 
 Auth:
