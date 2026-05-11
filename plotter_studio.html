@@ -4491,7 +4491,8 @@ try{
   if (!canvas || !pph) return;
   var ctx = canvas.getContext('2d');
   var W = 0, H = 0;
-  var NUM   = 220;
+  var NUM   = 440;
+  var TIME_SCALE = 0.5;
   var FOV   = 420;
   var DEPTH = 260;
   var mouse = { x: -9999, y: -9999, tx: -9999, ty: -9999, sx: -9999, sy: -9999, inside: false };
@@ -4552,7 +4553,7 @@ try{
     if (sz.w !== W || sz.h !== H) init();
     if (W === 0 || H === 0) { requestAnimationFrame(tick); return; }
 
-    var now = performance.now();
+    var now = performance.now() * TIME_SCALE;
     var cx = W / 2, cy = H / 2;
 
     // detect light/dark from CSS var
