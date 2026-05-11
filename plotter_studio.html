@@ -323,7 +323,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 #session-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9150;display:none}
 #session-overlay.open{display:block}
 #session-panel{
-  position:fixed;z-index:9200;width:300px;
+  position:fixed;z-index:9200;width:380px;
   bottom:80px;right:20px;
   background:var(--surf);border:1px solid var(--brdhi);
   border-radius:8px;box-shadow:0 10px 36px rgba(0,0,0,.65);
@@ -3208,6 +3208,7 @@ var SESSION_DOCK_HOVER_DELAY_MILLISECONDS = 360;
 var SESSION_INITIAL_TOP_MARGIN_PX = 16;
 var SESSION_INITIAL_TOP_OFFSET_PX = 60;
 var SESSION_MIN_DOCK_OVERLAP_RATIO = 0.35;
+var SESSION_DOCK_BURST_DOT_COUNT = 48;
 var sessionDockState = {
   docked: false,
   holdTimer: null,
@@ -3251,29 +3252,46 @@ function getSessionDockBurstTarget(startX, startY, angle, margin){
     y: dirY * travel
   };
 }
+function ensureSessionDockBurstDots(burst, count){
+  var existing = burst.querySelectorAll('.dock-burst-dot');
+  if(existing.length >= count) return existing;
+  for(var i = existing.length; i < count; i++){
+    var dot = document.createElement('span');
+    dot.className = 'dock-burst-dot';
+    burst.appendChild(dot);
+  }
+  return burst.querySelectorAll('.dock-burst-dot');
+}
 function playSessionDockBurst(){
   var chatRect = G('chat').getBoundingClientRect();
   var panelRect = G('session-panel').getBoundingClientRect();
   var overlapLeft = Math.max(chatRect.left, panelRect.left);
   var overlapRight = Math.min(chatRect.right, panelRect.right);
-  var burstX = overlapRight > overlapLeft ? (overlapLeft + overlapRight) / 2 : ((chatRect.left + chatRect.right) / 2);
+  var spawnLeft = overlapRight > overlapLeft ? overlapLeft : chatRect.left;
+  var spawnWidth = Math.max(1, overlapRight > overlapLeft ? (overlapRight - overlapLeft) : chatRect.width);
+  var burstX = spawnLeft;
   var burstY = panelRect.top - (sessionDockState.gap / 2);
   var burst = G('session-dock-burst');
-  var dots = burst.querySelectorAll('.dock-burst-dot');
+  var dots = ensureSessionDockBurstDots(burst, SESSION_DOCK_BURST_DOT_COUNT);
   var edgeMargin = 12;
   for(var i = 0; i < dots.length; i++){
     var dot = dots[i];
+    var spawnOffset = (((i + 0.5) / dots.length) * spawnWidth) + ((Math.random() - 0.5) * 8);
+    spawnOffset = Math.max(0, Math.min(spawnWidth, spawnOffset));
+    var startX = burstX + spawnOffset;
+    dot.style.left = spawnOffset.toFixed(2) + 'px';
+    dot.style.top = '0px';
     var angle = Math.random() * Math.PI * 2;
     var burstStep = 9 + Math.random() * 21;
     var midX = Math.cos(angle) * burstStep;
     var midY = Math.sin(angle) * burstStep;
-    var end = getSessionDockBurstTarget(burstX, burstY, angle + ((Math.random() - 0.5) * 0.22), edgeMargin);
+    var end = getSessionDockBurstTarget(startX, burstY, angle + ((Math.random() - 0.5) * 0.22), edgeMargin);
     dot.style.setProperty('--dock-dot-mid-x', midX.toFixed(2) + 'px');
     dot.style.setProperty('--dock-dot-mid-y', midY.toFixed(2) + 'px');
     dot.style.setProperty('--dock-dot-end-x', end.x.toFixed(2) + 'px');
     dot.style.setProperty('--dock-dot-end-y', end.y.toFixed(2) + 'px');
     dot.style.setProperty('--dock-dot-delay', Math.floor(Math.random() * 140) + 'ms');
-    dot.style.setProperty('--dock-dot-duration', Math.floor(2300 + Math.random() * 1900) + 'ms');
+    dot.style.setProperty('--dock-dot-duration', Math.floor(6400 + Math.random() * 3600) + 'ms');
     dot.style.setProperty('--dock-dot-size', (3.2 + Math.random() * 2.8).toFixed(2) + 'px');
     dot.style.setProperty('--dock-dot-alpha-start', (0.76 + Math.random() * 0.2).toFixed(2));
     dot.style.setProperty('--dock-dot-alpha-mid', (0.34 + Math.random() * 0.24).toFixed(2));
