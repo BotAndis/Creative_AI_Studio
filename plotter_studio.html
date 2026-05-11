@@ -3145,13 +3145,16 @@ function setSessionPanelPosition(left, top){
   panel.style.bottom = 'auto';
   panel.style.left = pos.left + 'px';
   panel.style.top = pos.top + 'px';
+  panel.dataset.positioned = '1';
 }
 var sessionDockState = {
   docked: false,
   holdTimer: null,
   holdDelay: 360,
   gap: 10,
-  leftOffset: 0
+  leftOffset: 0,
+  dockThreshold: 26,
+  minOverlapRatio: 0.35
 };
 function clearSessionDockTimer(){
   if(sessionDockState.holdTimer){
@@ -3186,9 +3189,9 @@ function undockSessionPanel(){
 }
 function sessionCanDock(rect){
   var chatRect = G('chat').getBoundingClientRect();
-  var nearBottom = Math.abs(rect.top - (chatRect.bottom + sessionDockState.gap)) <= 26;
+  var nearBottom = Math.abs(rect.top - (chatRect.bottom + sessionDockState.gap)) <= sessionDockState.dockThreshold;
   var overlap = Math.min(rect.right, chatRect.right) - Math.max(rect.left, chatRect.left);
-  return nearBottom && overlap >= Math.min(rect.width, chatRect.width) * 0.35;
+  return nearBottom && overlap >= Math.min(rect.width, chatRect.width) * sessionDockState.minOverlapRatio;
 }
 function queueSessionDock(rect){
   if(sessionDockState.docked) return;
@@ -3210,7 +3213,7 @@ function openSessionPanel(){
   panel.classList.add('open');
   G('session-overlay').classList.remove('open');
   if(sessionDockState.docked) syncDockedSessionToChat();
-  else if(!panel.style.left && !panel.style.top){
+  else if(panel.dataset.positioned !== '1'){
     var chatRect = G('chat').getBoundingClientRect();
     setSessionPanelPosition(chatRect.left - Math.max(0, panel.offsetWidth - chatRect.width), Math.max(16, chatRect.top + 60));
   }
