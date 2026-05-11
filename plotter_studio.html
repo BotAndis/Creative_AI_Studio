@@ -346,6 +346,45 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 .sp2-hdr:active{cursor:grabbing}
 .session-dock-target{box-shadow:0 0 0 1px rgba(192,104,32,.55),0 12px 54px rgba(192,104,32,.22)}
 #session-panel.docking{border-color:var(--acc);box-shadow:0 0 0 1px rgba(192,104,32,.5),0 12px 46px rgba(0,0,0,.72)}
+#session-dock-burst{
+  position:fixed;
+  left:var(--dock-burst-x,-999px);
+  top:var(--dock-burst-y,-999px);
+  width:0;
+  height:0;
+  pointer-events:none;
+  z-index:9350;
+  opacity:0;
+}
+#session-dock-burst.bursting{opacity:1}
+.dock-burst-dot{
+  position:absolute;
+  left:0;
+  top:0;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:rgba(192,104,32,.28);
+  transform:translate(-50%,-50%);
+}
+#session-dock-burst.bursting .dock-burst-dot{
+  animation:dock-burst 460ms cubic-bezier(.2,.62,.18,1) forwards;
+}
+.dock-burst-dot:nth-child(1){--dx:-16px;--dy:-5px;animation-delay:0ms}
+.dock-burst-dot:nth-child(2){--dx:14px;--dy:-6px;animation-delay:15ms}
+.dock-burst-dot:nth-child(3){--dx:-11px;--dy:10px;animation-delay:10ms}
+.dock-burst-dot:nth-child(4){--dx:12px;--dy:9px;animation-delay:5ms}
+.dock-burst-dot:nth-child(5){--dx:0px;--dy:-14px;animation-delay:0ms}
+.dock-burst-dot:nth-child(6){--dx:0px;--dy:14px;animation-delay:8ms}
+.dock-burst-dot:nth-child(7){--dx:-20px;--dy:2px;animation-delay:12ms}
+.dock-burst-dot:nth-child(8){--dx:20px;--dy:1px;animation-delay:18ms}
+.dock-burst-dot:nth-child(9){--dx:-8px;--dy:-12px;animation-delay:6ms}
+.dock-burst-dot:nth-child(10){--dx:8px;--dy:12px;animation-delay:9ms}
+@keyframes dock-burst{
+  0%{transform:translate(-50%,-50%) scale(.75);opacity:.3}
+  75%{opacity:.08}
+  100%{transform:translate(calc(-50% + var(--dx,0px)),calc(-50% + var(--dy,0px))) scale(1);opacity:0}
+}
 .sp2-title{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--txhi);flex:1}
 #session-list-wrap{flex:1;overflow-y:auto;min-height:0}
 #session-list{display:flex;flex-direction:column}
@@ -1375,6 +1414,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
   </div>
 </div>
 <div id="session-overlay"></div>
+<div id="session-dock-burst" aria-hidden="true">
+  <span class="dock-burst-dot"></span><span class="dock-burst-dot"></span><span class="dock-burst-dot"></span><span class="dock-burst-dot"></span><span class="dock-burst-dot"></span>
+  <span class="dock-burst-dot"></span><span class="dock-burst-dot"></span><span class="dock-burst-dot"></span><span class="dock-burst-dot"></span><span class="dock-burst-dot"></span>
+</div>
 
 <!-- Reset confirm dialog -->
 <div id="reset-confirm">
@@ -3190,12 +3233,25 @@ function syncDockedSessionToChat(){
   var target = getDockedSessionTarget(chatRect);
   setSessionPanelPosition(target.left, target.top);
 }
+function playSessionDockBurst(){
+  var chatRect = G('chat').getBoundingClientRect();
+  var panelRect = G('session-panel').getBoundingClientRect();
+  var burstX = (Math.max(chatRect.left, panelRect.left) + Math.min(chatRect.right, panelRect.right)) / 2;
+  var burstY = panelRect.top - (sessionDockState.gap / 2);
+  var burst = G('session-dock-burst');
+  burst.style.setProperty('--dock-burst-x', burstX + 'px');
+  burst.style.setProperty('--dock-burst-y', burstY + 'px');
+  burst.classList.remove('bursting');
+  void burst.offsetWidth;
+  burst.classList.add('bursting');
+}
 function dockSessionToChat(){
   clearSessionDockTimer();
   sessionDockState.docked = true;
   sessionDockState.leftOffset = 0;
   setSessionDockPreview(false);
   syncDockedSessionToChat();
+  playSessionDockBurst();
 }
 function undockSessionPanel(){
   clearSessionDockTimer();
