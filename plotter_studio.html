@@ -364,7 +364,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
   width:var(--dock-dot-size,3px);
   height:var(--dock-dot-size,3px);
   border-radius:50%;
-  background:rgba(192,104,32,.22);
+  background:var(--acc);
+  box-shadow:0 0 10px rgba(192,104,32,.75);
   transform:translate(-50%,-50%);
   opacity:0;
   will-change:transform,opacity;
@@ -3273,9 +3274,9 @@ function playSessionDockBurst(){
     dot.style.setProperty('--dock-dot-end-y', end.y.toFixed(2) + 'px');
     dot.style.setProperty('--dock-dot-delay', Math.floor(Math.random() * 140) + 'ms');
     dot.style.setProperty('--dock-dot-duration', Math.floor(2300 + Math.random() * 1900) + 'ms');
-    dot.style.setProperty('--dock-dot-size', (2 + Math.random() * 2.2).toFixed(2) + 'px');
-    dot.style.setProperty('--dock-dot-alpha-start', (0.2 + Math.random() * 0.18).toFixed(2));
-    dot.style.setProperty('--dock-dot-alpha-mid', (0.08 + Math.random() * 0.12).toFixed(2));
+    dot.style.setProperty('--dock-dot-size', (3.2 + Math.random() * 2.8).toFixed(2) + 'px');
+    dot.style.setProperty('--dock-dot-alpha-start', (0.76 + Math.random() * 0.2).toFixed(2));
+    dot.style.setProperty('--dock-dot-alpha-mid', (0.34 + Math.random() * 0.24).toFixed(2));
   }
   burst.style.setProperty('--dock-burst-x', burstX + 'px');
   burst.style.setProperty('--dock-burst-y', burstY + 'px');
