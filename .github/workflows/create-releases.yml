@@ -1,0 +1,46 @@
+name: Create v3.1 Releases
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Normal Release (v3.1)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v3.1 \
+            --title "Plotter Studio v3.1" \
+            --notes "## Plotter Studio v3.1
+
+Normal release. Includes the main studio interface and the proxy server.
+
+### Files
+- \`plotter_studio.html\` — main Plotter Studio interface
+- \`saia_proxy.py\` — local SAIA proxy server" \
+            plotter_studio.html \
+            saia_proxy.py
+
+      - name: Create Artifact Release (v3.1-artifact)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v3.1-artifact \
+            --title "Plotter Studio v3.1 (Artifact Mode)" \
+            --notes "## Plotter Studio v3.1 — Artifact Mode
+
+Artifact variant release. Includes the artifact-viewer interface and the proxy server.
+
+### Files
+- \`plotter_studio_artifact.html\` — Plotter Studio artifact mode interface
+- \`saia_proxy.py\` — local SAIA proxy server" \
+            plotter_studio_artifact.html \
+            saia_proxy.py
