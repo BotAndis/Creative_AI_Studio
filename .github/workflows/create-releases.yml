@@ -17,30 +17,36 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v3.1 \
-            --title "Plotter Studio v3.1" \
-            --notes "## Plotter Studio v3.1
+          if gh release view v3.1 > /dev/null 2>&1; then
+            gh release upload v3.1 plotter_studio.html saia_proxy.py --clobber
+          else
+            gh release create v3.1 \
+              --title "Plotter Studio v3.1" \
+              --notes "## Plotter Studio v3.1
 
 Normal release. Includes the main studio interface and the proxy server.
 
 ### Files
 - \`plotter_studio.html\` — main Plotter Studio interface
 - \`saia_proxy.py\` — local SAIA proxy server" \
-            plotter_studio.html \
-            saia_proxy.py
+              plotter_studio.html \
+              saia_proxy.py
+          fi
 
       - name: Create Artifact Release (v3.1-artifact)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v3.1-artifact \
-            --title "Plotter Studio v3.1 (Artifact Mode)" \
-            --notes "## Plotter Studio v3.1 — Artifact Mode
+          if gh release view v3.1-artifact > /dev/null 2>&1; then
+            gh release upload v3.1-artifact plotter_studio_artifact.html --clobber
+          else
+            gh release create v3.1-artifact \
+              --title "Plotter Studio v3.1 (Artifact Mode)" \
+              --notes "## Plotter Studio v3.1 — Artifact Mode
 
-Artifact variant release. Includes the artifact-viewer interface and the proxy server.
+Artifact variant release. Includes the artifact-viewer interface.
 
 ### Files
-- \`plotter_studio_artifact.html\` — Plotter Studio artifact mode interface
-- \`saia_proxy.py\` — local SAIA proxy server" \
-            plotter_studio_artifact.html \
-            saia_proxy.py
+- \`plotter_studio_artifact.html\` — Plotter Studio artifact mode interface" \
+              plotter_studio_artifact.html
+          fi
