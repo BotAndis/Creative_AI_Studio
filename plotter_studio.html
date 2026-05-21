@@ -3905,7 +3905,7 @@ function parseAudioResponse(text){
   return r;
 }
 function compileAudioDsp(code){
-  var banned = /(window|document|globalThis|fetch|XMLHttpRequest|WebSocket|localStorage|sessionStorage|indexedDB|navigator|location|postMessage|Worker|importScripts|Function|eval|constructor|setTimeout|setInterval|requestAnimationFrame|setImmediate)/;
+  var banned = /(window|document|globalThis|fetch|XMLHttpRequest|WebSocket|localStorage|sessionStorage|indexedDB|navigator|location|postMessage|Worker|importScripts|Function|eval|constructor|setTimeout|setInterval|requestAnimationFrame|setImmediate|alert|confirm|prompt|open)/;
   if (banned.test(code)) throw new Error('Audio code contains blocked APIs.');
   var src = '"use strict";\n' +
     'var TAU=Math.PI*2;\n' +
@@ -4055,7 +4055,7 @@ function copyAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to copy.', true); return; }
   navigator.clipboard.writeText(audioState.code).then(function(){
     setAudioStatus('Audio code copied to clipboard.');
-  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'Clipboard operation failed. Check browser permissions.'), true); });
+  }).catch(function(e){ setAudioStatus((e && e.message) ? ('Copy failed: ' + e.message) : 'Copy failed. Please check browser clipboard permissions.', true); });
 }
 function downloadAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
