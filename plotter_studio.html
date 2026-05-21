@@ -3869,7 +3869,7 @@ function copyAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to copy.', true); return; }
   navigator.clipboard.writeText(audioState.code).then(function(){
     setAudioStatus('Audio code copied to clipboard.');
-  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'clipboard access denied'), true); });
+  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'clipboard operation failed'), true); });
 }
 function downloadAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
