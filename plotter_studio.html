@@ -849,13 +849,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 #audio-overlay.open{display:block}
 .audio-wrap{height:100%;display:flex;flex-direction:column;padding:14px;gap:10px}
 .audio-head{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--txdim)}
-.audio-row{display:flex;gap:10px}
+.audio-row{display:flex;gap:10px;align-items:flex-start}
 #audio-prompt{
-  flex:1;min-height:80px;max-height:160px;resize:vertical;
+  flex:1;min-height:88px;max-height:170px;resize:vertical;
   border:1px solid var(--brd);background:var(--surf);color:var(--txt);
   border-radius:4px;padding:10px;font-family:var(--font);font-size:11px;line-height:1.45;
 }
-.audio-controls{width:240px;display:flex;flex-direction:column;gap:8px}
+.audio-controls{width:320px;display:flex;flex-direction:column;gap:8px}
+.audio-preset-row{display:flex;align-items:center;gap:8px}
+.audio-preset-row label{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--txdim)}
+#audio-preset{
+  flex:1;border:1px solid var(--brd);background:var(--surf);color:var(--txt);
+  border-radius:3px;padding:6px 8px;font-family:var(--font);font-size:10px;
+}
 .audio-bpm-row{display:flex;align-items:center;gap:8px}
 .audio-bpm-row label{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--txdim)}
 #audio-bpm{
@@ -865,7 +871,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 .audio-btn-row{display:flex;gap:6px;flex-wrap:wrap}
 .audio-status{font-size:9px;color:var(--txdim)}
 .audio-status.err{color:var(--pink)}
-.audio-split{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0}
+.audio-split{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;min-height:0}
 .audio-pane{
   border:1px solid var(--brd);background:var(--surf);border-radius:4px;
   display:flex;flex-direction:column;min-height:0;overflow:hidden;
@@ -877,6 +883,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 #audio-code-display,#audio-explain-display{
   flex:1;margin:0;padding:10px;overflow:auto;white-space:pre-wrap;word-break:break-word;
   font-family:var(--font);font-size:10px;line-height:1.5;color:var(--txt);
+}
+#audio-concept-title{padding:10px 10px 0;font-size:11px;color:var(--txhi);font-weight:600}
+#audio-concept-body{
+  flex:1;margin:0;padding:8px 10px 10px;overflow:auto;white-space:pre-wrap;word-break:break-word;
+  font-family:var(--font);font-size:10px;line-height:1.6;color:var(--txt);
+}
+#audio-preview-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:10px}
+#audio-preview-canvas{
+  width:100%;height:100%;max-height:180px;border:1px solid var(--brd);border-radius:4px;
+  background:var(--bg2);
 }
 </style>
 
@@ -985,6 +1001,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
     <div class="audio-row">
       <textarea id="audio-prompt" placeholder="Describe the sound you want to generate… (ambient drone, glitch beat, arpeggio, etc.)"></textarea>
       <div class="audio-controls">
+        <div class="audio-preset-row">
+          <label for="audio-preset">Preset</label>
+          <select id="audio-preset">
+            <option value="">Custom</option>
+            <option value="ambient">Ambient Drone</option>
+            <option value="arp">Arpeggio Pulse</option>
+            <option value="beat">Minimal Beat</option>
+            <option value="bass">Sub Bass Groove</option>
+          </select>
+        </div>
         <div class="audio-bpm-row">
           <label for="audio-bpm">BPM</label>
           <input id="audio-bpm" type="number" min="20" max="300" step="1" value="120">
@@ -995,11 +1021,23 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
           <button class="ibtn" id="audio-stop-btn">Stop</button>
           <button class="ibtn" id="audio-copy-btn">Copy</button>
           <button class="ibtn" id="audio-dl-btn">↓ .js</button>
+          <button class="ibtn" id="audio-dlhtml-btn">↓ .html</button>
         </div>
       </div>
     </div>
     <div class="audio-status" id="audio-status">Idle</div>
     <div class="audio-split">
+      <div class="audio-pane">
+        <div class="audio-pane-hdr">Concept</div>
+        <div id="audio-concept-title">No concept yet</div>
+        <div id="audio-concept-body">Generate audio from a prompt to populate concept details.</div>
+      </div>
+      <div class="audio-pane">
+        <div class="audio-pane-hdr">Preview</div>
+        <div id="audio-preview-wrap">
+          <canvas id="audio-preview-canvas"></canvas>
+        </div>
+      </div>
       <div class="audio-pane">
         <div class="audio-pane-hdr">Audio Code</div>
         <pre id="audio-code-display">// Audio code will appear here…</pre>
@@ -1593,8 +1631,8 @@ var chatHistory = [];
 var lastFnP5 = null;
 var p5inst   = null;
 var p5instFS = null;
-var audioState = { code:'', explain:'', prompt:'' };
-var audioEngine = { ctx:null, node:null, dsp:null, sampleIndex:0, playing:false };
+var audioState = { prompt:'', preset:'', conceptTitle:'', conceptDesc:'', code:'', explain:'', bpm:120, actualModel:'', requestedModel:'' };
+var audioEngine = { ctx:null, node:null, dsp:null, sampleIndex:0, playing:false, scope:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], scopePos:0 };
 var currentTab = 'pde';
 var pendingFiles = [];
 var stored = { title:'', desc:'', pdecode:'', p5code:'', pdeexp:'', p5exp:'' };
@@ -1602,8 +1640,8 @@ var sessionTokens = { input: 0, output: 0, requests: 0 };
 var currentTemplate = 'dma'; // 'dma' | 'custom'
 var customTemplate  = { name:'Custom', body:'' };
 var editingTemplate = 'custom';
-var promptTemplates = { system:'', concept:'', p5:'', pde:'', explain:'' };
-var promptRequestModels = { single:'', concept:'', p5:'', pde:'', explain:'' };
+var promptTemplates = { system:'', concept:'', p5:'', pde:'', explain:'', audio:'' };
+var promptRequestModels = { single:'', concept:'', p5:'', pde:'', explain:'', audio:'' };
 
 function G(id){ return document.getElementById(id); }
 
@@ -1859,6 +1897,10 @@ function getDefaultPhasePrompt(phase, s) {
     return "OUTPUT: Return exactly this structure:\n### Audio code\n```javascript\nfunction dsp(t, beat) { ... }\n```\n\n### How it works (Audio)\nShort plain-language explanation.\n\nRules:\n- JavaScript only.\n- Define function dsp(t, beat).\n- t is time in seconds.\n- beat is musical beat position from current BPM.\n- Return a mono sample number in [-1,1] or [left,right] stereo array.\n- Do not access DOM, window, document, fetch, eval, timers, or external libraries.\n- Keep code lightweight enough for realtime playback.\n- No markdown outside the required sections.";
   }
 
+  if (phase === 'audioexp') {
+    return 'OUTPUT: Return exactly this structure:\n### How it works (Audio)\nPlain-language explanation.\n\nUse this structure: **System:** **Rhythm/Beat:** **Parameters:** **Tips:**\nNo code. No extra sections.';
+  }
+
   return '';
 }
 
@@ -1974,6 +2016,10 @@ function buildPhasePrompt(phase, s) {
     return sys + (audioOverride || getDefaultPhasePrompt('audio', s));
   }
 
+  if (phase === 'audioexp') {
+    return sys + getDefaultPhasePrompt('audioexp', s);
+  }
+
   // fallback: return full prompt
   return buildSysPrompt();
 }
@@ -2000,6 +2046,7 @@ var PIPELINE_ENABLED = true; // can be toggled in settings
 var PHASE_LABELS = {
   concept:'Concept',
   audio:'Audio Code',
+  audioexp:'Audio Explanation',
   p5:'p5.js Preview',
   p5fix:'p5.js Bug Fix',
   p5exp:'p5.js Explanation',
@@ -2455,7 +2502,7 @@ function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 // For other phases: stateless (only system + user message)
 async function callPhase(phase, userMsg, attachments, modelId, s) {
   var sysPrompt = buildPhasePrompt(phase, s);
-  var maxTokens = phase === 'concept' ? 1500 : phase === 'explain' ? 3000 : 8000;
+  var maxTokens = phase === 'concept' ? 1500 : (phase === 'explain' || phase === 'audioexp') ? 3000 : 8000;
   var provider = providerFor(modelId);
   // Concept phase includes chat history for follow-up context
   var history = (phase === 'concept' && chatHistory.length > 0) ? chatHistory.slice() : [];
@@ -3108,6 +3155,7 @@ function buildSessionSnapshot(name){
     ts:Date.now(),
     chatHistory:chatHistory,
     stored:stored,
+    audioState:audioState,
     model:MODEL,
     settings:getSettings(),
     currentTemplate:currentTemplate,
@@ -3243,7 +3291,15 @@ function saveCurrentSession(){
   if (stored.pdecode) { lines.push('─── Processing Code ───'); lines.push(stored.pdecode); lines.push(''); }
   if (stored.p5exp) { lines.push('─── p5.js Explanation ───'); lines.push(stored.p5exp); lines.push(''); }
   if (stored.pdeexp) { lines.push('─── Processing Explanation ───'); lines.push(stored.pdeexp); lines.push(''); }
-  if (!stored.p5code && !stored.pdecode) lines.push('(no code generated yet)');
+  if (audioState.conceptTitle || audioState.conceptDesc || audioState.code || audioState.explain) {
+    lines.push('─── Audio Concept ───');
+    lines.push(audioState.conceptTitle || '(untitled)');
+    if (audioState.conceptDesc) lines.push(audioState.conceptDesc);
+    lines.push('');
+    if (audioState.code) { lines.push('─── Audio Code ───'); lines.push(audioState.code); lines.push(''); }
+    if (audioState.explain) { lines.push('─── Audio Explanation ───'); lines.push(audioState.explain); lines.push(''); }
+  }
+  if (!stored.p5code && !stored.pdecode && !audioState.code) lines.push('(no code generated yet)');
   var safeName = name.replace(/[^a-zA-Z0-9_-]/g, '_');
   downloadText(lines.join('\n'), 'plotter_studio_session_' + safeName + '_' + new Date().toISOString().slice(0,10) + '.txt', 'text/plain');
   addBubble('Session <strong>'+name+'</strong> saved and exported.','claude');
@@ -3251,6 +3307,7 @@ function saveCurrentSession(){
 function loadSession(s){
   if(Array.isArray(s.chatHistory)) chatHistory=s.chatHistory;
   if(s.stored) stored=Object.assign({title:'',desc:'',pdecode:'',p5code:'',pdeexp:'',p5exp:''},s.stored);
+  if(s.audioState) audioState=Object.assign({ prompt:'', preset:'', conceptTitle:'', conceptDesc:'', code:'', explain:'', bpm:120, actualModel:'', requestedModel:'' }, s.audioState);
   if(s.tokens) sessionTokens=Object.assign({input:0,output:0,requests:0},s.tokens);
   else sessionTokens={input:0,output:0,requests:0};
   if(s.model){MODEL=s.model; var lbl=MODEL_LABELS[s.model]||s.model; G('model-btn-label').textContent=lbl; G('cl-sub-model').textContent=lbl;}
@@ -3266,6 +3323,7 @@ function loadSession(s){
     promptTemplates = {
       system: typeof s.promptTemplates.system === 'string' ? s.promptTemplates.system : '',
       concept: typeof s.promptTemplates.concept === 'string' ? s.promptTemplates.concept : '',
+      audio: typeof s.promptTemplates.audio === 'string' ? s.promptTemplates.audio : '',
       p5: typeof s.promptTemplates.p5 === 'string' ? s.promptTemplates.p5 : '',
       pde: typeof s.promptTemplates.pde === 'string' ? s.promptTemplates.pde : '',
       explain: typeof s.promptTemplates.explain === 'string' ? s.promptTemplates.explain : ''
@@ -3275,12 +3333,17 @@ function loadSession(s){
     promptRequestModels = {
       single: typeof s.promptRequestModels.single === 'string' ? s.promptRequestModels.single : '',
       concept: typeof s.promptRequestModels.concept === 'string' ? s.promptRequestModels.concept : '',
+      audio: typeof s.promptRequestModels.audio === 'string' ? s.promptRequestModels.audio : '',
       p5: typeof s.promptRequestModels.p5 === 'string' ? s.promptRequestModels.p5 : '',
       pde: typeof s.promptRequestModels.pde === 'string' ? s.promptRequestModels.pde : '',
       explain: typeof s.promptRequestModels.explain === 'string' ? s.promptRequestModels.explain : ''
     };
   }
   if(s.currentTemplate) setActiveTpl(s.currentTemplate);
+  if (audioState.prompt) G('audio-prompt').value = audioState.prompt;
+  G('audio-bpm').value = String(audioState.bpm || 120);
+  G('audio-preset').value = audioState.preset || '';
+  refreshAudioPanels();
   restorePanels(); updateThinkingBar();
 }
 function clampSessionPanelPosition(left, top){
@@ -3537,6 +3600,7 @@ var PROMPT_EDITOR_SECTIONS = [
   { key:'base', title:'Template Prompt', modelKey:'single', isBase:true, placeholder:'Use [TASK] as placeholder for the user request.' },
   { key:'system', title:'📋 System Prompt', modelKey:'single', placeholder:'Full system instructions for single-shot and phase prompts.' },
   { key:'concept', title:'🧠 Concept Phase Prompt', modelKey:'concept', placeholder:'Optional override for concept phase instructions.' },
+  { key:'audio', title:'🎵 Audio Phase Prompt', modelKey:'audio', placeholder:'Optional override for ditty-style audio generation instructions.' },
   { key:'p5', title:'🎨 p5.js Phase Prompt', modelKey:'p5', placeholder:'Optional override for p5.js generation instructions.' },
   { key:'pde', title:'🖊 Processing Phase Prompt', modelKey:'pde', placeholder:'Optional override for Processing generation instructions.' },
   { key:'explain', title:'📝 Explain Phase Prompt', modelKey:'explain', placeholder:'Optional override for explanation phase instructions.' }
@@ -3653,6 +3717,7 @@ function savePromptEditor() {
   var baseArea = document.querySelector('textarea[data-prompt-key="base"]');
   var systemArea = document.querySelector('textarea[data-prompt-key="system"]');
   var conceptArea = document.querySelector('textarea[data-prompt-key="concept"]');
+  var audioArea = document.querySelector('textarea[data-prompt-key="audio"]');
   var p5Area = document.querySelector('textarea[data-prompt-key="p5"]');
   var pdeArea = document.querySelector('textarea[data-prompt-key="pde"]');
   var explainArea = document.querySelector('textarea[data-prompt-key="explain"]');
@@ -3674,6 +3739,10 @@ function savePromptEditor() {
   promptTemplates.concept = normalizePromptOverride(
     conceptArea ? conceptArea.value : '',
     conceptArea ? conceptArea.dataset.fallbackPrompt : getDefaultPhasePrompt('concept', currentSettings)
+  );
+  promptTemplates.audio = normalizePromptOverride(
+    audioArea ? audioArea.value : '',
+    audioArea ? audioArea.dataset.fallbackPrompt : getDefaultPhasePrompt('audio', currentSettings)
   );
   promptTemplates.p5 = normalizePromptOverride(
     p5Area ? p5Area.value : '',
@@ -3751,6 +3820,62 @@ function setAudioStatus(msg, isErr){
   el.textContent = msg;
   el.classList.toggle('err', !!isErr);
 }
+var AUDIO_PRESETS = {
+  ambient: 'Warm evolving ambient drone with slow filter motion and subtle detune shimmer.',
+  arp: 'Bright percussive arpeggio pattern with clear beat-synced pulse and soft delay feel.',
+  beat: 'Minimal electronic beat with kick, click-hat, and short syncopated accent.',
+  bass: 'Deep sub bass groove with rhythmic movement and sparse high-frequency texture.'
+};
+function slugAudioName(){
+  var base = (audioState.conceptTitle || audioState.prompt || 'audio_patch').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+  return (base || 'audio_patch').slice(0,36);
+}
+function refreshAudioPanels(){
+  G('audio-concept-title').textContent = audioState.conceptTitle || 'No concept yet';
+  G('audio-concept-body').textContent = audioState.conceptDesc || 'Generate audio from a prompt to populate concept details.';
+  G('audio-code-display').textContent = audioState.code || '// Audio code will appear here…';
+  G('audio-explain-display').textContent = audioState.explain || 'Generate audio code to see the explanation.';
+}
+function drawAudioPreview(){
+  var cv = G('audio-preview-canvas');
+  if (!cv) return;
+  var rect = cv.getBoundingClientRect();
+  var w = Math.max(120, Math.floor(rect.width || 320));
+  var h = Math.max(80, Math.floor(rect.height || 180));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  var ctx = cv.getContext('2d');
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim() || '#101010';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--acc').trim() || '#c06820';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  var data = audioEngine.scope;
+  for (var i = 0; i < data.length; i++) {
+    var idx = (audioEngine.scopePos + i) % data.length;
+    var x = (i / (data.length - 1)) * (w - 1);
+    var y = (0.5 - data[idx] * 0.45) * h;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+function resetAudioPreview(){
+  for (var i = 0; i < audioEngine.scope.length; i++) audioEngine.scope[i] = 0;
+  audioEngine.scopePos = 0;
+  drawAudioPreview();
+}
+function setAudioScopeSample(v){
+  audioEngine.scope[audioEngine.scopePos] = v;
+  audioEngine.scopePos = (audioEngine.scopePos + 1) % audioEngine.scope.length;
+}
+function onAudioPresetChange(){
+  var key = G('audio-preset').value;
+  audioState.preset = key;
+  if (key && AUDIO_PRESETS[key]) {
+    G('audio-prompt').value = AUDIO_PRESETS[key];
+    audioState.prompt = AUDIO_PRESETS[key];
+  }
+  saveState();
+}
 function getAudioBpm(){
   var v = parseFloat((G('audio-bpm').value || '120').trim());
   if (!isFinite(v) || v <= 0) v = 120;
@@ -3763,7 +3888,12 @@ function buildAudioPrompt(task, bpm){
     'Use beat for rhythm and t for continuous time.';
 }
 function parseAudioResponse(text){
-  var r = { code:'', explain:'' };
+  var r = { title:'', desc:'', code:'', explain:'' };
+  var tm = text.match(/^###\s+(.+)/m);
+  if (tm) r.title = tm[1].trim();
+  var codeIdx = text.indexOf('### Audio code');
+  var first = codeIdx > -1 ? codeIdx : text.length;
+  r.desc = text.substring(0, first).replace(/^###[^\n]*\n/,'').trim();
   var codeBlock = text.match(/###\s*Audio code[\s\S]*?```(?:javascript|js)?\n([\s\S]*?)```/i);
   if (codeBlock) r.code = codeBlock[1].trim();
   if (!r.code) {
@@ -3785,6 +3915,80 @@ function compileAudioDsp(code){
     'if(typeof dsp!=="function") throw new Error("Audio code must define a function named dsp(t, beat)");\n' +
     'return dsp;';
   return new Function(src)();
+}
+function buildStandaloneAudioHtml(code, bpm, title){
+  var safeTitle = (title || 'Plotter Audio Patch').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  var lines = [];
+  lines.push('<!DOCTYPE html>','<html lang="en"><head><meta charset="UTF-8"><title>'+safeTitle+'</title>');
+  lines.push('<style>body{margin:0;background:#0f0f0f;color:#eee;font-family:monospace;display:flex;flex-direction:column;align-items:center;padding:24px;gap:14px}button{padding:6px 12px;border:1px solid #555;background:#1a1a1a;color:#eee;cursor:pointer}canvas{width:min(900px,92vw);height:220px;border:1px solid #333;background:#090909}pre{width:min(900px,92vw);max-height:44vh;overflow:auto;background:#151515;border:1px solid #333;padding:10px}</style></head><body>');
+  lines.push('<h3>'+safeTitle+'</h3><div><button id="play">Play</button> <button id="stop">Stop</button></div><canvas id="scope" width="900" height="220"></canvas><pre id="code"></pre><script>');
+  lines.push('var bpm='+bpm+';var userCode='+JSON.stringify(code)+';document.getElementById("code").textContent=userCode;');
+  lines.push('var ctx=null,node=null,idx=0,scope=new Array(128).fill(0),sp=0;');
+  lines.push('function compile(code){var src=\'"use strict";var TAU=Math.PI*2;function note(n){return 440*Math.pow(2,(n-69)/12);}function clamp(v){return Math.max(-1,Math.min(1,v));}\'+code+\'\\nif(typeof dsp!=="function") throw new Error("dsp required"); return dsp;\';return new Function(src)();}');
+  lines.push('function draw(){var c=document.getElementById("scope"),x=c.getContext("2d"),w=c.width,h=c.height;x.fillStyle="#090909";x.fillRect(0,0,w,h);x.strokeStyle="#c06820";x.beginPath();for(var i=0;i<scope.length;i++){var p=(sp+i)%scope.length;var sx=(i/(scope.length-1))*(w-1);var sy=(0.5-scope[p]*0.45)*h;if(i===0)x.moveTo(sx,sy);else x.lineTo(sx,sy);}x.stroke();requestAnimationFrame(draw);}');
+  lines.push('async function play(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")await ctx.resume();if(node){node.disconnect();node=null;}var dsp=compile(userCode);var sr=ctx.sampleRate;idx=0;node=ctx.createScriptProcessor(1024,0,2);node.onaudioprocess=function(e){var L=e.outputBuffer.getChannelData(0),R=e.outputBuffer.getChannelData(1);for(var i=0;i<L.length;i++){var t=idx/sr,beat=(t*bpm)/60,y=dsp(t,beat),l=0,r=0;if(Array.isArray(y)){l=Number(y[0]);r=Number(y.length>1?y[1]:y[0]);if(!isFinite(l))l=0;if(!isFinite(r))r=l;}else{l=Number(y);if(!isFinite(l))l=0;r=l;}l=Math.max(-1,Math.min(1,l));r=Math.max(-1,Math.min(1,r));L[i]=l;R[i]=r;scope[sp]=l;sp=(sp+1)%scope.length;idx++;}};node.connect(ctx.destination);}');
+  lines.push('function stop(){if(node){node.disconnect();node.onaudioprocess=null;node=null;}}document.getElementById("play").onclick=play;document.getElementById("stop").onclick=stop;draw();<\/script></body></html>');
+  return lines.join('\n');
+}
+function downloadAudioHtml(){
+  if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
+  var html = buildStandaloneAudioHtml(audioState.code, getAudioBpm(), audioState.conceptTitle || 'Plotter Audio Patch');
+  downloadBlob(new Blob([html], { type:'text/html' }), 'plotter_audio_' + slugAudioName() + '.html');
+}
+async function generateAudio(){
+  var prompt = (G('audio-prompt').value || '').trim();
+  if (!prompt) { setAudioStatus('Enter an audio prompt first.', true); return; }
+  var bpm = getAudioBpm();
+  setAudioStatus('phase 1/4 — concept…');
+  try {
+    audioState.prompt = prompt;
+    audioState.bpm = bpm;
+    var conceptModel = getRequestModel('concept');
+    var conceptPrompt = buildAudioPrompt(prompt, bpm) + '\n\nReturn only a concept title and short concept text for this audio patch.';
+    var conceptRes = await callPhase('concept', conceptPrompt, null, conceptModel, getSettings());
+    var conceptParsed = parseResponse(conceptRes.text || '');
+    audioState.conceptTitle = cleanConceptText(conceptParsed.title || 'Audio concept');
+    audioState.conceptDesc = cleanConceptText(conceptParsed.desc || '');
+    audioState.actualModel = conceptRes.model;
+    audioState.requestedModel = conceptModel;
+    refreshAudioPanels();
+
+    setAudioStatus('phase 2/4 — audio code…');
+    var audioModel = getRequestModel('audio');
+    var codePrompt = buildAudioPrompt(prompt, bpm) + '\n\nConcept:\n### ' + (audioState.conceptTitle || 'Audio concept') + '\n' + (audioState.conceptDesc || '');
+    var codeRes = await callPhase('audio', codePrompt, null, audioModel, getSettings());
+    var parsed = parseAudioResponse(codeRes.text || '');
+    if (!parsed.code) throw new Error('No audio code found in model response.');
+    audioState.code = parsed.code;
+    audioState.explain = parsed.explain || '';
+    audioState.actualModel = codeRes.model;
+    audioState.requestedModel = audioModel;
+
+    setAudioStatus('phase 3/4 — syntax check…');
+    try { compileAudioDsp(audioState.code); }
+    catch(syntaxErr){
+      var fixPrompt = 'The following audio patch has a runtime/syntax issue. Fix only errors while preserving intent.\n\nError: ' + syntaxErr.message + '\n\nCode:\n```javascript\n' + audioState.code + '\n```';
+      var fixRes = await callPhase('audio', fixPrompt, null, audioModel, getSettings());
+      var fixParsed = parseAudioResponse(fixRes.text || '');
+      if (fixParsed.code) audioState.code = fixParsed.code;
+      if (fixParsed.explain) audioState.explain = fixParsed.explain;
+      compileAudioDsp(audioState.code);
+    }
+
+    if (!audioState.explain) {
+      setAudioStatus('phase 4/4 — explanation…');
+      var explainPrompt = 'Explain this ditty-style audio patch:\n```javascript\n' + audioState.code + '\n```\nMention rhythm, beat usage, and key parameters.';
+      var expRes = await callPhase('audioexp', explainPrompt, null, getRequestModel('explain'), getSettings());
+      var expParsed = parseAudioResponse(expRes.text || '');
+      audioState.explain = expParsed.explain || expRes.text || '';
+    }
+    refreshAudioPanels();
+    saveState();
+    setAudioStatus('Audio patch generated.');
+  } catch(e) {
+    setAudioStatus('Generation error: ' + e.message, true);
+    console.error(e);
+  }
 }
 async function playAudio(){
   if (!audioState.code) { setAudioStatus('Generate audio code first.', true); return; }
@@ -3824,6 +4028,7 @@ async function playAudio(){
         }
         L[i] = Math.max(-1, Math.min(1, l));
         R[i] = Math.max(-1, Math.min(1, r));
+        setAudioScopeSample(L[i]);
         audioEngine.sampleIndex++;
       }
     };
@@ -3843,28 +4048,8 @@ function stopAudio(){
     audioEngine.node = null;
   }
   audioEngine.playing = false;
+  resetAudioPreview();
   setAudioStatus('Stopped.');
-}
-async function generateAudio(){
-  var prompt = (G('audio-prompt').value || '').trim();
-  if (!prompt) { setAudioStatus('Enter an audio prompt first.', true); return; }
-  var bpm = getAudioBpm();
-  setAudioStatus('Generating audio code…');
-  try {
-    var modelId = getRequestModel('single');
-    var res = await callPhase('audio', buildAudioPrompt(prompt, bpm), null, modelId, getSettings());
-    var parsed = parseAudioResponse(res.text || '');
-    if (!parsed.code) throw new Error('No audio code found in model response.');
-    audioState.code = parsed.code;
-    audioState.explain = parsed.explain || '';
-    audioState.prompt = prompt;
-    G('audio-code-display').textContent = parsed.code;
-    G('audio-explain-display').textContent = parsed.explain || 'No explanation returned.';
-    setAudioStatus('Audio code generated.');
-  } catch(e) {
-    setAudioStatus('Generation error: ' + e.message, true);
-    console.error(e);
-  }
 }
 function copyAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to copy.', true); return; }
@@ -3874,7 +4059,7 @@ function copyAudioCode(){
 }
 function downloadAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
-  downloadBlob(new Blob([audioState.code], { type:'text/javascript' }), 'plotter_audio_patch.js');
+  downloadBlob(new Blob([audioState.code], { type:'text/javascript' }), 'plotter_audio_' + slugAudioName() + '.js');
 }
 
 G('dlpde-btn').addEventListener('click',function(){downloadText(stored.pdecode,'plotter_'+slugFromTitle()+'.pde','text/plain');});
@@ -3891,8 +4076,17 @@ G('audio-play-btn').addEventListener('click',playAudio);
 G('audio-stop-btn').addEventListener('click',stopAudio);
 G('audio-copy-btn').addEventListener('click',copyAudioCode);
 G('audio-dl-btn').addEventListener('click',downloadAudioCode);
+G('audio-dlhtml-btn').addEventListener('click',downloadAudioHtml);
+G('audio-preset').addEventListener('change', onAudioPresetChange);
 G('audio-prompt').addEventListener('keydown', function(e){
   if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();generateAudio();}
+});
+G('audio-prompt').addEventListener('input', function(){
+  audioState.prompt = G('audio-prompt').value || '';
+});
+G('audio-bpm').addEventListener('change', function(){
+  audioState.bpm = getAudioBpm();
+  saveState();
 });
 
 // ── Resizable panels ──────────────────────────────────────────
@@ -3967,7 +4161,18 @@ function saveState(){
       dmaTemplate: dmaTemplate,
       customTemplate: customTemplate,
       promptTemplates: promptTemplates,
-      promptRequestModels: promptRequestModels
+      promptRequestModels: promptRequestModels,
+      audioState: {
+        prompt: G('audio-prompt').value || '',
+        preset: G('audio-preset').value || '',
+        bpm: getAudioBpm(),
+        conceptTitle: audioState.conceptTitle || '',
+        conceptDesc: audioState.conceptDesc || '',
+        code: audioState.code || '',
+        explain: audioState.explain || '',
+        actualModel: audioState.actualModel || '',
+        requestedModel: audioState.requestedModel || ''
+      }
     }));
   }catch(e){console.warn('prefs save failed',e);}
 }
@@ -4008,6 +4213,7 @@ function loadState(){
       promptTemplates = {
         system: typeof s.promptTemplates.system === 'string' ? s.promptTemplates.system : '',
         concept: typeof s.promptTemplates.concept === 'string' ? s.promptTemplates.concept : '',
+        audio: typeof s.promptTemplates.audio === 'string' ? s.promptTemplates.audio : '',
         p5: typeof s.promptTemplates.p5 === 'string' ? s.promptTemplates.p5 : '',
         pde: typeof s.promptTemplates.pde === 'string' ? s.promptTemplates.pde : '',
         explain: typeof s.promptTemplates.explain === 'string' ? s.promptTemplates.explain : ''
@@ -4018,6 +4224,7 @@ function loadState(){
       promptRequestModels = {
         single: typeof s.promptRequestModels.single === 'string' ? s.promptRequestModels.single : '',
         concept: typeof s.promptRequestModels.concept === 'string' ? s.promptRequestModels.concept : '',
+        audio: typeof s.promptRequestModels.audio === 'string' ? s.promptRequestModels.audio : '',
         p5: typeof s.promptRequestModels.p5 === 'string' ? s.promptRequestModels.p5 : '',
         pde: typeof s.promptRequestModels.pde === 'string' ? s.promptRequestModels.pde : '',
         explain: typeof s.promptRequestModels.explain === 'string' ? s.promptRequestModels.explain : ''
@@ -4025,6 +4232,13 @@ function loadState(){
     }
 
     if(s.currentTemplate === 'dma' || s.currentTemplate === 'custom') setActiveTpl(s.currentTemplate);
+    if(s.audioState && typeof s.audioState === 'object'){
+      audioState = Object.assign({ prompt:'', preset:'', conceptTitle:'', conceptDesc:'', code:'', explain:'', bpm:120, actualModel:'', requestedModel:'' }, s.audioState);
+      G('audio-prompt').value = audioState.prompt || '';
+      G('audio-preset').value = audioState.preset || '';
+      G('audio-bpm').value = String(audioState.bpm || 120);
+      refreshAudioPanels();
+    }
   }catch(e){
     console.warn('prefs load failed', e);
   }
@@ -4035,6 +4249,7 @@ function resetSession() {
   try { localStorage.removeItem(PREFS_KEY); } catch(e) {}
   chatHistory = [];
   stored = { title:'', desc:'', pdecode:'', p5code:'', pdeexp:'', p5exp:'' };
+  audioState = { prompt:'', preset:'', conceptTitle:'', conceptDesc:'', code:'', explain:'', bpm:120, actualModel:'', requestedModel:'' };
   location.reload();
 }
 window.resetSession = resetSession;
@@ -4576,6 +4791,10 @@ function switchNav(tab) {
     inspP5Instance.noLoop();
   } else if (isInspiration && inspP5Instance) {
     inspP5Instance.loop();
+  }
+  if (isAudio) {
+    refreshAudioPanels();
+    drawAudioPreview();
   }
   if (!isAudio && audioEngine.playing) stopAudio();
 }
@@ -5162,6 +5381,8 @@ try{
   tick();
 })();
 
+refreshAudioPanels();
+resetAudioPreview();
 loadState();
 initApiKeyUI();
 renderDbgFlow();
