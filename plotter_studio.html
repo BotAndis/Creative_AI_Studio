@@ -904,7 +904,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
   <div class="nav-tab" id="nav-audio" onclick="switchNav('audio')">
     <span class="tab-dot"></span>
     Audio Studio
-    <span class="nav-soon-badge">New</span>
+    <span class="nav-soon-badge">Preview</span>
   </div>
   <div class="nav-tab" id="nav-inspiration" onclick="switchNav('inspiration')">
     <span class="tab-dot"></span>
@@ -3905,7 +3905,7 @@ function parseAudioResponse(text){
   return r;
 }
 function compileAudioDsp(code){
-  var banned = /(window|document|globalThis|fetch|XMLHttpRequest|WebSocket|localStorage|sessionStorage|indexedDB|navigator|location|postMessage|Worker|importScripts|Function|eval|constructor)/;
+  var banned = /(window|document|globalThis|fetch|XMLHttpRequest|WebSocket|localStorage|sessionStorage|indexedDB|navigator|location|postMessage|Worker|importScripts|Function|eval|constructor|setTimeout|setInterval|requestAnimationFrame|setImmediate)/;
   if (banned.test(code)) throw new Error('Audio code contains blocked APIs.');
   var src = '"use strict";\n' +
     'var TAU=Math.PI*2;\n' +
@@ -4055,7 +4055,7 @@ function copyAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to copy.', true); return; }
   navigator.clipboard.writeText(audioState.code).then(function(){
     setAudioStatus('Audio code copied to clipboard.');
-  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'clipboard operation failed; check browser permissions'), true); });
+  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'Clipboard operation failed. Check browser permissions.'), true); });
 }
 function downloadAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
