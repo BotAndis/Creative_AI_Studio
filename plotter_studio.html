@@ -3775,7 +3775,7 @@ function parseAudioResponse(text){
   return r;
 }
 function compileAudioDsp(code){
-  var banned = /(window|document|globalThis|fetch|XMLHttpRequest|WebSocket|localStorage|sessionStorage|indexedDB|navigator|location|postMessage|Worker|importScripts|Function|eval)/;
+  var banned = /(window|document|globalThis|fetch|XMLHttpRequest|WebSocket|localStorage|sessionStorage|indexedDB|navigator|location|postMessage|Worker|importScripts|Function|eval|constructor)/;
   if (banned.test(code)) throw new Error('Audio code contains blocked APIs.');
   var src = '"use strict";\n' +
     'var TAU=Math.PI*2;\n' +
@@ -3811,10 +3811,16 @@ async function playAudio(){
         var beat = (t * bpm) / 60;
         var y = audioEngine.dsp(t, beat);
         var l = 0, r = 0;
-        if (Array.isArray(y)) { l = +y[0] || 0; r = +y[1] || l; }
-        else { l = +y || 0; r = l; }
-        if (!isFinite(l)) l = 0;
-        if (!isFinite(r)) r = 0;
+        if (Array.isArray(y)) {
+          var yl = Number(y[0]);
+          var yr = Number(y.length > 1 ? y[1] : y[0]);
+          l = isFinite(yl) ? yl : 0;
+          r = isFinite(yr) ? yr : l;
+        } else {
+          var mono = Number(y);
+          l = isFinite(mono) ? mono : 0;
+          r = l;
+        }
         L[i] = Math.max(-1, Math.min(1, l));
         R[i] = Math.max(-1, Math.min(1, r));
         audioEngine.sampleIndex++;
@@ -3863,7 +3869,7 @@ function copyAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to copy.', true); return; }
   navigator.clipboard.writeText(audioState.code).then(function(){
     setAudioStatus('Audio code copied to clipboard.');
-  }).catch(function(){ setAudioStatus('Copy failed.', true); });
+  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'unknown error'), true); });
 }
 function downloadAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
