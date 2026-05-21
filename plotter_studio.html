@@ -751,7 +751,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 }
 .nav-tab:hover{color:var(--txt);background:rgba(255,255,255,.03)}
 .nav-tab.active{color:var(--txhi);border-bottom-color:var(--acc)}
-.nav-tab.soon{opacity:.4;cursor:default;pointer-events:none}
 .nav-tab .tab-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0}
 .nav-tab.active .tab-dot{background:var(--acc);opacity:1}
 .nav-soon-badge{font-size:6.5px;letter-spacing:.14em;background:var(--surf3);border:1px solid var(--brd);border-radius:2px;padding:1px 4px;color:var(--txdim);margin-left:2px}
@@ -841,6 +840,44 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
   font-size:7px;letter-spacing:.14em;text-transform:uppercase;
   background:var(--acc);color:#fff;padding:2px 7px;border-radius:2px;font-weight:600;
 }
+
+/* ── AUDIO OVERLAY ── */
+#audio-overlay{
+  position:fixed;left:0;right:0;top:38px;bottom:0;
+  z-index:9000;display:none;background:var(--bg);
+}
+#audio-overlay.open{display:block}
+.audio-wrap{height:100%;display:flex;flex-direction:column;padding:14px;gap:10px}
+.audio-head{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--txdim)}
+.audio-row{display:flex;gap:10px}
+#audio-prompt{
+  flex:1;min-height:80px;max-height:160px;resize:vertical;
+  border:1px solid var(--brd);background:var(--surf);color:var(--txt);
+  border-radius:4px;padding:10px;font-family:var(--font);font-size:11px;line-height:1.45;
+}
+.audio-controls{width:240px;display:flex;flex-direction:column;gap:8px}
+.audio-bpm-row{display:flex;align-items:center;gap:8px}
+.audio-bpm-row label{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--txdim)}
+#audio-bpm{
+  width:90px;border:1px solid var(--brd);background:var(--surf);color:var(--txt);
+  border-radius:3px;padding:6px;font-family:var(--font);font-size:11px;
+}
+.audio-btn-row{display:flex;gap:6px;flex-wrap:wrap}
+.audio-status{font-size:9px;color:var(--txdim)}
+.audio-status.err{color:var(--pink)}
+.audio-split{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0}
+.audio-pane{
+  border:1px solid var(--brd);background:var(--surf);border-radius:4px;
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+}
+.audio-pane-hdr{
+  padding:8px 10px;border-bottom:1px solid var(--brd);
+  font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--txdim);
+}
+#audio-code-display,#audio-explain-display{
+  flex:1;margin:0;padding:10px;overflow:auto;white-space:pre-wrap;word-break:break-word;
+  font-family:var(--font);font-size:10px;line-height:1.5;color:var(--txt);
+}
 </style>
 
 <div id="bar">
@@ -848,9 +885,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
     <span class="tab-dot"></span>
     Studio
   </div>
-  <div class="nav-tab soon" id="nav-soon">
-    Coming Soon
-    <span class="nav-soon-badge">Soon</span>
+  <div class="nav-tab" id="nav-audio" onclick="switchNav('audio')">
+    <span class="tab-dot"></span>
+    Audio Studio
+    <span class="nav-soon-badge">New</span>
   </div>
   <div class="nav-tab" id="nav-inspiration" onclick="switchNav('inspiration')">
     <span class="tab-dot"></span>
@@ -937,6 +975,40 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 
     </div>
 
+  </div>
+</div>
+
+
+<div id="audio-overlay">
+  <div class="audio-wrap">
+    <div class="audio-head">Ditty-style Audio Studio</div>
+    <div class="audio-row">
+      <textarea id="audio-prompt" placeholder="Describe the sound you want to generate… (ambient drone, glitch beat, arpeggio, etc.)"></textarea>
+      <div class="audio-controls">
+        <div class="audio-bpm-row">
+          <label for="audio-bpm">BPM</label>
+          <input id="audio-bpm" type="number" min="20" max="300" step="1" value="120">
+        </div>
+        <div class="audio-btn-row">
+          <button class="ibtn" id="audio-generate-btn">Generate</button>
+          <button class="ibtn" id="audio-play-btn">Play</button>
+          <button class="ibtn" id="audio-stop-btn">Stop</button>
+          <button class="ibtn" id="audio-copy-btn">Copy</button>
+          <button class="ibtn" id="audio-dl-btn">↓ .js</button>
+        </div>
+      </div>
+    </div>
+    <div class="audio-status" id="audio-status">Idle</div>
+    <div class="audio-split">
+      <div class="audio-pane">
+        <div class="audio-pane-hdr">Audio Code</div>
+        <pre id="audio-code-display">// Audio code will appear here…</pre>
+      </div>
+      <div class="audio-pane">
+        <div class="audio-pane-hdr">How it works (Audio)</div>
+        <div id="audio-explain-display">Generate audio code to see the explanation.</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1521,6 +1593,8 @@ var chatHistory = [];
 var lastFnP5 = null;
 var p5inst   = null;
 var p5instFS = null;
+var audioState = { code:'', explain:'', prompt:'' };
+var audioEngine = { ctx:null, node:null, dsp:null, sampleIndex:0, playing:false };
 var currentTab = 'pde';
 var pendingFiles = [];
 var stored = { title:'', desc:'', pdecode:'', p5code:'', pdeexp:'', p5exp:'' };
@@ -1781,6 +1855,10 @@ function getDefaultPhasePrompt(phase, s) {
       '\n\nNo concept. No code. Just plain-language explanations.';
   }
 
+  if (phase === 'audio') {
+    return "OUTPUT: Return exactly this structure:\n### Audio code\n```javascript\nfunction dsp(t, beat) { ... }\n```\n\n### How it works (Audio)\nShort plain-language explanation.\n\nRules:\n- JavaScript only.\n- Define function dsp(t, beat).\n- Return a mono sample number in [-1,1] or [left,right] stereo array.\n- Do not access DOM, window, document, fetch, eval, timers, or external libraries.\n- Keep code lightweight enough for realtime playback.\n- No markdown outside the required sections.";
+  }
+
   return '';
 }
 
@@ -1891,6 +1969,11 @@ function buildPhasePrompt(phase, s) {
     return sys + (explainOverride || getDefaultPhasePrompt('explain', s));
   }
 
+  if (phase === 'audio') {
+    var audioOverride = getPromptOverride('audio');
+    return sys + (audioOverride || getDefaultPhasePrompt('audio', s));
+  }
+
   // fallback: return full prompt
   return buildSysPrompt();
 }
@@ -1916,6 +1999,7 @@ var PIPELINE_ENABLED = true; // can be toggled in settings
 // Phase display names
 var PHASE_LABELS = {
   concept:'Concept',
+  audio:'Audio Code',
   p5:'p5.js Preview',
   p5fix:'p5.js Bug Fix',
   p5exp:'p5.js Explanation',
@@ -3661,6 +3745,131 @@ function triggerHtmlDownload(){
   downloadBlob(new Blob([html],{type:'text/html'}),'plotter_'+slugFromTitle()+'.html');
 }
 
+function setAudioStatus(msg, isErr){
+  var el = G('audio-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.toggle('err', !!isErr);
+}
+function getAudioBpm(){
+  var v = parseFloat((G('audio-bpm').value || '120').trim());
+  if (!isFinite(v) || v <= 0) v = 120;
+  return Math.max(20, Math.min(300, v));
+}
+function buildAudioPrompt(task, bpm){
+  return 'Generate a ditty-style realtime JavaScript audio patch.\n' +
+    'Prompt: ' + task + '\n' +
+    'Tempo: ' + bpm + ' BPM\n' +
+    'Use beat for rhythm and t for continuous time.';
+}
+function parseAudioResponse(text){
+  var r = { code:'', explain:'' };
+  var codeBlock = text.match(/###\s*Audio code[\s\S]*?```(?:javascript|js)?\n([\s\S]*?)```/i);
+  if (codeBlock) r.code = codeBlock[1].trim();
+  if (!r.code) {
+    var sec = text.match(/###\s*Audio code\s*([\s\S]*?)(?:###\s*How it works \(Audio\)|$)/i);
+    if (sec) r.code = sec[1].trim();
+  }
+  var exp = text.match(/###\s*How it works \(Audio\)\s*([\s\S]*)$/i);
+  if (exp) r.explain = exp[1].trim();
+  return r;
+}
+function compileAudioDsp(code){
+  var banned = /(window|document|globalThis|fetch|XMLHttpRequest|WebSocket|localStorage|sessionStorage|indexedDB|navigator|location|postMessage|Worker|importScripts|Function|eval)/;
+  if (banned.test(code)) throw new Error('Audio code contains blocked APIs.');
+  var src = '"use strict";\n' +
+    'var TAU=Math.PI*2;\n' +
+    'function note(n){return 440*Math.pow(2,(n-69)/12);}\n' +
+    'function clamp(v){return Math.max(-1,Math.min(1,v));}\n' +
+    code + '\n' +
+    'if(typeof dsp!=="function") throw new Error("Expected function dsp(t, beat)");\n' +
+    'return dsp;';
+  return new Function(src)();
+}
+async function playAudio(){
+  if (!audioState.code) { setAudioStatus('Generate audio code first.', true); return; }
+  try {
+    audioEngine.dsp = compileAudioDsp(audioState.code);
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) throw new Error('Web Audio API not supported.');
+    if (!audioEngine.ctx) audioEngine.ctx = new AC();
+    if (audioEngine.ctx.state === 'suspended') await audioEngine.ctx.resume();
+    if (audioEngine.node) {
+      audioEngine.node.disconnect();
+      audioEngine.node.onaudioprocess = null;
+      audioEngine.node = null;
+    }
+    var node = audioEngine.ctx.createScriptProcessor(1024, 0, 2);
+    var bpm = getAudioBpm();
+    var sampleRate = audioEngine.ctx.sampleRate;
+    audioEngine.sampleIndex = 0;
+    node.onaudioprocess = function(evt){
+      var L = evt.outputBuffer.getChannelData(0);
+      var R = evt.outputBuffer.getChannelData(1);
+      for (var i = 0; i < L.length; i++) {
+        var t = audioEngine.sampleIndex / sampleRate;
+        var beat = (t * bpm) / 60;
+        var y = audioEngine.dsp(t, beat);
+        var l = 0, r = 0;
+        if (Array.isArray(y)) { l = +y[0] || 0; r = +y[1] || l; }
+        else { l = +y || 0; r = l; }
+        if (!isFinite(l)) l = 0;
+        if (!isFinite(r)) r = 0;
+        L[i] = Math.max(-1, Math.min(1, l));
+        R[i] = Math.max(-1, Math.min(1, r));
+        audioEngine.sampleIndex++;
+      }
+    };
+    node.connect(audioEngine.ctx.destination);
+    audioEngine.node = node;
+    audioEngine.playing = true;
+    setAudioStatus('Playing at ' + bpm + ' BPM.');
+  } catch(e) {
+    setAudioStatus('Play error: ' + e.message, true);
+    console.error(e);
+  }
+}
+function stopAudio(){
+  if (audioEngine.node) {
+    audioEngine.node.disconnect();
+    audioEngine.node.onaudioprocess = null;
+    audioEngine.node = null;
+  }
+  audioEngine.playing = false;
+  setAudioStatus('Stopped.');
+}
+async function generateAudio(){
+  var prompt = (G('audio-prompt').value || '').trim();
+  if (!prompt) { setAudioStatus('Enter an audio prompt first.', true); return; }
+  var bpm = getAudioBpm();
+  setAudioStatus('Generating audio code…');
+  try {
+    var modelId = getRequestModel('single');
+    var res = await callPhase('audio', buildAudioPrompt(prompt, bpm), null, modelId, getSettings());
+    var parsed = parseAudioResponse(res.text || '');
+    if (!parsed.code) throw new Error('No audio code found in model response.');
+    audioState.code = parsed.code;
+    audioState.explain = parsed.explain || '';
+    audioState.prompt = prompt;
+    G('audio-code-display').textContent = parsed.code;
+    G('audio-explain-display').textContent = parsed.explain || 'No explanation returned.';
+    setAudioStatus('Audio code generated.');
+  } catch(e) {
+    setAudioStatus('Generation error: ' + e.message, true);
+    console.error(e);
+  }
+}
+function copyAudioCode(){
+  if (!audioState.code) { setAudioStatus('Nothing to copy.', true); return; }
+  navigator.clipboard.writeText(audioState.code).then(function(){
+    setAudioStatus('Audio code copied to clipboard.');
+  }).catch(function(){ setAudioStatus('Copy failed.', true); });
+}
+function downloadAudioCode(){
+  if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
+  downloadBlob(new Blob([audioState.code], { type:'text/javascript' }), 'plotter_audio_patch.js');
+}
+
 G('dlpde-btn').addEventListener('click',function(){downloadText(stored.pdecode,'plotter_'+slugFromTitle()+'.pde','text/plain');});
 G('dlp5-btn').addEventListener('click',function(){
   var code=stored.p5code;
@@ -3670,6 +3879,14 @@ G('dlp5-btn').addEventListener('click',function(){
 });
 G('dlhtml-btn').addEventListener('click',triggerHtmlDownload);
 G('dlhtml-preview-btn').addEventListener('click',triggerHtmlDownload);
+G('audio-generate-btn').addEventListener('click',generateAudio);
+G('audio-play-btn').addEventListener('click',playAudio);
+G('audio-stop-btn').addEventListener('click',stopAudio);
+G('audio-copy-btn').addEventListener('click',copyAudioCode);
+G('audio-dl-btn').addEventListener('click',downloadAudioCode);
+G('audio-prompt').addEventListener('keydown', function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();generateAudio();}
+});
 
 // ── Resizable panels ──────────────────────────────────────────
 function makeVSplit(handleId,panA,panB){
@@ -4103,7 +4320,7 @@ G('dbg-close').addEventListener('click',function(e){e.stopPropagation();G('dbg-o
 G('dbg-overlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 function closeOpenMenusAndOverlays(){
   var closed = false;
-  if(G('inspiration-overlay').classList.contains('open')){
+  if(G('inspiration-overlay').classList.contains('open') || G('audio-overlay').classList.contains('open')){
     switchNav('studio');
     closed = true;
   }
@@ -4336,11 +4553,14 @@ var inspP5Instance = null;
 
 function switchNav(tab) {
   var isInspiration = tab === 'inspiration';
+  var isAudio = tab === 'audio';
   G('nav-studio').classList.toggle('active', tab === 'studio');
+  G('nav-audio').classList.toggle('active', isAudio);
   G('nav-inspiration').classList.toggle('active', isInspiration);
-  G('app').style.display = isInspiration ? 'none' : 'flex';
+  G('app').style.display = (isInspiration || isAudio) ? 'none' : 'flex';
   G('inspiration-overlay').classList.toggle('open', isInspiration);
-  G('chat').style.display = isInspiration ? 'none' : 'flex';
+  G('audio-overlay').classList.toggle('open', isAudio);
+  G('chat').style.display = (isInspiration || isAudio) ? 'none' : 'flex';
 
   if (isInspiration && !inspP5Instance) {
     startInspirationAnimation();
@@ -4350,6 +4570,7 @@ function switchNav(tab) {
   } else if (isInspiration && inspP5Instance) {
     inspP5Instance.loop();
   }
+  if (!isAudio && audioEngine.playing) stopAudio();
 }
 
 function startInspirationAnimation() {
