@@ -1856,7 +1856,7 @@ function getDefaultPhasePrompt(phase, s) {
   }
 
   if (phase === 'audio') {
-    return "OUTPUT: Return exactly this structure:\n### Audio code\n```javascript\nfunction dsp(t, beat) { ... }\n```\n\n### How it works (Audio)\nShort plain-language explanation.\n\nRules:\n- JavaScript only.\n- Define function dsp(t, beat).\n- Return a mono sample number in [-1,1] or [left,right] stereo array.\n- Do not access DOM, window, document, fetch, eval, timers, or external libraries.\n- Keep code lightweight enough for realtime playback.\n- No markdown outside the required sections.";
+    return "OUTPUT: Return exactly this structure:\n### Audio code\n```javascript\nfunction dsp(t, beat) { ... }\n```\n\n### How it works (Audio)\nShort plain-language explanation.\n\nRules:\n- JavaScript only.\n- Define function dsp(t, beat).\n- t is time in seconds.\n- beat is musical beat position from current BPM.\n- Return a mono sample number in [-1,1] or [left,right] stereo array.\n- Do not access DOM, window, document, fetch, eval, timers, or external libraries.\n- Keep code lightweight enough for realtime playback.\n- No markdown outside the required sections.";
   }
 
   return '';
@@ -3799,6 +3799,7 @@ async function playAudio(){
       audioEngine.node.onaudioprocess = null;
       audioEngine.node = null;
     }
+    // ScriptProcessorNode is used here for broad compatibility in this single-file app.
     var node = audioEngine.ctx.createScriptProcessor(1024, 0, 2);
     var bpm = getAudioBpm();
     var sampleRate = audioEngine.ctx.sampleRate;
@@ -3869,7 +3870,7 @@ function copyAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to copy.', true); return; }
   navigator.clipboard.writeText(audioState.code).then(function(){
     setAudioStatus('Audio code copied to clipboard.');
-  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'clipboard operation failed'), true); });
+  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'clipboard operation failed; check browser permissions'), true); });
 }
 function downloadAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
