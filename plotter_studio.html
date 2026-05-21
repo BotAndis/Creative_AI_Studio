@@ -3782,7 +3782,7 @@ function compileAudioDsp(code){
     'function note(n){return 440*Math.pow(2,(n-69)/12);}\n' +
     'function clamp(v){return Math.max(-1,Math.min(1,v));}\n' +
     code + '\n' +
-    'if(typeof dsp!=="function") throw new Error("Expected function dsp(t, beat)");\n' +
+    'if(typeof dsp!=="function") throw new Error("Audio code must define a function named dsp(t, beat)");\n' +
     'return dsp;';
   return new Function(src)();
 }
@@ -3869,7 +3869,7 @@ function copyAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to copy.', true); return; }
   navigator.clipboard.writeText(audioState.code).then(function(){
     setAudioStatus('Audio code copied to clipboard.');
-  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'unknown error'), true); });
+  }).catch(function(e){ setAudioStatus('Copy failed: ' + (e && e.message ? e.message : 'clipboard access denied'), true); });
 }
 function downloadAudioCode(){
   if (!audioState.code) { setAudioStatus('Nothing to download.', true); return; }
