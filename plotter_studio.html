@@ -847,23 +847,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
   z-index:9000;display:none;background:var(--bg);
 }
 #audio-overlay.open{display:block}
-.audio-wrap{height:100%;display:flex;flex-direction:column;padding:14px;gap:10px}
-.audio-head{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--txdim)}
-.audio-row{display:flex;gap:10px;align-items:flex-start}
+#audio-app{display:flex;flex-direction:column;height:100%;overflow:hidden;position:relative}
+#audio-app .h-handle{cursor:default}
+#audio-top-row{flex:0 0 57%}
+#audio-cwrap{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 #audio-prompt{
-  flex:1;min-height:88px;max-height:170px;resize:vertical;
+  width:100%;min-height:88px;max-height:180px;resize:vertical;
   border:1px solid var(--brd);background:var(--surf);color:var(--txt);
   border-radius:4px;padding:10px;font-family:var(--font);font-size:11px;line-height:1.45;
 }
-.audio-controls{width:320px;display:flex;flex-direction:column;gap:8px}
-.audio-preset-row{display:flex;align-items:center;gap:8px}
-.audio-preset-row label{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--txdim)}
+.audio-controls{display:flex;flex-direction:column;gap:8px}
+.audio-preset-row,.audio-bpm-row{display:flex;align-items:center;gap:8px}
+.audio-preset-row label,.audio-bpm-row label{
+  font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--txdim)
+}
 #audio-preset{
   flex:1;border:1px solid var(--brd);background:var(--surf);color:var(--txt);
   border-radius:3px;padding:6px 8px;font-family:var(--font);font-size:10px;
 }
-.audio-bpm-row{display:flex;align-items:center;gap:8px}
-.audio-bpm-row label{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--txdim)}
 #audio-bpm{
   width:90px;border:1px solid var(--brd);background:var(--surf);color:var(--txt);
   border-radius:3px;padding:6px;font-family:var(--font);font-size:11px;
@@ -871,28 +872,30 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 .audio-btn-row{display:flex;gap:6px;flex-wrap:wrap}
 .audio-status{font-size:9px;color:var(--txdim)}
 .audio-status.err{color:var(--pink)}
-.audio-split{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;min-height:0}
-.audio-pane{
-  border:1px solid var(--brd);background:var(--surf);border-radius:4px;
-  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+#audio-concept-title{
+  font-size:12.5px;font-weight:600;color:var(--txhi);line-height:1.4;
+  border-left:2px solid var(--acc);padding-left:9px
 }
-.audio-pane-hdr{
-  padding:8px 10px;border-bottom:1px solid var(--brd);
-  font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--txdim);
-}
-#audio-code-display,#audio-explain-display{
-  flex:1;margin:0;padding:10px;overflow:auto;white-space:pre-wrap;word-break:break-word;
-  font-family:var(--font);font-size:10px;line-height:1.5;color:var(--txt);
-}
-#audio-concept-title{padding:10px 10px 0;font-size:11px;color:var(--txhi);font-weight:600}
 #audio-concept-body{
-  flex:1;margin:0;padding:8px 10px 10px;overflow:auto;white-space:pre-wrap;word-break:break-word;
-  font-family:var(--font);font-size:10px;line-height:1.6;color:var(--txt);
+  font-size:10px;line-height:1.9;color:var(--txt);
+  white-space:pre-wrap;word-break:break-word;
 }
-#audio-preview-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:10px}
+#audio-prv{
+  flex:1;overflow:auto;background:var(--paper);
+  display:flex;align-items:flex-start;justify-content:center;min-height:0;position:relative
+}
+#audio-preview-wrap{display:flex;align-items:center;justify-content:center;padding:10px;width:100%;height:100%}
 #audio-preview-canvas{
-  width:100%;height:100%;max-height:180px;border:1px solid var(--brd);border-radius:4px;
-  background:var(--bg2);
+  width:100%;height:100%;max-height:260px;border:1px solid var(--brd);border-radius:4px;background:var(--bg2);
+}
+#audio-code-display{
+  flex:1;overflow:auto;padding:12px 14px;background:var(--code-bg);
+  font-size:10px;line-height:1.65;white-space:pre;font-family:var(--font);word-break:normal;color:#c8a0a8
+}
+#audio-explain-wrap{flex:1;overflow:auto;padding:12px 14px}
+#audio-explain-display{
+  font-family:var(--font);font-size:10px;line-height:1.7;color:var(--txt);
+  white-space:pre-wrap;word-break:break-word;
 }
 </style>
 
@@ -996,60 +999,80 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 
 
 <div id="audio-overlay">
-  <div class="audio-wrap">
-    <div class="audio-head">Ditty-style Audio Studio</div>
-    <div class="audio-row">
-      <textarea id="audio-prompt" placeholder="Describe the sound you want to generate… (ambient drone, glitch beat, arpeggio, etc.)"></textarea>
-      <div class="audio-controls">
-        <div class="audio-preset-row">
-          <label for="audio-preset">Preset</label>
-          <select id="audio-preset">
-            <option value="">Custom</option>
-            <option value="ambient">Ambient Drone</option>
-            <option value="arp">Arpeggio Pulse</option>
-            <option value="beat">Minimal Beat</option>
-            <option value="bass">Sub Bass Groove</option>
-          </select>
+<div id="audio-app">
+  <div class="row" id="audio-top-row">
+    <div class="pan col" id="audio-pc" style="flex:0 0 32%">
+      <div class="plb"><span class="d">◆</span> Concept</div>
+      <div id="audio-cwrap">
+        <textarea id="audio-prompt" placeholder="Describe the sound you want to generate… (ambient drone, glitch beat, arpeggio, etc.)"></textarea>
+        <div class="audio-controls">
+          <div class="audio-preset-row">
+            <label for="audio-preset">Preset</label>
+            <select id="audio-preset">
+              <option value="">Custom</option>
+              <option value="ambient">Ambient Drone</option>
+              <option value="arp">Arpeggio Pulse</option>
+              <option value="beat">Minimal Beat</option>
+              <option value="bass">Sub Bass Groove</option>
+            </select>
+          </div>
+          <div class="audio-bpm-row">
+            <label for="audio-bpm">BPM</label>
+            <input id="audio-bpm" type="number" min="20" max="300" step="1" value="120">
+            <div class="audio-status" id="audio-status">Idle</div>
+          </div>
+          <div class="audio-btn-row">
+            <button class="ibtn" id="audio-generate-btn">Generate</button>
+            <button class="ibtn" id="audio-play-btn">Play</button>
+            <button class="ibtn" id="audio-stop-btn">Stop</button>
+            <button class="ibtn" id="audio-copy-btn">Copy</button>
+            <button class="ibtn" id="audio-dl-btn">↓ .js</button>
+            <button class="ibtn" id="audio-dlhtml-btn">↓ .html</button>
+          </div>
         </div>
-        <div class="audio-bpm-row">
-          <label for="audio-bpm">BPM</label>
-          <input id="audio-bpm" type="number" min="20" max="300" step="1" value="120">
-        </div>
-        <div class="audio-btn-row">
-          <button class="ibtn" id="audio-generate-btn">Generate</button>
-          <button class="ibtn" id="audio-play-btn">Play</button>
-          <button class="ibtn" id="audio-stop-btn">Stop</button>
-          <button class="ibtn" id="audio-copy-btn">Copy</button>
-          <button class="ibtn" id="audio-dl-btn">↓ .js</button>
-          <button class="ibtn" id="audio-dlhtml-btn">↓ .html</button>
-        </div>
-      </div>
-    </div>
-    <div class="audio-status" id="audio-status">Idle</div>
-    <div class="audio-split">
-      <div class="audio-pane">
-        <div class="audio-pane-hdr">Concept</div>
         <div id="audio-concept-title">No concept yet</div>
         <div id="audio-concept-body">Generate audio from a prompt to populate concept details.</div>
       </div>
-      <div class="audio-pane">
-        <div class="audio-pane-hdr">Preview</div>
+    </div>
+
+    <div class="pan col" id="audio-pp" style="flex:1">
+      <div class="plb plbr">
+        <div style="display:flex;align-items:center;gap:7px"><span class="d">◆</span> Audio Preview</div>
+      </div>
+      <div id="audio-prv">
         <div id="audio-preview-wrap">
           <canvas id="audio-preview-canvas"></canvas>
         </div>
       </div>
-      <div class="audio-pane">
-        <div class="audio-pane-hdr">Audio Code</div>
-        <pre id="audio-code-display">// Audio code will appear here…</pre>
+    </div>
+  </div>
+
+  <div class="h-handle"></div>
+
+  <div class="row" id="audio-bot-row" style="flex:1">
+    <div class="pan col" id="audio-code-panel" style="flex:1">
+      <div class="code-tabs">
+        <div class="ctab active" id="audio-tab-code">
+          <span class="td">◆</span>Audio<span style="color:var(--txdim);font-size:7px">.js</span>
+        </div>
+        <div class="tab-actions">
+          <button class="ibtn" id="audio-copy-btn-2">Copy</button>
+          <button class="ibtn" id="audio-dl-btn-2">↓ .js</button>
+          <button class="ibtn" id="audio-dlhtml-btn-2">↓ .html</button>
+        </div>
       </div>
-      <div class="audio-pane">
-        <div class="audio-pane-hdr">How it works (Audio)</div>
+      <div id="audio-code-display">// Audio code will appear here…</div>
+    </div>
+
+    <div class="pan col" id="audio-how-panel" style="flex:0 0 280px">
+      <div class="plb"><span class="d">◆</span><span>How it works</span></div>
+      <div id="audio-explain-wrap">
         <div id="audio-explain-display">Generate audio code to see the explanation.</div>
       </div>
     </div>
   </div>
 </div>
-
+</div>
 
 <div id="app">
   <div class="row" id="top-row" style="flex:0 0 57%">
@@ -4031,6 +4054,7 @@ async function playAudio(){
         setAudioScopeSample(L[i]);
         audioEngine.sampleIndex++;
       }
+      drawAudioPreview();
     };
     node.connect(audioEngine.ctx.destination);
     audioEngine.node = node;
@@ -4077,6 +4101,9 @@ G('audio-stop-btn').addEventListener('click',stopAudio);
 G('audio-copy-btn').addEventListener('click',copyAudioCode);
 G('audio-dl-btn').addEventListener('click',downloadAudioCode);
 G('audio-dlhtml-btn').addEventListener('click',downloadAudioHtml);
+G('audio-copy-btn-2').addEventListener('click',copyAudioCode);
+G('audio-dl-btn-2').addEventListener('click',downloadAudioCode);
+G('audio-dlhtml-btn-2').addEventListener('click',downloadAudioHtml);
 G('audio-preset').addEventListener('change', onAudioPresetChange);
 G('audio-prompt').addEventListener('keydown', function(e){
   if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();generateAudio();}
