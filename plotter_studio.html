@@ -1656,6 +1656,7 @@ var p5inst   = null;
 var p5instFS = null;
 var audioState = { prompt:'', preset:'', conceptTitle:'', conceptDesc:'', code:'', explain:'', bpm:120, actualModel:'', requestedModel:'' };
 var audioEngine = { ctx:null, node:null, dsp:null, sampleIndex:0, playing:false, scope:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], scopePos:0 };
+var audioPreviewRafPending = false;
 var currentTab = 'pde';
 var pendingFiles = [];
 var stored = { title:'', desc:'', pdecode:'', p5code:'', pdeexp:'', p5exp:'' };
@@ -3881,6 +3882,16 @@ function drawAudioPreview(){
   }
   ctx.stroke();
 }
+function scheduleAudioPreviewDraw(){
+  if (audioPreviewRafPending) return;
+  audioPreviewRafPending = true;
+  var draw = function(){
+    audioPreviewRafPending = false;
+    drawAudioPreview();
+  };
+  if (window.requestAnimationFrame) window.requestAnimationFrame(draw);
+  else draw();
+}
 function resetAudioPreview(){
   for (var i = 0; i < audioEngine.scope.length; i++) audioEngine.scope[i] = 0;
   audioEngine.scopePos = 0;
@@ -4054,7 +4065,7 @@ async function playAudio(){
         setAudioScopeSample(L[i]);
         audioEngine.sampleIndex++;
       }
-      drawAudioPreview();
+      scheduleAudioPreviewDraw();
     };
     node.connect(audioEngine.ctx.destination);
     audioEngine.node = node;
