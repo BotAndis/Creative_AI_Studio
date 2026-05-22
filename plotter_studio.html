@@ -5257,6 +5257,7 @@ try{
   var TIME_SCALE = 0.5;
   var FOV   = 420;
   var DEPTH = 260;
+  var NOTE_GLYPHS = ['♪', '♫', '♬', '♩'];
   var mouse = { x: -9999, y: -9999, tx: -9999, ty: -9999, sx: -9999, sy: -9999, inside: false };
 
   function getSize() {
@@ -5285,7 +5286,8 @@ try{
       ay: Math.random() * 16 + 6,
       az: Math.random() * 44 + 18,
       baseA: accent ? (Math.random() * 0.28 + 0.22) : (Math.random() * 0.18 + 0.10),
-      accent: accent
+      accent: accent,
+      glyph: NOTE_GLYPHS[Math.floor(Math.random() * NOTE_GLYPHS.length)]
     };
   }
 
@@ -5378,9 +5380,11 @@ try{
 
       ctx.globalAlpha = Math.min(0.85, Math.max(0, a));
       ctx.fillStyle = p.accent ? dotAcc : dotDim;
-      ctx.beginPath();
-      ctx.arc(sx, sy, Math.max(0.5, r), 0, Math.PI * 2);
-      ctx.fill();
+      var noteSize = Math.max(6, Math.min(12, r * 5.2));
+      ctx.font = noteSize.toFixed(1) + 'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(p.glyph, sx, sy);
     });
     ctx.globalAlpha = 1;
     requestAnimationFrame(tick);
