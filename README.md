@@ -14,7 +14,7 @@ Both share a single chat assistant (mode-aware), a single API-key surface, a mul
 ## Demo Artifact
 
 A standalone Plotter-only build is available as a Claude artifact:
-[https://claude.ai/public/artifacts/169074ca-d958-45a8-b4da-fbecc1c51e4c]
+https://claude.ai/public/artifacts/169074ca-d958-45a8-b4da-fbecc1c51e4c
 
 Use the local (API-Version) file for the full feature set.
 
