@@ -63,7 +63,7 @@ This is the best path if you want full control over model choice, local edits, c
 ### Installation
 
 ```bash
-git clone https://github.com/BotAndis/Plotter-Studio.git Creative_AI_Studio
+git clone https://github.com/BotAndis/Creative_AI_Studio.git
 cd Creative_AI_Studio
 ```
 
