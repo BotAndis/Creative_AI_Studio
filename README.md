@@ -1,42 +1,54 @@
-# Generative Plotter Studio
+# Creative AI Studio
 
-## About
+> A browser-based, single-file vibe-coding workbench for experimental drawing **and** experimental sound.
 
-Plotter Studio is a browser-based vibe coding tool for Experimental drawing and generative art. Designed to create pen-plotter svgs, designed to generate editable creative code for Processing and p5.js sketches with live preview support, customizable Prompt presets, Multi-phase pipeline with debug tooling. Usable with API or as an embedded AI Artifact.
+Creative AI Studio is a multi-workspace generative-art tool you open in your browser. It currently ships two workspaces:
+
+- **Plotter Studio** — generates Processing (`.pde`) and p5.js sketches aimed at pen plotters and SVG output, with a live preview, multi-phase pipeline, and editable code.
+- **Audio Studio** — generates compact realtime Web Audio DSP patches with live transport, hardcoded FX sliders, and AI-declared custom sliders, also fully editable.
+
+Both share a single chat assistant (mode-aware), a single API-key surface, a multi-provider model router, customizable prompt templates, an inspiration panel with curated references, and live theme controls.
+
+---
+
+## Demo Artifact
+
+A standalone Plotter-only build is available as a Claude artifact:
+<https://claude.ai/public/artifacts/50c651e4-8f2b-423d-9ff4-f8f5df0fc706>
+
+Use the local file for the full feature set (Audio Studio, code editing, audio MODIFY-existing pipeline, multi-tab inspiration).
 
 ---
 
 ## Quick Feature Overview
 
-- Single-file browser app
-- No build system
-- Live p5.js preview
-- Processing code generation
-- Optional explanation panels
-- Multiple provider support
-- Proxy support for SAIA
-- Downloadable generated outputs
-- Multi-phase pipeline with debug tooling
-
----
-
-## Demo Artifact:
-https://claude.ai/public/artifacts/50c651e4-8f2b-423d-9ff4-f8f5df0fc706
+- Two workspaces in one file: **Plotter Studio** + **Audio Studio**
+- Live p5.js preview, Processing code generation, realtime Web Audio playback
+- **Editable code panels** with chat-history sync — your edits feed back into the next AI request
+- Multi-phase pipeline for both workspaces (concept → code → fix → explain)
+- Mode-aware chat ("Plotter Assistant" / "Audio Assistant") with separate histories, shared model + key
+- Mode-aware prompt-template editor with per-phase override
+- AI-declared **custom sliders** for audio patches (`params` declaration in generated DSP)
+- Hardcoded audio FX chain (Volume / Tone / Drive) applied post-DSP — always works regardless of generated code
+- Inspiration panel with two tabs (**Plotter** + **Audio**) of curated references
+- Light / dark theme, accent-color picker, text-color picker, **S / M / L letter-size**, dark theme defaults to white text, light theme defaults to dark text
+- Multi-provider routing: **Anthropic**, **Google Gemini**, **Academic Cloud SAIA** (incl. optional CORS proxy)
+- Auto-fix loop for both p5 runtime errors and audio compile errors
+- Session save / load, debug overlay, per-phase model selection
 
 ---
 
 ## Run Locally with Your Own API Key
 
-You open the HTML file locally in your browser and use your own provider key.
+Open `plotter_studio.html` directly in a modern browser, paste an API key, pick a model, send a prompt.
 
-Supported providers include:
+Supported providers:
 
-- Anthropic [How to get a Anthropic API key](docs/anthropic-api-key.md)
-- Google Gemini [How to get a Gemini API key](docs/gemini-api-key.md)
-- Academic Cloud SAIA [How to get a Academic Cloud API key](https://docs.hpc.gwdg.de/services/ai-services/saia/index.html)
-- LUHKI2 API KEY ??? [Maybe comming soon, I doubt it]
+- **Anthropic** — [How to get an Anthropic API key](docs/anthropic-api-key.md)
+- **Google Gemini** — [How to get a Gemini API key](docs/gemini-api-key.md)
+- **Academic Cloud SAIA** — [How to get an Academic Cloud API key](https://docs.hpc.gwdg.de/services/ai-services/saia/index.html)
 
-This is the best option if you want control over model choice, local edits, custom prompts, proxy settings, or future modifications. Gemini supports API-key-based integration through Google AI Studio, and Anthropic supports its Messages API for direct app integration.
+This is the best path if you want full control over model choice, local edits, custom prompts, proxy settings, or future modifications.
 
 ---
 
@@ -45,37 +57,38 @@ This is the best option if you want control over model choice, local edits, cust
 ### What you need
 
 - A modern browser
-- At least one supported API key:
-  - Anthropic
-  - Google Gemini
-  - Academic Cloud SAIA
-- Optional: Python 3 if you want to run the local SAIA CORS proxy (must for Academic Cloud SAIA)
+- At least one supported API key
+- Optional: Python 3 if you want to run the local SAIA CORS proxy (required for Academic Cloud SAIA in some browsers)
 
 ### Installation
 
-Clone the repository:
-
 ```bash
-git clone [https://github.com/BotAndis/Plotter-Studio.git](https://github.com/BotAndis/Plotter-Studio.git)
-cd Plotter-Studio
+git clone https://github.com/BotAndis/Plotter-Studio.git Creative_AI_Studio
+cd Creative_AI_Studio
 ```
 
-Then open this file directly in your browser:
+Then open `plotter_studio.html` directly in your browser. There is no npm setup, build step, or bundler.
 
-- `plotter_studio.html`
+### Plotter Studio flow
 
-There is no npm setup, build step, or bundler.
+1. Switch to the **Plotter Studio** nav tab.
+2. Choose a model and paste an API key.
+3. Enter a prompt describing the plotter sketch you want.
+4. Send the prompt — concept, p5.js sketch, Processing code, and explanations populate automatically.
+5. Switch between the Processing and p5.js code tabs, or hit **✎ Edit** to modify code in-place.
+6. Save edits — your changes flow into the next request and the p5 preview re-runs.
+7. Download `.pde`, `.js`, `.html`, or a `.png` of the preview.
 
-### Local use flow
+### Audio Studio flow
 
-1. Open the app in your browser.
-2. Choose a model from the model selector.
-3. Paste your API key into the key field and click **Set**.
-4. Enter a prompt describing the plotter sketch you want.
-5. Send the prompt.
-6. Review the live preview.
-7. Switch between generated Processing code, p5.js code, and explanation panels.
-8. Download the outputs you want, such as `.pde`, `.js`, `.html`, or preview `.png`.
+1. Switch to the **Audio Studio** nav tab.
+2. Open the chat popup ("Audio Assistant") and describe a sound (e.g. *"warm ambient drone, 60 BPM"*).
+3. Send — concept, DSP code, custom sliders, and explanation populate.
+4. **Play** / **Stop** transport sits at the top of the Controls panel.
+5. Use Volume / Tone / Drive sliders for always-on FX; tweak any AI-declared custom sliders for patch-specific parameters.
+6. **✎ Edit** the DSP code, save — patch recompiles, sliders refresh, playback restarts if live.
+7. Send another chat message to refine — the AI builds on your current code (and any edits) instead of restarting.
+8. Download as `.js` or a self-contained `.html` player.
 
 ### Optional SAIA proxy
 
@@ -93,9 +106,7 @@ http://localhost:8765/
 
 ### Where keys are stored
 
-Keys and preferences are stored client-side in browser storage according to the app design.
-
-Do **not** share:
+Keys and preferences live in client-side browser storage. Do **not** share:
 
 - screenshots with visible keys
 - exported browser profiles
@@ -106,49 +117,40 @@ Do **not** share:
 
 ## Supported Providers
 
-Plotter Studio can route requests to different providers depending on the selected model.
-
 ### Anthropic
 
-Anthropic requests use the Messages API at:
-
-```text
-[https://api.anthropic.com/v1/messages](https://api.anthropic.com/v1/messages)
-```
-
-Anthropic documents the Messages API as the main multi-turn interface for Claude model calls.
+Messages API: `https://api.anthropic.com/v1/messages`
 
 ### Gemini
 
-Gemini requests use Google's `generateContent` API pattern. Google documents API key usage through Google AI Studio and explicit key-based authentication for Gemini API requests.
+`generateContent` API pattern. Documented through Google AI Studio with explicit key-based auth.
 
 ### Academic Cloud SAIA
 
-SAIA is handled through an OpenAI-compatible chat-completions flow in this project, optionally through the included local proxy if direct browser requests run into CORS problems.
+OpenAI-compatible `chat-completions` flow, with an optional bundled Python CORS proxy.
 
 ---
 
 ## Project Information
 
-- **Project type:** Single-file web app (vanilla HTML/CSS/JavaScript)
+- **Project type:** Single-file web app (vanilla HTML / CSS / JavaScript)
 - **Main app file:** `plotter_studio.html`
-- **Optional local helper:** `saia_proxy.py` (Python proxy for SAIA/CORS)
-- **Runtime requirements:** Modern browser, and Python 3 only if using the local proxy
-- **License:** MIT
+- **Optional local helper:** `saia_proxy.py`
+- **Runtime requirements:** Modern browser; Python 3 only if using the local proxy
+- **License:** GPL-3.0
 
 ---
 
 ## Technical Guide
 
-This section explains how the app is structured internally.
-
 ### Architecture
 
 - Single-file vanilla JavaScript app
 - No build system
-- p5.js loaded through CDN
+- p5.js loaded through CDN (used for Plotter previews and the inspiration animation)
+- Web Audio API (`AudioContext` + `ScriptProcessorNode`) for the audio engine
 - Optional Python proxy: `saia_proxy.py`
-- Most state, rendering, request dispatch, and exports happen in the browser
+- Most state, rendering, request dispatch, FX chain, particle backgrounds, and exports happen in the browser
 
 Main files:
 
@@ -165,9 +167,7 @@ Provider selection is based on the chosen model ID:
 - Academic models → SAIA
 - Other supported models → Anthropic Messages API
 
-Core dispatcher:
-
-- `callPhase()`
+Core dispatcher: `callPhase()`
 
 Provider-specific handlers:
 
@@ -175,261 +175,133 @@ Provider-specific handlers:
 - `callPhaseAnthropic(...)`
 - `callPhaseGemini(...)`
 
-This lets one UI talk to multiple backends without changing the frontend workflow.
+One UI talks to multiple backends without changing the workflow.
 
 ---
 
-### API Endpoints and Auth
+### Multi-Phase Pipelines
 
-#### Anthropic
+**Plotter:** `concept` → `p5` → (auto-fix) → `pde` → (auto-fix) → `explain`
 
-Endpoint:
+**Audio:** `audioconcept` → `audio` → (compile check / auto-fix) → `audioexp`
 
-```text
-[https://api.anthropic.com/v1/messages](https://api.anthropic.com/v1/messages)
-```
+Key behaviour:
 
-Typical headers:
-
-- `anthropic-version: 2023-06-01`
-- `x-api-key: <key>`
-- browser-direct mode may also include a special direct-browser header depending on implementation strategy
-
-Typical request body includes:
-
-- `model`
-- `system`
-- `messages`
-- `max_tokens`
-- optional `thinking`
-
-Anthropic’s Messages API is the documented structure for Claude conversations.
-
-#### Gemini
-
-Endpoint pattern:
-
-```text
-https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent
-```
-
-Auth:
-
-- `x-goog-api-key: <key>` or equivalent documented key-based usage
-
-Typical request body includes:
-
-- `contents[]`
-- `systemInstruction`
-- `generationConfig`
-
-Google documents Gemini API key management in Google AI Studio and explicit key-based integration patterns.
-
-#### Academic Cloud SAIA
-
-Base endpoint:
-
-```text
-[https://chat-ai.academiccloud.de/v1/chat/completions](https://chat-ai.academiccloud.de/v1/chat/completions)
-```
-
-Auth:
-
-- `Authorization: Bearer <key>`
-
-Body is OpenAI-compatible:
-
-- `model`
-- `messages`
-- `temperature`
-- `max_tokens`
-
-If proxy is configured:
-
-- localhost proxy mode appends `/v1/chat/completions`
-- non-local proxy mode can prepend the full SAIA URL
-
----
-
-### Multi-Phase Pipeline
-
-The full app can split one generation into focused phases:
-
-1. `concept`
-2. `p5`
-3. `pde`
-4. `explain`
-
-Important behavior:
-
-- `PIPELINE_ENABLED` controls this mode
-- If disabled, the app falls back to a single-shot generation path
+- `PIPELINE_ENABLED` controls the plotter pipeline; falls back to single-shot if disabled
 - Follow-up context is carried through `chatHistory`
-- p5 and Processing phases can reuse previous code with modify-not-rewrite prompts
-
-This helps produce cleaner results than forcing concept, preview, Processing, and explanation into one raw response.
-
----
-
-### Follow-Up Context and History
-
-`chatHistory` accumulates prior turns so follow-up prompts can modify the current sketch instead of restarting from zero.
-
-Behavior includes:
-
-- trimming older turns with `MAX_HISTORY_TURNS`
-- adding summary markers when earlier context is compressed
-- appending combined output back into history in pipeline mode
-- preserving iterative quality for prompts like:
-  - “make it denser”
-  - “add a Voronoi layer”
-  - “reduce pen lifts”
-  - “make it more architectural”
+- p5 and Processing phases reuse the previous code via *MODIFY-existing* prompts
+- The audio pipeline likewise reuses `audioState.code` once it exists, so a follow-up like *"make the bass deeper"* modifies the current patch rather than starting fresh
 
 ---
 
-### Auto-Fix Runtime Loop
+### Code Editing & History Sync
 
-When p5 preview execution fails:
+Both workspaces ship inline editing of generated code:
 
-- `runP5()` captures the runtime or init error
-- if `AUTOFIX_ENABLED` is active:
-  - the app builds a focused repair prompt
-  - includes the error and original code
-  - calls `callPhase('p5', ...)`
-  - retries the corrected sketch
+- `✎ Edit` swaps the read-only code display for a `<textarea>`
+- `✓ Save` writes back to the authoritative store (`stored.p5code` / `stored.pdecode` for plotter, `audioState.code` for audio)
+- `✕` discards edits
+- Plotter saves also patch the most-recent assistant entry in `chatHistory` so the next concept-phase prompt sees the edited code
+- Plotter p5 saves auto-re-run the sketch; audio saves auto-recompile the patch, refresh custom sliders, and restart playback if live
+- Editing is blocked while a generation is in flight; starting a new generation cancels any open edit
 
-This exists to make preview iteration less fragile during experimentation.
-
----
-
-### Debug Overlay
-
-The debug overlay is the main internal trace panel for development.
-
-It can show:
-
-- request grouping
-- phase labels
-- request/response direction
-- provider metadata
-- model metadata
-- usage and token-related info where available
-
-Typical interactions:
-
-- open via the ⚙ button
-- close with the ✕ button
-- close with Escape
-- close by clicking outside the panel
+This makes the loop *"AI generates → I tweak → AI builds on my tweaks"* close cleanly.
 
 ---
 
-### Token Tracking
+### Audio Engine
 
-Session-level counters are tracked in memory:
+- `compileAudioDsp(code)` wraps user/AI code in a safe sandbox and returns `{ dsp, params }`
+- DSP contract: `function dsp(t, beat, p)` — returns a sample in `[-1, 1]` (mono) or `[L, R]` (stereo); `p` holds live slider values
+- Patches may declare `var params = [{name, label, min, max, value, step}, …]` to expose **AI-generated custom sliders** in the Patch Controls section
+- Hardcoded FX chain runs *after* the generated code, so Volume / Tone / Drive always work:
+  - Drive → `tanh(x * (1 + drive * 6))` saturation
+  - Tone → one-pole low-pass filter
+  - Volume → final gain
+- Security blocklist strips comments first so DSP vocabulary (e.g. "Hann *window*") does not false-trigger; bans DOM / network / timers / dynamic `import()`
 
-- `sessionTokens.input`
-- `sessionTokens.output`
-- `sessionTokens.requests`
+---
 
-Where providers expose usage fields, those values are folded into the session totals.
+### Auto-Fix Loops
+
+**p5 preview** — `runP5()` catches runtime / init errors, builds a focused repair prompt, retries.
+
+**Audio compile** — `compileAudioDsp()` failures trigger a single targeted fix-prompt with the original code and the exact error.
+
+---
+
+### Prompt Templates and Mode-Aware Editing
+
+The template editor swaps section sets based on the active assistant:
+
+- **Studio** sections: Template Prompt (`base`), System Prompt, Concept Phase, p5.js Phase, Processing Phase, Explain Phase
+- **Audio** sections: Audio System Prompt, Audio Concept Phase, Audio Code Phase, Audio Explanation Phase
+
+Plotter prompts and audio prompts are stored independently in `promptTemplates`; the `adoptStringMap` helper makes prompt-key persistence forward-compatible.
+
+The toolbar dropdowns mirror this split:
+
+- Plotter: **dMA Creative Coding** / Edit Prompt Templates… / Custom + Prompt Templates…
+- Audio: **Audio Base** / Edit Audio Prompts… / Custom Audio Prompts…
+
+---
+
+### Inspiration Panel
+
+Two-tab curated reference page:
+
+- **Plotter** — Drawing With Machines, Plotter Files, Turtletoy, Generated Space, Generative Art (erdavids), Generative Gestaltung
+- **Audio** — DittyToy, MDN Web Audio, Gibber, Sonic Pi, Flok, Tone.js, SuperCollider, Orca, CCRMA/JOS DSP textbook
+
+The background animation (p5 flow field + morphing form) is theme-aware: dark canvas with subtle amber strokes in dark mode, light cream canvas with deeper amber/cool/charcoal strokes in light mode.
+
+---
+
+### Theme + Text Controls
+
+- Light / dark theme toggle on the top bar
+- Accent-color picker (8 presets + custom)
+- Text-color picker (6 presets + custom)
+- **S / M / L letter-size** selector applies to chat bubbles, code display, how-it-works panels, inspiration card descriptions, and input
+- Theme toggle auto-resets text color to the theme default (white in dark, near-black in light); manual picks persist across refreshes
+
+---
+
+### Token Tracking and Debug Overlay
+
+Session-level counters track input/output tokens and request count.
+The debug overlay shows request grouping, phase labels, request/response direction, provider + model metadata, and usage where available.
 
 ---
 
 ### State Model
 
-#### Preferences
-
-`saveState()` stores only user preferences in `plotterStudio_prefs`, such as:
-
-- selected model
-- settings toggles
-- selected template
-- custom template text
-
-It intentionally does **not** store full working session content.
-
-#### Full session snapshots
-
-`saveCurrentSession()` stores richer session data in `plotterStudio_sessions` and can export a `.txt` session file.
-
-Stored session data may include:
-
-- `chatHistory`
-- generated code
-- explanations
-- current model
-- settings
-- template state
-- token totals
-
-This separation keeps preferences lightweight while still allowing richer session saving when needed.
-
----
-
-### Settings and Generation Controls
-
-The app includes settings that change prompt construction and runtime behavior.
-
-Examples:
-
-- output toggles for Processing, p5, and explanation blocks
-- text-toggle requirements
-- line-label toggle
-- reseed requirement
-- slider/UI control requirements
-- pipeline mode toggle
-- auto-fix toggle
-
-These settings affect prompt construction through functions such as:
-
-- `buildSysPrompt(...)`
-- `buildPhasePrompt(...)`
-
-They also affect what gets rendered and downloaded later.
+- **Preferences** — `plotterStudio_prefs` stores model, settings, templates, accent, text color, text size, audio-template selection
+- **Sessions** — `plotterStudio_sessions` stores full session snapshots (`chatHistory`, generated code, explanations, audio state, template state, tokens) plus optional `.txt` export
 
 ---
 
 ### Response Parsing and Rendering
 
-Model responses are parsed into named sections such as:
+Model responses are parsed into named sections:
 
 - `### Processing code`
 - `### p5 sketch`
 - `### How it works (Processing)`
 - `### How it works (p5.js)`
 
-Parsed sections update:
-
-- code tabs
-- explanation panels
-- p5 live preview
-- download actions
-
-This structured parsing is what makes one response usable across multiple panels.
+Audio responses are parsed via `parseAudioResponse()` into `{ code, explain }`.
 
 ---
 
-### Particle Background System
+### Particle Background Systems
 
-The interface also includes a separate particle animation layer.
+- **Plotter concept panel** — slow rotating "seeds" with hair strands, mouse-reactive
+- **Audio concept panel** — concentric sound-wave ripples + central pulsing sine, mouse-spawns ripples
+- **Preview panel idle** — 3-D particle cloud (or musical-note cloud on the audio side)
+- **Inspiration overlay** — p5 flow field + morphing form, theme-aware colours
 
-Characteristics:
-
-- raw canvas 2D rendering
-- faux 3D projection
-- mouse interaction
-- independent from generation pipeline logic
-
-This system is visual only and does not affect provider calls or code generation.
-
----
-
-## Note on Artifact HTML
-
-`plotter_studio_artifact.html` is not part of the recommended workflow.  
-Use `plotter_studio.html` as the primary app file.
+All four are independent of generation pipelines.
 
 ---
 
@@ -441,20 +313,19 @@ Use `plotter_studio.html` as the primary app file.
 - prefer server-side secret handling for public production deployments
 - browser-direct key usage is fine for local testing, but less safe than a backend proxy
 
-Google explicitly documents API-key-based Gemini integration, while also noting that hardcoding keys should only be temporary.
-
 ---
 
 ## Repository Files
 
-- `plotter_studio.html` — full feature app
+- `plotter_studio.html` — the full app (Plotter Studio + Audio Studio + Inspiration)
 - `saia_proxy.py` — optional local SAIA CORS proxy
+- `docs/` — provider key setup guides
 
 ---
 
 ## License
 
-Plotter-Studio: A specialized tool for designing and managing pen plotter artwork.
+Creative AI Studio: a multi-workspace tool for designing and managing generative pen-plotter artwork and realtime audio patches.
 Copyright (C) 2026 BotAndis
 
 This program is free software: you can redistribute it and/or modify
@@ -464,8 +335,8 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+along with this program. If not, see <https://www.gnu.org/licenses/>.
