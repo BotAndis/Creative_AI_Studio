@@ -16,7 +16,7 @@ Both share a single chat assistant (mode-aware), a single API-key surface, a mul
 A standalone Plotter-only build is available as a Claude artifact:
 [<https://claude.ai/public/artifacts/50c651e4-8f2b-423d-9ff4-f8f5df0fc706>](https://claude.ai/public/artifacts/169074ca-d958-45a8-b4da-fbecc1c51e4c)
 
-Use the local file for the full feature set (Audio Studio, code editing, audio MODIFY-existing pipeline, multi-tab inspiration).
+Use the local (API-Version) file for the full feature set.
 
 ---
 
