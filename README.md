@@ -103,16 +103,6 @@ Then set the proxy URL inside the app to:
 ```text
 http://localhost:8765/
 ```
-
-### Where keys are stored
-
-Keys and preferences live in client-side browser storage. Do **not** share:
-
-- screenshots with visible keys
-- exported browser profiles
-- synced browser data you do not trust
-- raw localStorage dumps
-
 ---
 
 ## Supported Providers
