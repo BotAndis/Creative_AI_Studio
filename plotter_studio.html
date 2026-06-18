@@ -1079,6 +1079,192 @@ body.text-lg #cin{font-size:13px!important}
 
       </div>
 
+      <div class="insp-section-title">External Libraries · Processing (Java)</div>
+      <div class="sp-hint" style="margin:-2px 0 10px;padding:0 2px;font-size:10px;line-height:1.5">
+        Processing's Java ecosystem is huge — camera capture, computer vision, physics, 3D geometry and audio analysis all have mature libraries. Enable <strong>Settings → Allow external libraries</strong> to let the AI reach for these (it will favour this list). Most install via the PDE Contribution Manager (<em>Sketch → Import Library → Add Library</em>).
+      </div>
+      <div class="insp-cards">
+
+        <a class="insp-card insp-wow" href="https://github.com/atduskgreg/opencv-processing" target="_blank">
+          <div class="insp-wow-badge">★ WOW</div>
+          <div class="insp-card-host"><span class="host-icon">⌥</span>github.com</div>
+          <div class="insp-card-name">OpenCV for Processing</div>
+          <div class="insp-card-desc">Full computer-vision toolkit: face detection, blob &amp; contour tracking, optical flow, edge/threshold filters, and background subtraction. Feed it a live camera frame to turn movement or detected features into generative geometry — contours plot beautifully.</div>
+          <span class="insp-card-tag">Computer Vision · Face Detect · Contours</span>
+        </a>
+
+        <a class="insp-card" href="https://processing.org/reference/libraries/video/index.html" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">▦</span>processing.org</div>
+          <div class="insp-card-name">Video (processing.video)</div>
+          <div class="insp-card-desc">Official library for live webcam capture (<code>Capture</code>) and movie playback (<code>Movie</code>). The starting point for any camera-driven sketch — sample pixel brightness into hatching density, or trace bright regions into plottable paths.</div>
+          <span class="insp-card-tag">Camera · Webcam · Video</span>
+        </a>
+
+        <a class="insp-card" href="http://www.v3ga.net/processing/BlobDetection/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⬡</span>v3ga.net</div>
+          <div class="insp-card-name">BlobDetection</div>
+          <div class="insp-card-desc">Lightweight blob/edge detection from any image or camera frame. Returns blob outlines and edge vertices — cleaner and faster than full OpenCV when all you need is "where are the bright shapes" to convert into contour lines.</div>
+          <span class="insp-card-tag">Blob · Edge Detect · Tracking</span>
+        </a>
+
+        <a class="insp-card" href="http://www.ricardmarxer.com/geomerative/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">◈</span>ricardmarxer.com</div>
+          <div class="insp-card-name">Geomerative</div>
+          <div class="insp-card-desc">Geometry library built for plotters: convert fonts and SVG into editable point paths, sample evenly-spaced points along any curve, and run boolean operations. The go-to for turning text into single-stroke vector paths the pen can draw.</div>
+          <span class="insp-card-tag">Text→Path · SVG · Plotter</span>
+        </a>
+
+        <a class="insp-card" href="http://toxiclibs.org/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⬡</span>toxiclibs.org</div>
+          <div class="insp-card-name">toxiclibs</div>
+          <div class="insp-card-desc">Karsten Schmidt's classic toolkit — Verlet particle physics, 2D/3D vector math, splines, Voronoi, mesh and SDF geometry. Physics-relaxed lines and organic spline networks plot exceptionally well.</div>
+          <span class="insp-card-tag">Geometry · Physics · Voronoi</span>
+        </a>
+
+        <a class="insp-card" href="https://code.compartmental.net/minim/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">♬</span>compartmental.net</div>
+          <div class="insp-card-name">Minim</div>
+          <div class="insp-card-desc">Audio library with FFT, beat detection and amplitude analysis. Drive a sketch from a microphone or audio file — spectrum bands become bar heights, beats trigger new strokes. The route to audio-reactive plotter art.</div>
+          <span class="insp-card-tag">Audio · FFT · Reactive</span>
+        </a>
+
+        <a class="insp-card" href="https://www.sojamo.de/libraries/controlP5/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">◆</span>sojamo.de</div>
+          <div class="insp-card-name">ControlP5</div>
+          <div class="insp-card-desc">Full GUI toolkit — sliders, knobs, buttons, toggles, colour pickers. Expose every parameter of a generative system as a live control so you can dial in composition before committing to a plot.</div>
+          <span class="insp-card-tag">GUI · Sliders · Controls</span>
+        </a>
+
+        <a class="insp-card" href="http://www.ricardmarxer.com/fisica/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">◈</span>ricardmarxer.com</div>
+          <div class="insp-card-name">Fisica (Box2D)</div>
+          <div class="insp-card-desc">Friendly wrapper over the JBox2D physics engine — bodies, joints, gravity, collisions. Let shapes settle, stack or jam under physics, then snapshot the resting state as a composition of plottable outlines.</div>
+          <span class="insp-card-tag">Physics · Box2D · Simulation</span>
+        </a>
+
+        <a class="insp-card" href="https://mrfeinberg.com/peasycam/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">▦</span>mrfeinberg.com</div>
+          <div class="insp-card-name">PeasyCam</div>
+          <div class="insp-card-desc">One-line orbit/zoom/pan camera for 3D sketches. Pair with a 2D projection step to explore a 3D structure interactively, then flatten the chosen view into clean line art for the plotter.</div>
+          <span class="insp-card-tag">3D · Camera · Navigation</span>
+        </a>
+
+        <a class="insp-card" href="https://github.com/wblut/HE_Mesh" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⌥</span>github.com</div>
+          <div class="insp-card-name">HE_Mesh</div>
+          <div class="insp-card-desc">Heavy-duty computational geometry — half-edge meshes, Voronoi/Delaunay in 3D, subdivision, slicing and boolean operations. Slice a 3D form into contour layers and you have instant topographic line drawings.</div>
+          <span class="insp-card-tag">3D Mesh · Geometry · Slicing</span>
+        </a>
+
+        <a class="insp-card" href="https://funprogramming.org/VideoExport-for-Processing/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⬡</span>funprogramming.org</div>
+          <div class="insp-card-name">Video Export (hamoid)</div>
+          <div class="insp-card-desc">Pipes frames straight to ffmpeg to record an MP4 of an animated sketch — no screen-capture needed. Useful for documenting how a generative system evolves before you freeze one frame to plot.</div>
+          <span class="insp-card-tag">Export · MP4 · Recording</span>
+        </a>
+
+        <a class="insp-card" href="https://github.com/runemadsen/HTTP-Requests-for-Processing" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⌥</span>github.com</div>
+          <div class="insp-card-name">HTTP Requests for Processing</div>
+          <div class="insp-card-desc">GET/POST/PUT requests with custom headers and JSON bodies — call any web API from a sketch. (For quick reads, Processing's built-in <code>loadJSON()</code>, <code>loadStrings()</code> and <code>loadTable()</code> already pull JSON/CSV straight off a URL.) Drive geometry from live data: weather, stocks, transit, anything with an endpoint.</div>
+          <span class="insp-card-tag">HTTP · REST API · JSON</span>
+        </a>
+
+      </div>
+
+      <div class="insp-section-title">External Libraries · p5.js (JavaScript)</div>
+      <div class="sp-hint" style="margin:-2px 0 10px;padding:0 2px;font-size:10px;line-height:1.5">
+        Browser libraries that pair cleanly with p5.js — in-browser ML, camera/face/hand tracking, vector geometry and physics. Enable <strong>Settings → Allow external libraries</strong> and these are <strong>preloaded automatically</strong> — instantly available in the live preview, no per-sketch download. The AI declares which ones a sketch uses so the downloaded <code>.html</code> pulls only those from a CDN.
+      </div>
+      <div class="insp-cards">
+
+        <a class="insp-card insp-wow" href="https://ml5js.org/" target="_blank">
+          <div class="insp-wow-badge">★ WOW</div>
+          <div class="insp-card-host"><span class="host-icon">◆</span>ml5js.org</div>
+          <div class="insp-card-name">ml5.js</div>
+          <div class="insp-card-desc">Friendly machine-learning built on TensorFlow.js, designed to drop straight into p5. Real-time hand pose, face mesh, body/skeleton tracking, image &amp; sound classification — all from the webcam. The fastest path to camera-driven interactive sketches.</div>
+          <span class="insp-card-tag">ML · Hand/Face/Pose · Camera</span>
+        </a>
+
+        <a class="insp-card" href="https://developers.google.com/mediapipe" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">◈</span>google.com</div>
+          <div class="insp-card-name">MediaPipe</div>
+          <div class="insp-card-desc">Google's high-performance vision pipelines: hand landmarks (21 points), face mesh (468 points), full-body pose, and segmentation — all real-time in the browser. More accurate and faster than most alternatives when you need precise tracking coordinates to draw from.</div>
+          <span class="insp-card-tag">Hand/Face/Pose · Real-time · Tracking</span>
+        </a>
+
+        <a class="insp-card" href="https://handsfree.js.org/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⬡</span>handsfree.js.org</div>
+          <div class="insp-card-name">Handsfree.js</div>
+          <div class="insp-card-desc">Wraps MediaPipe/TF models into a single drop-in API for hand, face and pose tracking, plus pinch and gesture events. The least-friction way to add gesture control to a sketch — point or pinch to steer the generative system.</div>
+          <span class="insp-card-tag">Gestures · Face/Hand · Easy</span>
+        </a>
+
+        <a class="insp-card" href="https://docs.opencv.org/4.x/d5/d10/tutorial_js_root.html" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⌥</span>opencv.org</div>
+          <div class="insp-card-name">OpenCV.js</div>
+          <div class="insp-card-desc">The full OpenCV computer-vision library compiled to WebAssembly. Edge detection, contours, thresholding, optical flow and feature detection in the browser — turn a camera frame or uploaded image into clean contour paths for plotting.</div>
+          <span class="insp-card-tag">Computer Vision · Contours · WASM</span>
+        </a>
+
+        <a class="insp-card" href="https://p5js.org/reference/p5.sound/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">♬</span>p5js.org</div>
+          <div class="insp-card-name">p5.sound</div>
+          <div class="insp-card-desc">p5's official audio add-on: microphone input, FFT spectrum, amplitude and peak detection, plus playback. Map frequency bands to line density or beats to redraws for audio-reactive compositions — no extra setup beyond one script tag.</div>
+          <span class="insp-card-tag">Audio · FFT · Mic · Reactive</span>
+        </a>
+
+        <a class="insp-card" href="http://paperjs.org/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">◈</span>paperjs.org</div>
+          <div class="insp-card-name">Paper.js</div>
+          <div class="insp-card-desc">Vector graphics engine with the geometry p5 lacks: boolean path operations (union/intersect/subtract), offsetting, smoothing, simplification and hit-testing. Indispensable for cleaning and combining paths into single continuous strokes the pen can follow.</div>
+          <span class="insp-card-tag">Vector · Boolean Ops · Paths</span>
+        </a>
+
+        <a class="insp-card" href="https://opentype.js.org/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">▦</span>opentype.js.org</div>
+          <div class="insp-card-name">opentype.js</div>
+          <div class="insp-card-desc">Parse any TTF/OTF font and extract glyph outlines as vector paths. The browser equivalent of Geomerative's text handling — convert words into outline or single-stroke paths so the plotter draws letterforms instead of filling them.</div>
+          <span class="insp-card-tag">Fonts · Glyph Paths · Text</span>
+        </a>
+
+        <a class="insp-card" href="https://brm.io/matter-js/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">◆</span>brm.io</div>
+          <div class="insp-card-name">Matter.js</div>
+          <div class="insp-card-desc">Mature 2D rigid-body physics engine that pairs naturally with p5. Bodies, constraints, gravity and collisions — let elements settle or collide, then trace their resting outlines into a plottable composition.</div>
+          <span class="insp-card-tag">Physics · 2D · Simulation</span>
+        </a>
+
+        <a class="insp-card" href="https://github.com/d3/d3-delaunay" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⬡</span>github.com</div>
+          <div class="insp-card-name">d3-delaunay / d3.js</div>
+          <div class="insp-card-desc">Blazing-fast Delaunay triangulation and Voronoi diagrams (d3-delaunay), plus the wider d3 toolkit — scales, geo projections, force layouts and hierarchies. The cleanest way to get tessellations and relaxed point structures that plot well.</div>
+          <span class="insp-card-tag">Voronoi · Delaunay · Data</span>
+        </a>
+
+        <a class="insp-card" href="http://haptic-data.com/toxiclibsjs/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">◈</span>haptic-data.com</div>
+          <div class="insp-card-name">toxiclibs.js</div>
+          <div class="insp-card-desc">JavaScript port of toxiclibs — Verlet physics, vector math, splines and geometry. Brings the organic, physics-relaxed line quality of the Processing classic to the browser, ready to feed into p5 drawing calls.</div>
+          <span class="insp-card-tag">Geometry · Physics · Splines</span>
+        </a>
+
+        <a class="insp-card" href="https://github.com/spite/ccapture.js" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">⌥</span>github.com</div>
+          <div class="insp-card-name">CCapture.js</div>
+          <div class="insp-card-desc">Frame-accurate canvas recording to WebM, GIF or PNG sequence — captures every frame regardless of render speed, so exported animation is smooth. Document how a sketch evolves before choosing the frame to plot.</div>
+          <span class="insp-card-tag">Export · Video · GIF</span>
+        </a>
+
+        <a class="insp-card" href="https://axios-http.com/" target="_blank">
+          <div class="insp-card-host"><span class="host-icon">◆</span>axios-http.com</div>
+          <div class="insp-card-name">axios</div>
+          <div class="insp-card-desc">Promise-based HTTP client for calling REST APIs from the browser — GET/POST with headers, params and JSON, cleaner than raw <code>fetch()</code>. (p5's built-in <code>loadJSON()</code> / <code>httpGet()</code> also work for simple reads.) Feed live data — weather, transit, crypto — into a generative system. Note: the target API must allow CORS.</div>
+          <span class="insp-card-tag">HTTP · REST API · Data</span>
+        </a>
+
+      </div>
+
     </div><!-- /insp-tab-plotter -->
 
     <!-- ── AUDIO TAB ── -->
@@ -1548,6 +1734,10 @@ body.text-lg #cin{font-size:13px!important}
     <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-autofix" checked><span class="sp-label">Auto-fix preview errors</span></label>
     <div class="sp-hint">When the p5.js preview has runtime errors, automatically sends a follow-up request to fix the code.</div>
 
+    <div class="sp-section">Libraries</div>
+    <label class="sp-row"><input type="checkbox" class="sp-cb" id="opt-ext-libs"><span class="sp-label">Allow external libraries</span></label>
+    <div class="sp-hint">Lets the AI use external libraries (camera/CV, physics, audio, geometry…). When on, a curated list of Processing &amp; p5.js libraries — see the Inspiration tab — is added to the system prompt and the AI is told to prefer it. When off, no library list is sent and the AI stays self-contained.</div>
+
   </div>
     <div class="sp-section">Export</div>
     <div style="display:flex;gap:6px;padding:0 14px 8px">
@@ -1940,7 +2130,7 @@ var audioPreviewRafPending = false;
 var chatMode = 'studio'; // 'studio' | 'audio' — which assistant the chat popup drives
 var currentTab = 'pde';
 var pendingFiles = [];
-var stored = { title:'', desc:'', pdecode:'', p5code:'', pdeexp:'', p5exp:'', params:[] };
+var stored = { title:'', desc:'', pdecode:'', p5code:'', pdeexp:'', p5exp:'', params:[], p5libs:[] };
 var PARAMS = {};   // shared live param bus: visual twin of audioEngine.paramVals (coupling)
 var sessionTokens = { input: 0, output: 0, requests: 0 };
 var currentTemplate = 'dma'; // 'dma' | 'custom'
@@ -2155,6 +2345,151 @@ function getAudioSystemPromptText() {
 function getPromptOverride(key) {
   return (promptTemplates[key] && promptTemplates[key].trim()) || '';
 }
+
+// ── External libraries block (toggled by Settings → Allow external libraries) ──
+// Curated lists mirror the Inspiration tab. When the toggle is OFF this returns
+// '' so no library list ever reaches the system prompt.
+var EXT_LIBS_PROCESSING = [
+  'OpenCV for Processing — computer vision: face detection, blob/contour tracking, optical flow, image filters. Feed it a camera frame; plot the contours.',
+  'Video (processing.video) — live webcam Capture and Movie playback. The base for any camera-driven sketch.',
+  'BlobDetection — fast blob/edge detection from image or camera; returns blob outlines as plottable vertices.',
+  'Geomerative — fonts/SVG to editable point paths, even point sampling along curves, boolean ops. Best for text-to-single-stroke paths.',
+  'toxiclibs — Verlet physics, 2D/3D vector math, splines, Voronoi, mesh/SDF geometry.',
+  'Minim — audio FFT, beat detection, amplitude analysis for audio-reactive drawing.',
+  'ControlP5 — GUI sliders/knobs/buttons/toggles for live parameter control.',
+  'Fisica (JBox2D) — 2D rigid-body physics: bodies, joints, gravity, collisions; snapshot the resting state.',
+  'PeasyCam — one-line orbit/zoom/pan camera for 3D sketches.',
+  'HE_Mesh — computational geometry: half-edge meshes, 3D Voronoi/Delaunay, subdivision, slicing (contour layers).',
+  'HTTP Requests for Processing — GET/POST/PUT with headers and JSON bodies to call any web API; built-in loadJSON()/loadStrings()/loadTable() also read JSON/CSV from a URL. Drive geometry from live data.'
+];
+var EXT_LIBS_P5 = [
+  'ml5.js — friendly ML on TensorFlow.js: real-time hand pose, face mesh, body/pose tracking, image & sound classification from the webcam.',
+  'MediaPipe — Google real-time vision: hand landmarks (21 pts), face mesh (468 pts), full-body pose, segmentation.',
+  'Handsfree.js — drop-in wrapper over MediaPipe/TF for hand/face/pose plus pinch & gesture events.',
+  'OpenCV.js — full OpenCV via WebAssembly: edges, contours, thresholding, optical flow on camera/image frames.',
+  'p5.sound — microphone input, FFT spectrum, amplitude/peak detection, playback for audio-reactive sketches.',
+  'Paper.js — vector boolean ops (union/intersect/subtract), path offset/smooth/simplify, hit-testing.',
+  'opentype.js — parse TTF/OTF fonts and extract glyph outlines as vector paths (text-to-path).',
+  'Matter.js — 2D rigid-body physics engine that pairs naturally with p5.',
+  'd3-delaunay / d3.js — fast Delaunay/Voronoi, plus scales, geo projections, force layouts.',
+  'toxiclibs.js — JS port of toxiclibs: Verlet physics, vector math, splines, geometry.',
+  'axios — promise-based HTTP client for REST APIs (GET/POST, headers, JSON); built-in loadJSON()/httpGet() also work for simple reads. Feed live web data into the sketch. Target API must allow CORS.'
+];
+
+// ── p5.js external-library CDN loader ──────────────────────────
+// Maps canonical lib keys → CDN script URLs. The AI declares which libs a
+// sketch needs in a "### Libraries" section; the host injects these <script>
+// tags (live preview AND standalone download) before the sketch runs, so
+// external libraries "just work" in the browser with no manual install.
+var P5_LIB_CDN = {
+  'ml5':       ['https://unpkg.com/ml5@1/dist/ml5.min.js'],
+  'p5.sound':  ['https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js'],
+  'axios':     ['https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js'],
+  'paper':     ['https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js'],
+  'matter':    ['https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js'],
+  'd3':        ['https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js'],
+  'opentype':  ['https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js'],
+  'toxiclibs': ['https://cdn.jsdelivr.net/npm/toxiclibsjs/build/toxiclibs.min.js'],
+  'ccapture':  ['https://cdn.jsdelivr.net/npm/ccapture.js@1.1.0/build/CCapture.all.min.js'],
+  'opencv':    ['https://docs.opencv.org/4.x/opencv.js']
+};
+// Accept the various names the AI might write → canonical key.
+var P5_LIB_ALIASES = {
+  'ml5':'ml5','ml5.js':'ml5','ml5js':'ml5',
+  'p5.sound':'p5.sound','p5sound':'p5.sound','p5-sound':'p5.sound','sound':'p5.sound',
+  'axios':'axios',
+  'paper':'paper','paper.js':'paper','paperjs':'paper',
+  'matter':'matter','matter.js':'matter','matterjs':'matter','matter-js':'matter',
+  'd3':'d3','d3.js':'d3','d3js':'d3','d3-delaunay':'d3','d3delaunay':'d3','delaunay':'d3',
+  'opentype':'opentype','opentype.js':'opentype','opentypejs':'opentype',
+  'toxiclibs':'toxiclibs','toxiclibs.js':'toxiclibs','toxiclibsjs':'toxiclibs','toxi':'toxiclibs',
+  'ccapture':'ccapture','ccapture.js':'ccapture','ccapturejs':'ccapture',
+  'opencv':'opencv','opencv.js':'opencv','opencvjs':'opencv','cv':'opencv'
+};
+// Canonical keys that the AI is allowed to rely on (auto-loaded in preview).
+var P5_AUTOLOAD_KEYS = Object.keys(P5_LIB_CDN);
+function normalizeLibKey(name){
+  var k = String(name||'').toLowerCase().trim();
+  return P5_LIB_ALIASES[k] || (P5_LIB_CDN[k] ? k : null);
+}
+// Resolve a list of declared lib names to a deduped, ordered list of CDN URLs.
+function p5LibUrls(libs){
+  var urls = [];
+  (libs||[]).forEach(function(n){
+    var k = normalizeLibKey(n);
+    if (k && P5_LIB_CDN[k]) {
+      P5_LIB_CDN[k].forEach(function(u){ if(urls.indexOf(u)<0) urls.push(u); });
+    } else if (n) {
+      console.warn('[ext-libs] no CDN mapping for "' + n + '" — skipped');
+    }
+  });
+  return urls;
+}
+var _scriptPromises = {};
+function loadScript(url){
+  if (_scriptPromises[url]) return _scriptPromises[url];
+  _scriptPromises[url] = new Promise(function(res, rej){
+    var already = [].slice.call(document.scripts).some(function(s){ return s.src === url; });
+    if (already) { res(url); return; }
+    var s = document.createElement('script');
+    s.src = url; s.async = false; // preserve order
+    s.onload = function(){ res(url); };
+    s.onerror = function(){ rej(new Error('failed to load ' + url)); };
+    document.head.appendChild(s);
+  });
+  return _scriptPromises[url];
+}
+// Load all declared libs sequentially (order preserved), resolves when ready.
+function loadP5Libs(libs){
+  return p5LibUrls(libs).reduce(function(p, u){
+    return p.then(function(){ return loadScript(u); });
+  }, Promise.resolve());
+}
+// Preload EVERY curated p5 library up-front (background, non-blocking) so any
+// sketch can use them with zero per-sketch download. Idempotent — loadScript
+// caches per URL, so repeated calls are free. Gated on the extLibs toggle.
+var _p5LibsPreloaded = false;
+function preloadAllP5Libs(){
+  if (_p5LibsPreloaded) return;
+  _p5LibsPreloaded = true;
+  Object.keys(P5_LIB_CDN).forEach(function(k){
+    P5_LIB_CDN[k].forEach(function(u){
+      loadScript(u).catch(function(){ console.warn('[ext-libs] preload failed: ' + u); });
+    });
+  });
+}
+
+// phase: 'pde' -> Processing only, 'p5' -> p5 only, anything else -> follow settings.
+function getExternalLibsBlock(s, phase) {
+  if (!s) s = getSettings();
+  if (!s.extLibs) return '';
+  var wantPde = phase === 'pde' || (phase !== 'p5' && s.pde);
+  var wantP5  = phase === 'p5'  || (phase !== 'pde' && s.p5);
+  if (!wantPde && !wantP5) { wantPde = true; wantP5 = true; }
+  var out = 'EXTERNAL LIBRARIES (enabled):\n' +
+    'You MAY use external libraries to add features (camera capture, computer vision, physics, audio analysis, geometry, GUI). ' +
+    'Prefer the curated libraries below; only reach beyond the list if none fit. ' +
+    'Plotter output must stay vector line-art (stroke only, never fill).\n';
+  if (wantP5) {
+    out += '\np5.js (JavaScript) libraries:\n- ' + EXT_LIBS_P5.join('\n- ') + '\n';
+    out += '\nUSING A p5 LIBRARY (mandatory contract):\n' +
+      '- Do NOT write <script> tags or import statements — the host injects libraries for you.\n' +
+      '- When (and only when) the sketch uses one or more libraries, emit a "### Libraries" section BEFORE "### p5 sketch", containing a comma-separated list of names drawn ONLY from this auto-loaded set: ' + P5_AUTOLOAD_KEYS.join(', ') + '.\n' +
+      '- Example:\n### Libraries\nml5, p5.sound\n\n### p5 sketch\n...\n' +
+      '- The library globals (ml5, axios, paper, Matter, d3, opentype, toxi, CCapture, cv, and p5.sound on the p5 instance) are loaded and ready before your sketch runs.\n' +
+      '- ASYNC READINESS: some libs initialise asynchronously — guard for it. ml5 models load via callback/await; OpenCV.js is only ready inside cv.onRuntimeInitialized; draw a placeholder until ready.\n' +
+      '- CAMERA: use p.createCapture(p.VIDEO) / getUserMedia; it triggers a browser permission prompt and needs https or localhost.\n' +
+      '- NETWORK: fetch/axios/loadJSON only reach APIs that send CORS headers; pick CORS-friendly endpoints and handle failure gracefully.\n' +
+      '- If you need a library NOT in the auto-loaded set, do not use it — choose one from the set instead.\n';
+  }
+  if (wantPde) {
+    out += '\nProcessing (Java) libraries:\n- ' + EXT_LIBS_PROCESSING.join('\n- ') + '\n';
+    out += '\nUSING A PROCESSING LIBRARY:\n' +
+      '- Add the correct import (e.g. import processing.video.*;) and keep the sketch runnable.\n' +
+      '- These are NOT auto-installed: add a one-line header comment telling the user to install the library once via Sketch → Import Library → Manage Libraries. Built-in loadJSON()/loadStrings()/loadTable() need no install.\n';
+  }
+  return out + '\n';
+}
 function getRequestModel(requestKey) {
   var chosen = promptRequestModels[requestKey];
   return chosen && typeof chosen === 'string' ? chosen : MODEL;
@@ -2167,6 +2502,7 @@ function getDefaultPhasePrompt(phase, s) {
   }
 
   if (phase === 'p5') {
+    var libsAllow = s.extLibs ? ' If the sketch uses an external library, you MAY also prepend a "### Libraries" section (comma-separated names from the auto-loaded set described above) — that is permitted in addition to the section(s) below.' : '';
     if (s.audioAuto) {
       return "OUTPUT: Return exactly two sections in this order:\n\n" +
         "### Params\n```json\n[{\"name\":\"lineCount\",\"label\":\"Lines\",\"min\":10,\"max\":400,\"value\":120,\"step\":1,\"role\":\"count\"},{\"name\":\"showLabels\",\"label\":\"Labels\",\"type\":\"toggle\",\"value\":0,\"role\":\"label\"}]\n```\n\n" +
@@ -2179,7 +2515,7 @@ function getDefaultPhasePrompt(phase, s) {
         "- Inside the sketch, read each value defensively so it also runs when downloaded standalone, e.g. var n = (typeof PARAMS!=='undefined' && PARAMS.lineCount!=null) ? PARAMS.lineCount : 120; toggles are 0 or 1. Do NOT call p.createSlider() or p.createButton() — the host renders the controls.\n" +
         "- Put the drawing inside p.draw (read PARAMS there) and call p.noLoop() at the end of p.setup, so the host can re-render with p.redraw() when a value changes.\n" +
         "Canvas 540x383. White background. noFill. Black strokes. let seed = <number>; at the top; p.randomSeed(seed); p.noiseSeed(seed); in setup.\n\n" +
-        "CRITICAL RULES:\n- NEVER use document, querySelector, p.select, or any direct DOM access.\n- All p5 calls MUST use the instance prefix: p.rect(), p.line(), p.fill().\n- Return ONLY the two sections above. No concept text, no Processing code, no explanations.";
+        "CRITICAL RULES:\n- NEVER use document, querySelector, p.select, or any direct DOM access.\n- All p5 calls MUST use the instance prefix: p.rect(), p.line(), p.fill().\n- Return ONLY the two sections above. No concept text, no Processing code, no explanations." + libsAllow;
     }
     var ctrlRules = [];
     if (s.textBtn)     ctrlRules.push('Add a p.createButton("Text: On / Off") that toggles all canvas text and redraws.');
@@ -2192,13 +2528,19 @@ function getDefaultPhasePrompt(phase, s) {
     return "OUTPUT: Return exactly this structure:\n### p5 sketch\n```p5instance\nfunction(p) { ... }\n```\n\n" +
       "p5.js instance-mode function. Format:\n```p5instance\nfunction(p) {\n  let seed = 12345;\n  p.setup = function() {\n    p.createCanvas(540, 383);\n    p.background(255);\n    p.randomSeed(seed); p.noiseSeed(seed);\n    drawSketch(); p.noLoop();\n  };\n  function drawSketch() { /* drawing */ }\n  p.draw = function() {};\n}\n```\n" +
       "Canvas 540x383. White bg. noFill. Black strokes. let seed = <number>; at top.\n" +
-      ctrlBlock + "\n\nCRITICAL RULES:\n- NEVER use document.getElementById(), document.querySelector(), p.select(), or any direct DOM access.\n- NEVER call appendChild on DOM elements.\n- All UI elements MUST use p5 instance methods: p.createButton(), p.createSlider(), p.createDiv(), etc.\n- The sketch runs in an isolated container — there are no external DOM elements to reference.\n- All p5 calls MUST use the instance prefix: p.rect(), p.line(), p.fill(), NOT rect(), line(), fill().\n\nNo concept text. No Processing code. No explanations. ONLY the ### p5 sketch section.";
+      ctrlBlock + "\n\nCRITICAL RULES:\n- NEVER use document.getElementById(), document.querySelector(), p.select(), or any direct DOM access.\n- NEVER call appendChild on DOM elements.\n- All UI elements MUST use p5 instance methods: p.createButton(), p.createSlider(), p.createDiv(), etc.\n- The sketch runs in an isolated container — there are no external DOM elements to reference.\n- All p5 calls MUST use the instance prefix: p.rect(), p.line(), p.fill(), NOT rect(), line(), fill().\n\nNo concept text. No Processing code. No explanations. ONLY the ### p5 sketch section." + libsAllow;
   }
 
   if (phase === 'pde') {
     var modelLabel = (typeof MODEL === 'string' && MODEL) ? MODEL : 'default model';
     return "OUTPUT: Return exactly this structure:\n### Processing code\n```processing\n...\n```\n\nProcessing Java sketch in a ```processing block.\n" +
       "Requirements:\n" +
+      "- THE VERY FIRST LINES of the code MUST be a required-libraries header comment block, before any import or code:\n" +
+      "    // ===== REQUIRED LIBRARIES =====\n" +
+      "    // Install once via: Sketch > Import Library > Manage Libraries\n" +
+      "    //   - <Exact library name as it appears in the Contribution Manager>\n" +
+      "    // (Write 'None - core Processing only' if no external library is needed.)\n" +
+      "  List EVERY non-core library the sketch imports, using its exact Contribution Manager name (e.g. 'Video', 'OpenCV for Processing', 'ControlP5', 'toxiclibs', 'Geomerative'). Do NOT list core libraries (processing.svg, processing.pdf) here.\n" +
       "- import processing.svg.*; (and processing.pdf.*; when useful)\n" +
       "- int seed = <number>; at top. randomSeed(seed); noiseSeed(seed); in setup().\n" +
       "- Canvas 1080x764. White bg. noFill() and stroke() only.\n" +
@@ -2265,12 +2607,18 @@ var dmaTemplate = { name:'dMA Creative Coding', body:DMA_PROMPT_DEFAULT };
 // ── Build system prompt from settings ─────────────────────────
 function buildSysPrompt() {
   var s = getSettings();
-  var sys = getSystemPromptText() + '\n\n';
+  var sys = getSystemPromptText() + '\n\n' + getExternalLibsBlock(s);
 
   if (s.pde) {
     sys += `### Processing code
 Complete runnable Processing Java sketch in a \`\`\`processing block.
 Requirements:
+- THE VERY FIRST LINES of the code MUST be a required-libraries header comment block, before any import or code:
+    // ===== REQUIRED LIBRARIES =====
+    // Install once via: Sketch > Import Library > Manage Libraries
+    //   - <Exact library name as it appears in the Contribution Manager>
+    // (Write 'None - core Processing only' if no external library is needed.)
+  List EVERY non-core library the sketch imports, using its exact Contribution Manager name (e.g. 'Video', 'OpenCV for Processing', 'ControlP5', 'toxiclibs', 'Geomerative'). Do NOT list core libraries (processing.svg, processing.pdf) here.
 - import processing.svg.*; (and processing.pdf.*; when useful)
 - int seed = <number>; at top. Call randomSeed(seed); noiseSeed(seed); first in setup().
 - Canvas 1080×764. White background. noFill() and stroke() only. Never fill().
@@ -2319,6 +2667,7 @@ Same structure as Processing explanation but specific to p5.js:
   }
 
   sys += 'Generate exactly and only the sections above. No preamble, no apologies.';
+  if (s.extLibs && s.p5) sys += ' (Exception: when the p5 sketch uses an external library, also prepend the "### Libraries" section described above.)';
   return sys;
 }
 
@@ -2329,17 +2678,17 @@ function buildPhasePrompt(phase, s) {
 
   if (phase === 'concept') {
     var conceptOverride = getPromptOverride('concept');
-    return sys + (conceptOverride || getDefaultPhasePrompt('concept', s));
+    return sys + getExternalLibsBlock(s, 'concept') + (conceptOverride || getDefaultPhasePrompt('concept', s));
   }
 
   if (phase === 'p5') {
     var p5Override = getPromptOverride('p5');
-    return sys + (p5Override || getDefaultPhasePrompt('p5', s));
+    return sys + getExternalLibsBlock(s, 'p5') + (p5Override || getDefaultPhasePrompt('p5', s));
   }
 
   if (phase === 'pde') {
     var pdeOverride = getPromptOverride('pde');
-    return sys + (pdeOverride || getDefaultPhasePrompt('pde', s));
+    return sys + getExternalLibsBlock(s, 'pde') + (pdeOverride || getDefaultPhasePrompt('pde', s));
   }
 
   if (phase === 'explain') {
@@ -2506,7 +2855,7 @@ async function generatePipeline(task, attachments, plan) {
   initVeilPhases(phases);
   G('veil-title').textContent = 'Generating Sketch';
 
-  var result = { title:'', desc:'', pdecode:'', pdeexp:'', p5code:'', p5exp:'', params:[], actualModel:'', requestedModel: '' };
+  var result = { title:'', desc:'', pdecode:'', pdeexp:'', p5code:'', p5exp:'', params:[], p5libs:[], actualModel:'', requestedModel: '' };
   var base = buildUserPrompt(task);
   var errors = [];
 
@@ -2568,14 +2917,17 @@ async function generatePipeline(task, attachments, plan) {
       var p5Parsed = parseResponse(p5Result.text);
       result.p5code = p5Parsed.p5code;
       result.params = p5Parsed.params || [];
+      result.p5libs = p5Parsed.p5libs || [];
       result.actualModel = p5Result.model;
       result.requestedModel = p5Model;
       setVeilPhase('p5', 'done', '✓ p5.js preview generated');
 
       if (result.p5code) {
         stored.p5code = result.p5code;
+        stored.p5libs = result.p5libs;
         lastFnP5 = result.p5code;
         if (s.audioAuto && result.params.length){ stored.params = result.params; renderCoupledParams(result.params); }
+        if (result.p5libs.length) setVeilPhase('p5', 'active', '⇣ Loading libraries: ' + result.p5libs.join(', '));
         var p5err = runP5(result.p5code);
         showPreviewActions(true);
 
@@ -3027,20 +3379,22 @@ function buildUserPrompt(task) {
 
 // ── Parse response ────────────────────────────────────────────
 function parseResponse(text) {
-  var r = { title:'', desc:'', pdecode:'', pdeexp:'', p5code:'', p5exp:'', params:[] };
-  var tm = text.match(/^###\s+(.+)/m);
+  var r = { title:'', desc:'', pdecode:'', pdeexp:'', p5code:'', p5exp:'', params:[], p5libs:[] };
+  // First heading that is the concept title — never a structural section heading.
+  var tm = text.match(/^###\s+(?!Libraries\s*$)(?!p5 sketch\s*$)(?!Processing code\s*$)(?!Params\s*$)(?!How it works)(.+)$/m);
   if (tm) r.title = tm[1].trim();
   var pi  = text.indexOf('### Processing code');
   var wi  = text.indexOf('### How it works (Processing)');
   var p5i = text.indexOf('### p5 sketch');
   var w5i = text.indexOf('### How it works (p5.js)');
+  var li  = text.indexOf('### Libraries');
   function between(from, stops) {
     var si = text.indexOf(from); if (si < 0) return '';
     var ei = text.length;
     stops.forEach(function(t){ var i=text.indexOf(t,si+1); if(i>si&&i<ei) ei=i; });
     return text.substring(si,ei).replace(/^[^\n]*\n/,'').trim();
   }
-  var secs=[pi,wi,p5i,w5i].filter(function(x){return x>0;}).sort(function(a,b){return a-b;});
+  var secs=[pi,wi,p5i,w5i,li].filter(function(x){return x>=0;}).sort(function(a,b){return a-b;});
   var first=secs.length?secs[0]:text.length;
   r.desc=text.substring(0,first).replace(/^###[^\n]*\n/,'').trim();
   if(pi>-1){var blk=between('### Processing code',['### How it works (Processing)','### p5 sketch','### How it works (p5.js)']);var fm=blk.match(/```(?:processing|java)?\n([\s\S]*?)```/);r.pdecode=fm?fm[1].trim():blk;}
@@ -3050,6 +3404,15 @@ function parseResponse(text) {
   // Coupled-mode param manifest (### Params JSON) — never throws
   var pm = text.match(/###\s*Params\s*```(?:json)?\s*([\s\S]*?)```/i);
   if(pm){ try { var arr = JSON.parse(pm[1].trim()); if(Array.isArray(arr)) r.params = arr; } catch(e){} }
+  // External-library manifest (### Libraries) — comma/newline list of lib names.
+  if(li>-1){
+    var lblk = between('### Libraries', ['### p5 sketch','### Processing code','### How it works (Processing)','### How it works (p5.js)','### Params']);
+    lblk = lblk.replace(/```/g,'');
+    lblk.split(/[\n,]+/).forEach(function(x){
+      var t = x.replace(/^[\-\*•\d\.\)\s]+/,'').trim();
+      if(t && r.p5libs.indexOf(t)<0) r.p5libs.push(t);
+    });
+  }
   return r;
 }
 
@@ -4194,7 +4557,11 @@ function buildStandaloneHtml(fnStr, title, slug) {
   lines.push('<!DOCTYPE html>','<html lang="en">','<head>','<meta charset="UTF-8">','<title>'+safeTitle+'</title>');
   lines.push('<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#eeebe6;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:monospace}canvas{display:block;box-shadow:0 4px 24px rgba(0,0,0,.18);max-width:100%;height:auto}#controls{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}button{padding:5px 14px;background:#c06820;color:#fff;border:none;border-radius:3px;font-family:monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}button:hover{background:#d97828}</style>');
   lines.push('</head>','<body>','<div id="c"></div>','<div id="controls"><button onclick="reseed()">Reseed</button><button onclick="savePNG()">Save PNG</button></div>');
-  lines.push('<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"><\/script>','<script>');
+  lines.push('<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"><\/script>');
+  // Inject any external-library CDN tags the sketch declared, so the standalone
+  // file runs the same as the live preview (no manual setup needed).
+  p5LibUrls(stored.p5libs).forEach(function(u){ lines.push('<script src="'+u+'"><\/script>'); });
+  lines.push('<script>');
   lines.push('var _slug="'+slug+'",_seed=Math.floor(Math.random()*999999),_inst=null;');
   lines.push('var _fn='+fnStr+';');
   lines.push('function launch(s){if(_inst)_inst.remove();var fs=_fn.toString().replace(/let seed\\s*=\\s*\\d+\\s*;/,"let seed = "+s+";");_inst=new p5(eval("("+fs+")"),document.getElementById("c"));_seed=s;}');
@@ -5364,6 +5731,7 @@ function getSettings(){return{
   reseedBtn:G('opt-reseed-btn').checked, sliders:G('opt-sliders').checked,
   pipeline:G('opt-pipeline').checked,
   autofix:G('opt-autofix').checked,
+  extLibs:G('opt-ext-libs').checked,
   audioAuto:G('opt-audio-auto').checked
 };}
 function updateAudioAutoUI(){
@@ -5382,6 +5750,7 @@ function applySettings(s){
   if(s.sliders!==undefined)   G('opt-sliders').checked     = s.sliders;
   if(s.pipeline!==undefined)  G('opt-pipeline').checked    = s.pipeline;
   if(s.autofix!==undefined)   G('opt-autofix').checked     = s.autofix;
+  if(s.extLibs!==undefined)   G('opt-ext-libs').checked    = s.extLibs;
   if(s.audioAuto!==undefined) G('opt-audio-auto').checked  = s.audioAuto;
   PIPELINE_ENABLED = G('opt-pipeline').checked;
   AUTOFIX_ENABLED = G('opt-autofix').checked;
@@ -5390,6 +5759,7 @@ function applySettings(s){
 document.querySelectorAll('.sp-cb').forEach(function(cb){cb.addEventListener('change',function(){
   PIPELINE_ENABLED = G('opt-pipeline').checked;
   AUTOFIX_ENABLED = G('opt-autofix').checked;
+  if (G('opt-ext-libs').checked) preloadAllP5Libs();
   updateAudioAutoUI();
   saveState();
 });});
@@ -5516,6 +5886,7 @@ function renderAll(r){
   if(r.desc)    stored.desc    = cleanConceptText(r.desc);
   if(r.pdecode) stored.pdecode = r.pdecode;
   if(r.p5code)  stored.p5code  = r.p5code;
+  if(r.p5code)  stored.p5libs  = r.p5libs || [];
   if(r.pdeexp)  stored.pdeexp  = r.pdeexp;
   if(r.p5exp)   stored.p5exp   = r.p5exp;
   // Keep actualModel/requestedModel on the result object (not stored)
@@ -5542,13 +5913,8 @@ function restorePanels(){
   if(stored.p5code){lastFnP5=stored.p5code;runP5(stored.p5code);showPreviewActions(true);}
 }
 var lastP5Error = null;
-function runP5(fnStr,seed){
-  lastP5Error = null;
-  if(p5inst){p5inst.remove();p5inst=null;}
-  var w=G('p5w');w.innerHTML='';
-  var fn=fnStr;if(seed!==undefined)fn=fn.replace(/let seed\s*=\s*\d+\s*;/,'let seed = '+seed+';');
-  // Always hide idle animation — even if sketch errors, the canvas was created
-  G('pph').style.display='none';
+// Instantiate the sketch (synchronous). Assumes any external libs already loaded.
+function _instantiateP5(fn,w){
   try{
     p5inst=new p5(eval('('+fn+')'),w);
   }catch(e){
@@ -5560,7 +5926,32 @@ function runP5(fnStr,seed){
       G('pph').style.display='';
     }
   }
-  // Also catch runtime errors from setup/draw via window.onerror
+  return lastP5Error;
+}
+function runP5(fnStr,seed){
+  lastP5Error = null;
+  if(p5inst){p5inst.remove();p5inst=null;}
+  var w=G('p5w');w.innerHTML='';
+  var fn=fnStr;if(seed!==undefined)fn=fn.replace(/let seed\s*=\s*\d+\s*;/,'let seed = '+seed+';');
+  var libs = (stored.p5libs||[]);
+  if(!libs.length){
+    // No external libs — synchronous path keeps immediate error reporting intact.
+    G('pph').style.display='none';
+    return _instantiateP5(fn,w);
+  }
+  // External libs declared — load from CDN first, then instantiate (async).
+  G('pph').style.display='';
+  loadP5Libs(libs).then(function(){
+    G('pph').style.display='none';
+    _instantiateP5(fn,w);
+  }).catch(function(e){
+    console.error('p5 lib load error',e);
+    lastP5Error = 'Library load failed: '+e.message;
+    addBubble('Preview error: '+lastP5Error,'claude','err');
+    G('pph').style.display='';
+  });
+  // Async path: no syntax error available synchronously (runtime errors still
+  // surface via window.onerror); auto-fix only acts on the sync (no-lib) path.
   return lastP5Error;
 }
 G('rbtn').addEventListener('click',function(){if(lastFnP5)runP5(lastFnP5,Math.floor(Math.random()*999999));});
@@ -6753,6 +7144,7 @@ resetAudioPreview();
 updateAudioPreviewMode();
 syncAudioControls();
 loadState();
+if (G('opt-ext-libs') && G('opt-ext-libs').checked) preloadAllP5Libs();
 initApiKeyUI();
 renderDbgFlow();
 
