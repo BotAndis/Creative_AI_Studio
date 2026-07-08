@@ -107,6 +107,12 @@ class Proxy(BaseHTTPRequestHandler):
     def do_GET(self):
         self._forward("GET")
 
+    def do_PUT(self):
+        self._forward("PUT")
+
+    def do_DELETE(self):
+        self._forward("DELETE")
+
 
 if __name__ == "__main__":
     server = ThreadingHTTPServer(("localhost", PORT), Proxy)

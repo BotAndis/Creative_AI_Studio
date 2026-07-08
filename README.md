@@ -32,7 +32,7 @@ Use the local (API-Version) file for the full feature set.
 - Hardcoded audio FX chain (Volume / Tone / Drive) applied post-DSP — always works regardless of generated code
 - Inspiration panel with two tabs (**Plotter** + **Audio**) of curated references
 - Light / dark theme, accent-color picker, text-color picker, **S / M / L letter-size**, dark theme defaults to white text, light theme defaults to dark text
-- Multi-provider routing: **Anthropic**, **Google Gemini**, **Academic Cloud SAIA** (incl. optional CORS proxy)
+- Multi-provider routing: **Anthropic**, **Google Gemini**, **Academic Cloud SAIA** (incl. optional CORS proxy), **OpenRouter** (one key, every provider)
 - Auto-fix loop for both p5 runtime errors and audio compile errors
 - Session save / load, debug overlay, per-phase model selection
 
@@ -47,6 +47,7 @@ Supported providers:
 - **Anthropic** — [How to get an Anthropic API key](docs/anthropic-api-key.md)
 - **Google Gemini** — [How to get a Gemini API key](docs/gemini-api-key.md)
 - **Academic Cloud SAIA** — [How to get an Academic Cloud API key](https://docs.hpc.gwdg.de/services/ai-services/saia/index.html)
+- **OpenRouter** — [Get an OpenRouter API key](https://openrouter.ai/settings/keys) (one key routes to Anthropic, OpenAI, Google, xAI, DeepSeek, Qwen and more — includes free-tier models, no CORS proxy needed)
 
 This is the best path if you want full control over model choice, local edits, custom prompts, proxy settings, or future modifications.
 
@@ -118,6 +119,17 @@ Messages API: `https://api.anthropic.com/v1/messages`
 ### Academic Cloud SAIA
 
 OpenAI-compatible `chat-completions` flow, with an optional bundled Python CORS proxy.
+The in-app model list mirrors the live SAIA catalogue (`/v1/models`); a stale saved model
+falls back to the default automatically. Transient 429/5xx responses (model cold-start)
+are retried with backoff both in the browser and in the proxy. Setting the key runs an
+automatic connection test that lists the live models.
+
+### OpenRouter
+
+OpenAI-compatible `chat-completions` flow via `https://openrouter.ai/api/v1`.
+Browser-direct (CORS-enabled) — no proxy required. Supports image attachments as
+data-URI `image_url` blocks. Model ids are vendor-prefixed (`anthropic/claude-sonnet-5`,
+`openai/gpt-5.5`, `deepseek/deepseek-v4-flash`, …); `:free` variants are rate-limited free-tier models.
 
 ---
 
@@ -153,6 +165,7 @@ Main files:
 
 Provider selection is based on the chosen model ID:
 
+- Vendor-prefixed models (`vendor/model`) → OpenRouter
 - Gemini models → Gemini API
 - Academic models → SAIA
 - Other supported models → Anthropic Messages API
@@ -162,6 +175,7 @@ Core dispatcher: `callPhase()`
 Provider-specific handlers:
 
 - `callPhaseAcademic(...)`
+- `callPhaseOpenRouter(...)`
 - `callPhaseAnthropic(...)`
 - `callPhaseGemini(...)`
 

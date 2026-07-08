@@ -1613,6 +1613,7 @@ body.text-lg #cin{font-size:13px!important}
         <span class="key-sdot" id="key-sdot-anthropic" title="Anthropic key"></span>
         <span class="key-sdot" id="key-sdot-gemini" title="Gemini key"></span>
         <span class="key-sdot" id="key-sdot-academic" title="Academic Cloud key"></span>
+        <span class="key-sdot" id="key-sdot-openrouter" title="OpenRouter key"></span>
       </div>
       <button id="kset">Set</button>
       <button id="kreset" title="Remove key">✕</button>
@@ -1879,23 +1880,23 @@ body.text-lg #cin{font-size:13px!important}
       <span class="key-sdot" id="key-sdot2-academic" style="margin-left:auto" title="Academic Cloud key"></span>
     </div>
     <div class="md-prov-body open" id="prov-body-academic">
-      <div class="md-item md-recommended" data-model="qwen3-coder-30b-a3b-instruct" data-provider="academic"
-           data-tip="★ Recommended SAIA model. Qwen3 Coder 30B — excellent code generation, fast, ideal for plotter sketch work. Requires Academic Cloud key.">
-        <div class="md-item-main"><span class="md-name">Qwen3 Coder 30B</span>
+      <div class="md-item md-recommended" data-model="qwen3-coder-next" data-provider="academic"
+           data-tip="★ Recommended SAIA model. Qwen3 Coder Next — newest code-focused Qwen, excellent code generation, ideal for plotter sketch work. Requires Academic Cloud key.">
+        <div class="md-item-main"><span class="md-name">Qwen3 Coder Next</span>
           <div class="md-tags"><span class="md-tag tag-rec">★ Recommended</span></div>
-        </div><div class="md-id">qwen3-coder-30b-a3b-instruct</div>
+        </div><div class="md-id">qwen3-coder-next</div>
       </div>
-      <div class="md-item" data-model="deepseek-r1-distill-llama-70b" data-provider="academic"
-           data-tip="DeepSeek R1 distilled into LLaMA 70B — strong reasoning and code. Good for complex generative logic.">
-        <div class="md-item-main"><span class="md-name">DeepSeek R1 Distill 70B</span>
-          <div class="md-tags"><span class="md-tag tag-power">Reasoning</span></div>
-        </div><div class="md-id">deepseek-r1-distill-llama-70b</div>
+      <div class="md-item" data-model="qwen3.5-397b-a17b" data-provider="academic"
+           data-tip="Qwen 3.5 397B — largest Qwen model on SAIA, maximum capability.">
+        <div class="md-item-main"><span class="md-name">Qwen 3.5 397B</span>
+          <div class="md-tags"><span class="md-tag tag-power">★ Largest</span></div>
+        </div><div class="md-id">qwen3.5-397b-a17b</div>
       </div>
-      <div class="md-item" data-model="llama-3.3-70b-instruct" data-provider="academic"
-           data-tip="Meta LLaMA 3.3 70B — reliable open-source backbone, solid general coding.">
-        <div class="md-item-main"><span class="md-name">LLaMA 3.3 70B</span>
-          <div class="md-tags"><span class="md-tag tag-std">Open Source</span></div>
-        </div><div class="md-id">llama-3.3-70b-instruct</div>
+      <div class="md-item" data-model="qwen3.5-122b-a10b" data-provider="academic"
+           data-tip="Qwen 3.5 122B — large Qwen model, strong code and reasoning.">
+        <div class="md-item-main"><span class="md-name">Qwen 3.5 122B</span>
+          <div class="md-tags"><span class="md-tag tag-power">Power</span></div>
+        </div><div class="md-id">qwen3.5-122b-a10b</div>
       </div>
       <div class="md-item" data-model="mistral-large-3-675b-instruct-2512" data-provider="academic"
            data-tip="Mistral Large 3 — frontier-class reasoning and instruction following. Best for nuanced plotter prompts.">
@@ -1909,29 +1910,29 @@ body.text-lg #cin{font-size:13px!important}
           <div class="md-tags"><span class="md-tag tag-power">Code</span></div>
         </div><div class="md-id">devstral-2-123b-instruct-2512</div>
       </div>
-      <div class="md-item" data-model="qwen3.5-397b-a17b" data-provider="academic"
-           data-tip="Qwen 3.5 397B — largest Qwen model, maximum capability.">
-        <div class="md-item-main"><span class="md-name">Qwen 3.5 397B</span>
-          <div class="md-tags"><span class="md-tag tag-power">★ Largest</span></div>
-        </div><div class="md-id">qwen3.5-397b-a17b</div>
+      <div class="md-item" data-model="glm-4.7" data-provider="academic"
+           data-tip="GLM 4.7 — Zhipu AI's GLM model, strong multilingual reasoning.">
+        <div class="md-item-main"><span class="md-name">GLM 4.7</span>
+          <div class="md-tags"><span class="md-tag tag-std">Open Source</span></div>
+        </div><div class="md-id">glm-4.7</div>
       </div>
-      <div class="md-item" data-model="qwen3.5-122b-a10b" data-provider="academic"
-           data-tip="Qwen 3.5 122B — large Qwen model, strong code and reasoning.">
-        <div class="md-item-main"><span class="md-name">Qwen 3.5 122B</span>
-          <div class="md-tags"><span class="md-tag tag-power">Power</span></div>
-        </div><div class="md-id">qwen3.5-122b-a10b</div>
+      <div class="md-item" data-model="qwen3.6-35b-a3b" data-provider="academic"
+           data-tip="Qwen 3.6 35B — newest Qwen generation, balanced speed and quality.">
+        <div class="md-item-main"><span class="md-name">Qwen 3.6 35B</span>
+          <div class="md-tags"><span class="md-tag tag-std">New</span></div>
+        </div><div class="md-id">qwen3.6-35b-a3b</div>
       </div>
-      <div class="md-item" data-model="qwen3.5-35b-a3b" data-provider="academic"
-           data-tip="Qwen 3.5 35B — balanced Qwen model for code generation.">
-        <div class="md-item-main"><span class="md-name">Qwen 3.5 35B</span>
-          <div class="md-tags"><span class="md-tag tag-std">Balanced</span></div>
-        </div><div class="md-id">qwen3.5-35b-a3b</div>
+      <div class="md-item" data-model="qwen3.6-27b" data-provider="academic"
+           data-tip="Qwen 3.6 27B — newest Qwen generation, efficient dense model.">
+        <div class="md-item-main"><span class="md-name">Qwen 3.6 27B</span>
+          <div class="md-tags"><span class="md-tag tag-std">New</span></div>
+        </div><div class="md-id">qwen3.6-27b</div>
       </div>
-      <div class="md-item" data-model="qwen3.5-27b" data-provider="academic"
-           data-tip="Qwen 3.5 27B — efficient Qwen model.">
-        <div class="md-item-main"><span class="md-name">Qwen 3.5 27B</span>
-          <div class="md-tags"><span class="md-tag tag-std">Efficient</span></div>
-        </div><div class="md-id">qwen3.5-27b</div>
+      <div class="md-item" data-model="qwen3-30b-a3b-instruct-2507" data-provider="academic"
+           data-tip="Qwen3 30B Instruct — fast general-purpose Qwen3, good for quick iterations.">
+        <div class="md-item-main"><span class="md-name">Qwen3 30B Instruct</span>
+          <div class="md-tags"><span class="md-tag tag-fast">Fast</span></div>
+        </div><div class="md-id">qwen3-30b-a3b-instruct-2507</div>
       </div>
       <div class="md-item" data-model="openai-gpt-oss-120b" data-provider="academic"
            data-tip="OpenAI GPT OSS 120B — large open-weight GPT model via SAIA.">
@@ -1939,29 +1940,17 @@ body.text-lg #cin{font-size:13px!important}
           <div class="md-tags"><span class="md-tag tag-power">Power</span></div>
         </div><div class="md-id">openai-gpt-oss-120b</div>
       </div>
-      <div class="md-item" data-model="meta-llama-3.1-8b-instruct" data-provider="academic"
-           data-tip="LLaMA 3.1 8B — lightweight, very fast. Good for quick iterations.">
-        <div class="md-item-main"><span class="md-name">LLaMA 3.1 8B</span>
-          <div class="md-tags"><span class="md-tag tag-fast">Fast</span></div>
-        </div><div class="md-id">meta-llama-3.1-8b-instruct</div>
-      </div>
       <div class="md-item" data-model="gemma-4-31b-it" data-provider="academic"
            data-tip="Gemma 4 31B — Google's open model, good general-purpose coding.">
         <div class="md-item-main"><span class="md-name">Gemma 4 31B</span>
           <div class="md-tags"><span class="md-tag tag-std">Open Source</span></div>
         </div><div class="md-id">gemma-4-31b-it</div>
       </div>
-      <div class="md-item" data-model="gemma-3-27b-it" data-provider="academic"
-           data-tip="Gemma 3 27B — Google's efficient open model.">
-        <div class="md-item-main"><span class="md-name">Gemma 3 27B</span>
-          <div class="md-tags"><span class="md-tag tag-std">Open Source</span></div>
-        </div><div class="md-id">gemma-3-27b-it</div>
-      </div>
-      <div class="md-item" data-model="apertus-70b-instruct-2509" data-provider="academic"
-           data-tip="Apertus 70B — instruction-tuned model via SAIA.">
-        <div class="md-item-main"><span class="md-name">Apertus 70B</span>
-          <div class="md-tags"><span class="md-tag tag-std">Open Source</span></div>
-        </div><div class="md-id">apertus-70b-instruct-2509</div>
+      <div class="md-item" data-model="medgemma-27b-it" data-provider="academic"
+           data-tip="MedGemma 27B — Google's medically-tuned Gemma variant.">
+        <div class="md-item-main"><span class="md-name">MedGemma 27B</span>
+          <div class="md-tags"><span class="md-tag tag-std">Specialist</span></div>
+        </div><div class="md-id">medgemma-27b-it</div>
       </div>
       <div class="md-item" data-model="qwen3-omni-30b-a3b-instruct" data-provider="academic"
            data-tip="Qwen3 Omni 30B — multimodal Qwen3 model.">
@@ -1969,23 +1958,17 @@ body.text-lg #cin{font-size:13px!important}
           <div class="md-tags"><span class="md-tag tag-std">Multimodal</span></div>
         </div><div class="md-id">qwen3-omni-30b-a3b-instruct</div>
       </div>
-      <div class="md-item" data-model="internvl3.5-30b-a3b" data-provider="academic"
-           data-tip="InternVL 3.5 30B — vision-language model, can process image attachments.">
-        <div class="md-item-main"><span class="md-name">InternVL 3.5 30B</span>
-          <div class="md-tags"><span class="md-tag tag-std">Vision</span></div>
-        </div><div class="md-id">internvl3.5-30b-a3b</div>
-      </div>
-      <div class="md-item" data-model="glm-4.7" data-provider="academic"
-           data-tip="GLM 4.7 — Zhipu AI's GLM model, strong multilingual reasoning.">
-        <div class="md-item-main"><span class="md-name">GLM 4.7</span>
+      <div class="md-item" data-model="apertus-70b-instruct-2509" data-provider="academic"
+           data-tip="Apertus 70B — instruction-tuned model via SAIA.">
+        <div class="md-item-main"><span class="md-name">Apertus 70B</span>
           <div class="md-tags"><span class="md-tag tag-std">Open Source</span></div>
-        </div><div class="md-id">glm-4.7</div>
+        </div><div class="md-id">apertus-70b-instruct-2509</div>
       </div>
-      <div class="md-item" data-model="teuken-7b-instruct-research" data-provider="academic"
-           data-tip="Teuken 7B — lightweight German-focused research model.">
-        <div class="md-item-main"><span class="md-name">Teuken 7B</span>
-          <div class="md-tags"><span class="md-tag tag-fast">Lightweight</span></div>
-        </div><div class="md-id">teuken-7b-instruct-research</div>
+      <div class="md-item" data-model="meta-llama-3.1-8b-instruct" data-provider="academic"
+           data-tip="LLaMA 3.1 8B — lightweight, very fast. Good for quick iterations.">
+        <div class="md-item-main"><span class="md-name">LLaMA 3.1 8B</span>
+          <div class="md-tags"><span class="md-tag tag-fast">Fast</span></div>
+        </div><div class="md-id">meta-llama-3.1-8b-instruct</div>
       </div>
       <div class="md-hint" style="padding-bottom:0">
         ⚠️ <strong>CORS note:</strong> The SAIA API blocks direct browser requests (server-side misconfiguration — curl works, browsers don't). A CORS proxy is required.
@@ -1998,8 +1981,104 @@ body.text-lg #cin{font-size:13px!important}
       </div>
       <div class="md-hint" style="padding-top:0;color:var(--txdim)">
         Proxy prepends to the API URL. Your key is sent through it — use only a trusted proxy.<br>
-        Recommended: <code style="color:var(--acc)">https://corsproxy.io/?url=</code>
+        Best: run the bundled <code style="color:var(--acc)">python saia_proxy.py</code> → <code style="color:var(--acc)">http://localhost:8765/</code><br>
+        Public fallback: <code style="color:var(--acc)">https://corsproxy.io/?url=</code>
       </div>
+    </div>
+
+    <!-- ── OPENROUTER ── -->
+    <div class="md-prov-toggle" onclick="toggleProvSection('openrouter')">
+      <span class="md-ptog-icon open" id="ptog-icon-openrouter">▸</span>
+      OpenRouter
+      <span class="key-sdot" id="key-sdot2-openrouter" style="margin-left:auto" title="OpenRouter key"></span>
+    </div>
+    <div class="md-prov-body open" id="prov-body-openrouter">
+      <div class="md-item md-recommended" data-model="anthropic/claude-sonnet-5" data-provider="openrouter"
+           data-tip="★ Recommended. Claude Sonnet 5 via OpenRouter — frontier coding quality with one key for every provider.">
+        <div class="md-item-main"><span class="md-name">Claude Sonnet 5</span>
+          <div class="md-tags"><span class="md-tag tag-rec">★ Recommended</span></div>
+        </div><div class="md-id">anthropic/claude-sonnet-5</div>
+      </div>
+      <div class="md-item" data-model="anthropic/claude-opus-4.8" data-provider="openrouter"
+           data-tip="Claude Opus 4.8 — most capable Claude for deep reasoning and intricate generative systems.">
+        <div class="md-item-main"><span class="md-name">Claude Opus 4.8</span>
+          <div class="md-tags"><span class="md-tag tag-power">Power</span></div>
+        </div><div class="md-id">anthropic/claude-opus-4.8</div>
+      </div>
+      <div class="md-item" data-model="openai/gpt-5.5" data-provider="openrouter"
+           data-tip="GPT-5.5 — OpenAI frontier model for complex coding and design work.">
+        <div class="md-item-main"><span class="md-name">GPT-5.5</span>
+          <div class="md-tags"><span class="md-tag tag-power">Power</span></div>
+        </div><div class="md-id">openai/gpt-5.5</div>
+      </div>
+      <div class="md-item" data-model="google/gemini-3.5-flash" data-provider="openrouter"
+           data-tip="Gemini 3.5 Flash — fast multimodal all-rounder via OpenRouter.">
+        <div class="md-item-main"><span class="md-name">Gemini 3.5 Flash</span>
+          <div class="md-tags"><span class="md-tag tag-fast">Fast</span></div>
+        </div><div class="md-id">google/gemini-3.5-flash</div>
+      </div>
+      <div class="md-item" data-model="x-ai/grok-4.5" data-provider="openrouter"
+           data-tip="Grok 4.5 — xAI's strongest model for coding and STEM.">
+        <div class="md-item-main"><span class="md-name">Grok 4.5</span>
+          <div class="md-tags"><span class="md-tag tag-power">Power</span></div>
+        </div><div class="md-id">x-ai/grok-4.5</div>
+      </div>
+      <div class="md-item" data-model="deepseek/deepseek-v4-pro" data-provider="openrouter"
+           data-tip="DeepSeek V4 Pro — large MoE reasoning model, strong code at low cost.">
+        <div class="md-item-main"><span class="md-name">DeepSeek V4 Pro</span>
+          <div class="md-tags"><span class="md-tag tag-power">Reasoning</span></div>
+        </div><div class="md-id">deepseek/deepseek-v4-pro</div>
+      </div>
+      <div class="md-item" data-model="deepseek/deepseek-v4-flash" data-provider="openrouter"
+           data-tip="DeepSeek V4 Flash — efficiency-optimized variant, very cheap and fast.">
+        <div class="md-item-main"><span class="md-name">DeepSeek V4 Flash</span>
+          <div class="md-tags"><span class="md-tag tag-fast">Value</span></div>
+        </div><div class="md-id">deepseek/deepseek-v4-flash</div>
+      </div>
+      <div class="md-item" data-model="qwen/qwen3.7-max" data-provider="openrouter"
+           data-tip="Qwen 3.7 Max — Alibaba flagship, agent-centric coding model.">
+        <div class="md-item-main"><span class="md-name">Qwen 3.7 Max</span>
+          <div class="md-tags"><span class="md-tag tag-power">Power</span></div>
+        </div><div class="md-id">qwen/qwen3.7-max</div>
+      </div>
+      <div class="md-item" data-model="moonshotai/kimi-k2.7-code" data-provider="openrouter"
+           data-tip="Kimi K2.7 Code — Moonshot's coding-focused MoE model.">
+        <div class="md-item-main"><span class="md-name">Kimi K2.7 Code</span>
+          <div class="md-tags"><span class="md-tag tag-std">Code</span></div>
+        </div><div class="md-id">moonshotai/kimi-k2.7-code</div>
+      </div>
+      <div class="md-item" data-model="mistralai/mistral-medium-3.5" data-provider="openrouter"
+           data-tip="Mistral Medium 3.5 — balanced 128B instruction model.">
+        <div class="md-item-main"><span class="md-name">Mistral Medium 3.5</span>
+          <div class="md-tags"><span class="md-tag tag-std">Balanced</span></div>
+        </div><div class="md-id">mistralai/mistral-medium-3.5</div>
+      </div>
+      <div class="md-item" data-model="z-ai/glm-5.2" data-provider="openrouter"
+           data-tip="GLM 5.2 — Z.ai large-scale reasoning model, open weights.">
+        <div class="md-item-main"><span class="md-name">GLM 5.2</span>
+          <div class="md-tags"><span class="md-tag tag-std">Open Source</span></div>
+        </div><div class="md-id">z-ai/glm-5.2</div>
+      </div>
+      <div class="md-section-label free-label">Free Tier</div>
+      <div class="md-item" data-model="tencent/hy3:free" data-provider="openrouter"
+           data-tip="Tencent HY3 — 295B MoE reasoning model, free tier (rate-limited).">
+        <div class="md-item-main"><span class="md-name">Tencent HY3</span>
+          <div class="md-tags"><span class="md-tag tag-free">Free</span></div>
+        </div><div class="md-id">tencent/hy3:free</div>
+      </div>
+      <div class="md-item" data-model="nvidia/nemotron-3-ultra-550b-a55b:free" data-provider="openrouter"
+           data-tip="NVIDIA Nemotron 3 Ultra 550B — frontier open model, free tier (rate-limited).">
+        <div class="md-item-main"><span class="md-name">Nemotron 3 Ultra</span>
+          <div class="md-tags"><span class="md-tag tag-free">Free</span></div>
+        </div><div class="md-id">nvidia/nemotron-3-ultra-550b-a55b:free</div>
+      </div>
+      <div class="md-item" data-model="cohere/north-mini-code:free" data-provider="openrouter"
+           data-tip="Cohere North Mini Code — agentic coding model, free tier (rate-limited).">
+        <div class="md-item-main"><span class="md-name">North Mini Code</span>
+          <div class="md-tags"><span class="md-tag tag-free">Free</span></div>
+        </div><div class="md-id">cohere/north-mini-code:free</div>
+      </div>
+      <div class="md-hint">One key, every provider — no CORS proxy needed.<br>Key: <a href="https://openrouter.ai/settings/keys" target="_blank">openrouter.ai/settings/keys</a></div>
     </div>
 
   </div><!-- end accordion -->
@@ -2115,10 +2194,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // ══════════════════════════════════════════════════════════════
 
 var MODEL = 'claude-sonnet-4-6';
-var apiKeys = { anthropic: '', gemini: '', academic: '' };
+var apiKeys = { anthropic: '', gemini: '', academic: '', openrouter: '' };
 var ACADEMIC_CLOUD_KEY_DEFAULT = '';
 var academicCorsProxy = '';
-var ACADEMIC_MODELS = ['qwen3-coder-30b-a3b-instruct','deepseek-r1-distill-llama-70b','llama-3.3-70b-instruct','mistral-large-3-675b-instruct-2512','devstral-2-123b-instruct-2512','meta-llama-3.1-8b-instruct','gemma-4-31b-it','gemma-3-27b-it','openai-gpt-oss-120b','medgemma-27b-it','apertus-70b-instruct-2509','teuken-7b-instruct-research','glm-4.7','qwen3-omni-30b-a3b-instruct','internvl3.5-30b-a3b','qwen3.5-122b-a10b','qwen3.5-35b-a3b','qwen3.5-27b','qwen3.5-397b-a17b'];
+// Live SAIA catalogue (chat-ai.academiccloud.de /v1/models) — last synced 2026-07.
+var ACADEMIC_MODELS = ['qwen3-coder-next','qwen3.5-397b-a17b','qwen3.5-122b-a10b','mistral-large-3-675b-instruct-2512','devstral-2-123b-instruct-2512','glm-4.7','qwen3.6-35b-a3b','qwen3.6-27b','qwen3-30b-a3b-instruct-2507','openai-gpt-oss-120b','gemma-4-31b-it','medgemma-27b-it','qwen3-omni-30b-a3b-instruct','apertus-70b-instruct-2509','meta-llama-3.1-8b-instruct'];
+var PROVIDER_NAMES = { anthropic:'Anthropic', gemini:'Gemini', academic:'Academic Cloud', openrouter:'OpenRouter' };
 var activeKeyTab = 'anthropic';
 var chatHistory = [];
 var lastFnP5 = null;
@@ -2152,9 +2233,16 @@ function G(id){ return document.getElementById(id); }
 // ── Provider router ───────────────────────────────────────────
 // Maps a model string to the API provider name
 function providerFor(model) {
+  // OpenRouter ids are always vendor-prefixed: "anthropic/claude-…", "openai/gpt-…"
+  if (model && model.indexOf('/') > -1) return 'openrouter';
   if (model && (model.indexOf('gemini') === 0 || model.indexOf('deep-research') === 0)) return 'gemini';
   if (model && ACADEMIC_MODELS.indexOf(model) > -1) return 'academic';
   return 'anthropic';
+}
+
+// True when the model id is one the current UI actually offers.
+function isKnownModel(model) {
+  return !!(model && document.querySelector('.md-item[data-model="' + model + '"]'));
 }
 
 // ── Environment detection ─────────────────────────────────────
@@ -2170,15 +2258,12 @@ var IS_CLAUDE_AI = (function(){
 
 // Update the colored dot next to each tab to show whether a key is set
 function updateKeyStatusDots() {
-  var da = G('key-sdot-anthropic'), dg = G('key-sdot-gemini'), dac = G('key-sdot-academic');
-  if (da) da.classList.toggle('set', !!apiKeys.anthropic || IS_CLAUDE_AI);
-  if (dg) dg.classList.toggle('set', !!apiKeys.gemini);
-  if (dac) dac.classList.toggle('set', !!apiKeys.academic);
-  // sync provider-toggle dots in model picker
-  var da2 = G('key-sdot2-anthropic'), dg2 = G('key-sdot2-gemini'), dac2 = G('key-sdot2-academic');
-  if (da2) da2.classList.toggle('set', !!apiKeys.anthropic || IS_CLAUDE_AI);
-  if (dg2) dg2.classList.toggle('set', !!apiKeys.gemini);
-  if (dac2) dac2.classList.toggle('set', !!apiKeys.academic);
+  Object.keys(PROVIDER_NAMES).forEach(function(prov){
+    var set = !!apiKeys[prov] || (prov === 'anthropic' && IS_CLAUDE_AI);
+    var d1 = G('key-sdot-' + prov), d2 = G('key-sdot2-' + prov);
+    if (d1) d1.classList.toggle('set', set);
+    if (d2) d2.classList.toggle('set', set);
+  });
   // reset button is always visible
 }
 
@@ -2225,8 +2310,18 @@ function updateKeyBanner() {
     input.value = apiKeys.academic || '';
     var hasCurrent = !!apiKeys.academic;
     hint.innerHTML = hasCurrent
-      ? '✓ Academic Cloud key set. <a onclick="clearKeyFor(\'academic\')" style="cursor:pointer">Remove</a>'
-      : 'Enter your Academic Cloud (SAIA) key above.';
+      ? '✓ Academic Cloud key set. <a onclick="clearKeyFor(\'academic\')" style="cursor:pointer">Remove</a> · <a onclick="checkAvailableModels(\'academic\')" style="cursor:pointer">Test connection</a>'
+      : 'Enter your Academic Cloud (SAIA) key above. Get one at <a href="https://docs.hpc.gwdg.de/services/ai-services/saia/index.html" target="_blank">docs.hpc.gwdg.de</a>';
+  } else if (prov === 'openrouter') {
+    icon.textContent = 'OR';
+    icon.className = 'key-prov-icon';
+    icon.style.fontSize = '7px';
+    input.placeholder = 'sk-or-… — openrouter.ai/settings/keys';
+    input.value = apiKeys.openrouter || '';
+    var hasCurrent = !!apiKeys.openrouter;
+    hint.innerHTML = hasCurrent
+      ? '✓ OpenRouter key set. <a onclick="clearKeyFor(\'openrouter\')" style="cursor:pointer">Remove</a> · <a onclick="checkAvailableModels(\'openrouter\')" style="cursor:pointer">Test connection</a>'
+      : 'Get a key at <a href="https://openrouter.ai/settings/keys" target="_blank">openrouter.ai/settings/keys</a>';
   } else {
     icon.textContent = 'A';
     icon.className = 'key-prov-icon';
@@ -2251,7 +2346,7 @@ function clearKeyFor(prov) {
   updateKeyStatusDots();
   updateKeyBanner();
   G('keybanner').classList.remove('hidden');
-  addBubble((prov === 'anthropic' ? 'Anthropic' : prov === 'gemini' ? 'Gemini' : 'Academic Cloud') + ' key removed.', 'claude');
+  addBubble((PROVIDER_NAMES[prov] || prov) + ' key removed.', 'claude');
 }
 window.clearKeyFor = clearKeyFor;
 
@@ -2264,9 +2359,10 @@ function switchKeyTab(provider) {
 
 function initApiKeyUI() {
   try {
-    apiKeys.anthropic = localStorage.getItem('plotterStudio_apiKey_anthropic') || '';
-    apiKeys.gemini    = localStorage.getItem('plotterStudio_apiKey_gemini')    || '';
-    apiKeys.academic  = localStorage.getItem('plotterStudio_apiKey_academic')  || '';
+    apiKeys.anthropic  = localStorage.getItem('plotterStudio_apiKey_anthropic')  || '';
+    apiKeys.gemini     = localStorage.getItem('plotterStudio_apiKey_gemini')     || '';
+    apiKeys.academic   = localStorage.getItem('plotterStudio_apiKey_academic')   || '';
+    apiKeys.openrouter = localStorage.getItem('plotterStudio_apiKey_openrouter') || '';
     academicCorsProxy = localStorage.getItem('plotterStudio_corsProxy') || '';
     var cpi = G('cors-proxy-input');
     if (cpi) { cpi.value = academicCorsProxy; cpi.classList.toggle('active', !!academicCorsProxy); }
@@ -2281,11 +2377,12 @@ function initApiKeyUI() {
   updateKeyStatusDots();
   updateKeyBanner(); // sets banner state based on current MODEL's provider
 
-  if (apiKeys.anthropic || apiKeys.gemini) {
-    var parts = [];
-    if (apiKeys.anthropic) parts.push('Anthropic');
-    if (apiKeys.gemini)    parts.push('Gemini');
-    addBubble('🔑 ' + parts.join(' & ') + ' key(s) loaded. <a style="cursor:pointer;color:var(--acc)" onclick="clearKeyFor(\'anthropic\')">Remove Anthropic</a> / <a style="cursor:pointer;color:var(--acc)" onclick="clearKeyFor(\'gemini\')">Remove Gemini</a>', 'claude');
+  var loaded = Object.keys(PROVIDER_NAMES).filter(function(p){ return !!apiKeys[p]; });
+  if (loaded.length) {
+    var links = loaded.map(function(p){
+      return '<a style="cursor:pointer;color:var(--acc)" onclick="clearKeyFor(\'' + p + '\')">Remove ' + PROVIDER_NAMES[p] + '</a>';
+    }).join(' / ');
+    addBubble('🔑 ' + loaded.map(function(p){ return PROVIDER_NAMES[p]; }).join(' & ') + ' key(s) loaded. ' + links, 'claude');
   }
 }
 
@@ -3160,7 +3257,8 @@ var DIR_LABELS = {
   'response': '🤖 Model Response',
   '→ request': '👤 → Request Body',
   '← response': '🤖 ← Response',
-  'response (academic)': '🤖 ← Response'
+  'response (academic)': '🤖 ← Response',
+  'response (openrouter)': '🤖 ← Response'
 };
 function renderDbgLog() {
   var el = G('dbg-log');
@@ -3208,6 +3306,8 @@ async function callPhase(phase, userMsg, attachments, modelId, s) {
   var result;
   if (provider === 'academic') {
     result = await callPhaseAcademic(sysPrompt, userMsg, maxTokens, history, modelId);
+  } else if (provider === 'openrouter') {
+    result = await callPhaseOpenRouter(sysPrompt, userMsg, attachments, maxTokens, history, modelId);
   } else if (provider === 'gemini') {
     result = await callPhaseGemini(sysPrompt, userMsg, attachments, maxTokens, history, modelId);
   } else {
@@ -3218,33 +3318,69 @@ async function callPhase(phase, userMsg, attachments, modelId, s) {
   return result;
 }
 
-async function callPhaseAcademic(sysPrompt, userMsg, maxTokens, history, modelId) {
-  var BASE_URL = 'https://chat-ai.academiccloud.de/v1/chat/completions';
-  var ACADEMIC_URL;
-  if (academicCorsProxy) {
-    var p = academicCorsProxy.replace(/\/+$/, '');
-    if (/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(p)) {
-      ACADEMIC_URL = p + '/v1/chat/completions';
-    } else {
-      ACADEMIC_URL = p + '/' + BASE_URL;
-    }
-  } else { ACADEMIC_URL = BASE_URL; }
-  var key = apiKeys.academic || ACADEMIC_CLOUD_KEY_DEFAULT;
-  if (!key) throw new Error('Academic Cloud: No API key set.');
+// ── SAIA URL builder ─────────────────────────────────────────
+// Resolves an API path against the configured CORS proxy.
+// Handles all three proxy styles:
+//   local (saia_proxy.py)      → http://localhost:8765/v1/chat/completions
+//   query-style public proxy   → https://corsproxy.io/?url=<encoded full URL>
+//   path-style public proxy    → https://proxy.example/https://chat-ai.academiccloud.de/…
+function academicUrl(path) {
+  var full = 'https://chat-ai.academiccloud.de' + path;
+  if (!academicCorsProxy) return full;
+  var p = academicCorsProxy.trim().replace(/\/+$/, '');
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(p)) return p + path;
+  if (/[?=]$/.test(academicCorsProxy.trim())) return academicCorsProxy.trim() + encodeURIComponent(full);
+  return p + '/' + full;
+}
 
-  var messages = [{ role: 'system', content: sysPrompt }];
-  // Include chat history for follow-up context (concept phase)
+// Retry transient SAIA failures (cold-start 5xx, rate-limit 429) with backoff —
+// mirrors what saia_proxy.py does server-side, for direct/public-proxy connections.
+async function fetchAcademicWithRetry(url, init, tries) {
+  tries = tries || 3;
+  var lastErr;
+  for (var attempt = 0; attempt < tries; attempt++) {
+    try {
+      var res = await fetch(url, init);
+      if ((res.status === 429 || res.status >= 500) && attempt < tries - 1) {
+        await new Promise(function(r){ setTimeout(r, 2000 * (attempt + 1)); });
+        continue;
+      }
+      return res;
+    } catch (e) {
+      lastErr = e;
+      if (attempt < tries - 1) {
+        await new Promise(function(r){ setTimeout(r, 2000 * (attempt + 1)); });
+        continue;
+      }
+    }
+  }
+  throw new Error('Academic Cloud: cannot reach API (' + (lastErr && lastErr.message || 'network error') + '). '
+    + 'If this is a CORS block, run "python saia_proxy.py" and set the proxy URL to http://localhost:8765/');
+}
+
+// Flatten Anthropic-shaped history into OpenAI-style {role, content:text} messages.
+function historyToOpenAI(history) {
+  var out = [];
   if (history && history.length) {
     for (var i = 0; i < history.length; i++) {
       var h = history[i];
       var text = typeof h.content === 'string' ? h.content
         : (Array.isArray(h.content) ? h.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : '');
-      if (text) messages.push({ role: h.role === 'assistant' ? 'assistant' : 'user', content: text });
+      if (text) out.push({ role: h.role === 'assistant' ? 'assistant' : 'user', content: text });
     }
   }
-  messages.push({ role: 'user', content: userMsg });
+  return out;
+}
 
-  var res = await fetch(ACADEMIC_URL, {
+async function callPhaseAcademic(sysPrompt, userMsg, maxTokens, history, modelId) {
+  var key = apiKeys.academic || ACADEMIC_CLOUD_KEY_DEFAULT;
+  if (!key) throw new Error('Academic Cloud: No API key set.');
+
+  var messages = [{ role: 'system', content: sysPrompt }]
+    .concat(historyToOpenAI(history))
+    .concat([{ role: 'user', content: userMsg }]);
+
+  var res = await fetchAcademicWithRetry(academicUrl('/v1/chat/completions'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
     body: JSON.stringify({ model: modelId, messages: messages, temperature: 0.7, max_tokens: maxTokens })
@@ -3253,6 +3389,7 @@ async function callPhaseAcademic(sysPrompt, userMsg, maxTokens, history, modelId
     var rawErr = await res.text().catch(function(){ return ''; });
     var msg = 'HTTP ' + res.status;
     try { var err = JSON.parse(rawErr); msg = (err.error && err.error.message) || err.message || rawErr || msg; } catch(e) { if(rawErr) msg = rawErr; }
+    if (res.status === 404 && /model/i.test(msg)) msg += ' — the model may have been retired from SAIA; pick another Academic Cloud model.';
     throw new Error('Academic Cloud: ' + msg);
   }
   var data = await res.json();
@@ -3260,6 +3397,60 @@ async function callPhaseAcademic(sysPrompt, userMsg, maxTokens, history, modelId
   if (!raw) throw new Error('Academic Cloud: empty response');
   raw = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
   if (!raw) throw new Error('Academic Cloud: response was only thinking tokens (no output)');
+  if (data.usage) { sessionTokens.input += (data.usage.prompt_tokens||0); sessionTokens.output += (data.usage.completion_tokens||0); sessionTokens.requests++; }
+  return { text: raw, model: data.model || modelId };
+}
+
+// ── OpenRouter (OpenAI-compatible, CORS-enabled — no proxy needed) ──
+var OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+function openRouterHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + apiKeys.openrouter,
+    'HTTP-Referer': 'https://github.com/BotAndis/Creative_AI_Studio',
+    'X-Title': 'Creative AI Studio'
+  };
+}
+
+// Build OpenAI-style user content; images go inline as data-URI image_url blocks.
+function openRouterUserContent(userMsg, attachments) {
+  if (!attachments || !attachments.length) return userMsg;
+  var blocks = [];
+  for (var i = 0; i < attachments.length; i++) {
+    var f = attachments[i];
+    if (f.type.startsWith('image/')) {
+      blocks.push({ type: 'image_url', image_url: { url: 'data:' + f.type + ';base64,' + f.b64 } });
+    } else {
+      blocks.push({ type: 'text', text: '[Attached: ' + f.name + ']\n' + atob(f.b64) });
+    }
+  }
+  blocks.push({ type: 'text', text: userMsg });
+  return blocks;
+}
+
+async function callPhaseOpenRouter(sysPrompt, userMsg, attachments, maxTokens, history, modelId) {
+  if (!apiKeys.openrouter) throw new Error('OpenRouter: No API key set. Get one at openrouter.ai/settings/keys');
+
+  var messages = [{ role: 'system', content: sysPrompt }]
+    .concat(historyToOpenAI(history))
+    .concat([{ role: 'user', content: openRouterUserContent(userMsg, attachments) }]);
+
+  var res = await fetch(OPENROUTER_URL, {
+    method: 'POST',
+    headers: openRouterHeaders(),
+    body: JSON.stringify({ model: modelId, messages: messages, temperature: 0.7, max_tokens: maxTokens })
+  });
+  if (!res.ok) {
+    var rawErr = await res.text().catch(function(){ return ''; });
+    var msg = 'HTTP ' + res.status;
+    try { var err = JSON.parse(rawErr); msg = (err.error && err.error.message) || err.message || rawErr || msg; } catch(e) { if(rawErr) msg = rawErr; }
+    throw new Error('OpenRouter: ' + msg);
+  }
+  var data = await res.json();
+  var raw = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
+  if (!raw) throw new Error('OpenRouter: empty response');
+  raw = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+  if (!raw) throw new Error('OpenRouter: response was only thinking tokens (no output)');
   if (data.usage) { sessionTokens.input += (data.usage.prompt_tokens||0); sessionTokens.output += (data.usage.completion_tokens||0); sessionTokens.requests++; }
   return { text: raw, model: data.model || modelId };
 }
@@ -3427,27 +3618,55 @@ async function callClaude(task, attachments) {
     return await callGemini(task, base, attachments, modelId);
   } else if (provider === 'academic') {
     return await callAcademicCloud(task, base, attachments, modelId);
+  } else if (provider === 'openrouter') {
+    return await callOpenRouter(task, base, attachments, modelId);
   } else {
     return await callAnthropic(task, base, attachments, modelId);
   }
 }
 
+// ── OpenRouter single-shot ────────────────────────────────────
+async function callOpenRouter(task, base, attachments, modelId) {
+  if (!apiKeys.openrouter) throw new Error('OpenRouter: No API key set. Get one at openrouter.ai/settings/keys');
+
+  var userContent = openRouterUserContent(base, attachments);
+  var messages = [{ role: 'system', content: buildSysPrompt() }]
+    .concat(historyToOpenAI(chatHistory))
+    .concat([{ role: 'user', content: userContent }]);
+
+  chatHistory.push({ role: 'user', content: base });
+
+  setDbgFlow('request', 'Calling OpenRouter API', 'single-shot');
+  var res = await fetch(OPENROUTER_URL, {
+    method: 'POST',
+    headers: openRouterHeaders(),
+    body: JSON.stringify({ model: modelId, messages: messages, temperature: 0.7 })
+  });
+  if (!res.ok) {
+    var rawErr = await res.text().catch(function(){ return ''; });
+    var msg = 'HTTP ' + res.status;
+    try { var err = JSON.parse(rawErr); msg = (err.error && err.error.message) || err.message || rawErr || msg; if (typeof msg !== 'string') msg = JSON.stringify(msg); } catch(e) { if (rawErr) msg = rawErr; }
+    throw new Error('OpenRouter: ' + msg);
+  }
+  var data = await res.json();
+  var raw = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
+  if (!raw) throw new Error('OpenRouter: empty response');
+  raw = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+  setDbgFlow('response', 'Received OpenRouter response', 'single-shot');
+  chatHistory.push({ role: 'assistant', content: raw });
+  if (data.usage) { sessionTokens.input += (data.usage.prompt_tokens||0); sessionTokens.output += (data.usage.completion_tokens||0); sessionTokens.requests++; }
+  dbgAdd('legacy', 'response (openrouter)', raw, { model: data.model || modelId });
+  setDbgFlow('parse', 'Parsing OpenRouter response', 'single-shot');
+  var parsed = parseResponse(raw);
+  setDbgFlow('history', 'Updated chat history', 'single-shot');
+  parsed.actualModel = data.model || modelId;
+  parsed.requestedModel = modelId;
+  return parsed;
+}
+
 // ── Academic Cloud / SAIA (OpenAI-compatible) ─────────────────
 async function callAcademicCloud(task, base, attachments, modelId) {
-  var BASE_URL = 'https://chat-ai.academiccloud.de/v1/chat/completions';
-  var ACADEMIC_URL;
-  if (academicCorsProxy) {
-    var p = academicCorsProxy.replace(/\/+$/, '');
-    // Local proxies (saia_proxy.py) only need the API path appended
-    if (/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(p)) {
-      ACADEMIC_URL = p + '/v1/chat/completions';
-    } else {
-      // Public CORS proxies want the full target URL
-      ACADEMIC_URL = p + '/' + BASE_URL;
-    }
-  } else {
-    ACADEMIC_URL = BASE_URL;
-  }
   var key = apiKeys.academic || ACADEMIC_CLOUD_KEY_DEFAULT;
   if (!key) throw new Error('Academic Cloud: Kein API-Key gesetzt. Bitte im Key-Feld oben eintragen.');
 
@@ -3456,23 +3675,14 @@ async function callAcademicCloud(task, base, attachments, modelId) {
     userContent = '[Attachments omitted — Academic Cloud text-only]\n' + base;
   }
 
-  var messages = [
-    { role: 'system', content: buildSysPrompt() }
-  ];
-  // Include prior conversation history (simplified to text)
-  for (var i = 0; i < chatHistory.length; i++) {
-    var h = chatHistory[i];
-    var role = h.role === 'assistant' ? 'assistant' : 'user';
-    var text = typeof h.content === 'string' ? h.content
-      : (Array.isArray(h.content) ? h.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : '');
-    if (text) messages.push({ role: role, content: text });
-  }
-  messages.push({ role: 'user', content: userContent });
+  var messages = [{ role: 'system', content: buildSysPrompt() }]
+    .concat(historyToOpenAI(chatHistory))
+    .concat([{ role: 'user', content: userContent }]);
 
   chatHistory.push({ role: 'user', content: userContent });
 
   setDbgFlow('request', 'Calling Academic Cloud API', 'single-shot');
-  var res = await fetch(ACADEMIC_URL, {
+  var res = await fetchAcademicWithRetry(academicUrl('/v1/chat/completions'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -3688,10 +3898,18 @@ var MODEL_LABELS = {
   'gemini-2.5-flash':                       'Gemini 2.5 Flash',
   'gemini-3.1-pro-preview':                 'Gemini 3.1 Pro Preview',
   'gemini-2.5-pro':                         'Gemini 2.5 Pro',
-  'qwen3-coder-30b-a3b-instruct':           'Qwen3 Coder 30B ★',
-  'deepseek-r1-distill-llama-70b':          'DeepSeek R1 Distill 70B',
-  'llama-3.3-70b-instruct':                 'LLaMA 3.3 70B',
-  'mistral-large-3-675b-instruct-2512':     'Mistral Large 3'
+  'qwen3-coder-next':                       'Qwen3 Coder Next ★',
+  'qwen3.5-397b-a17b':                      'Qwen 3.5 397B',
+  'qwen3.5-122b-a10b':                      'Qwen 3.5 122B',
+  'mistral-large-3-675b-instruct-2512':     'Mistral Large 3',
+  'devstral-2-123b-instruct-2512':          'Devstral 2 123B',
+  'anthropic/claude-sonnet-5':              'Claude Sonnet 5 (OR) ★',
+  'anthropic/claude-opus-4.8':              'Claude Opus 4.8 (OR)',
+  'openai/gpt-5.5':                         'GPT-5.5 (OR)',
+  'google/gemini-3.5-flash':                'Gemini 3.5 Flash (OR)',
+  'x-ai/grok-4.5':                          'Grok 4.5 (OR)',
+  'deepseek/deepseek-v4-pro':               'DeepSeek V4 Pro (OR)',
+  'deepseek/deepseek-v4-flash':             'DeepSeek V4 Flash (OR)'
 };
 
 function isClaudeModel(m){ return m && m.indexOf('claude') === 0; }
@@ -3818,8 +4036,44 @@ async function checkAvailableModels(provider) {
         .slice(0,14).map(function(m){return '&nbsp;&nbsp;<code>'+m.name.replace('models/','')+'</code>';}).join('<br>');
       addBubble('✓ <strong>Gemini key valid.</strong> Models available:<br>'+(names2||'(none)'), 'claude');
     } catch(e2) { addBubble('⚠ Gemini key check failed: '+e2.message,'claude','err'); }
+  } else if (provider === 'academic') {
+    try {
+      var key3 = apiKeys.academic || ACADEMIC_CLOUD_KEY_DEFAULT;
+      var res3 = await fetchAcademicWithRetry(academicUrl('/v1/models'), {
+        headers: { 'Authorization': 'Bearer ' + key3 }
+      }, 1);
+      if (!res3.ok) throw new Error('HTTP ' + res3.status);
+      var data3 = await res3.json();
+      var names3 = (data3.data||[]).map(function(m){return '&nbsp;&nbsp;<code>'+m.id+'</code>';}).join('<br>');
+      addBubble('✓ <strong>Academic Cloud (SAIA) connection OK.</strong> Live models:<br>'+(names3||'(none)'), 'claude');
+    } catch(e3) {
+      addBubble('⚠ Academic Cloud check failed: '+e3.message+'<br>If this is a CORS block, run <code>python saia_proxy.py</code> and set the proxy URL to <code>http://localhost:8765/</code>.','claude','err');
+    }
+  } else if (provider === 'openrouter') {
+    try {
+      var res4 = await fetch('https://openrouter.ai/api/v1/key', {
+        headers: { 'Authorization': 'Bearer ' + apiKeys.openrouter }
+      });
+      if (!res4.ok) throw new Error('HTTP ' + res4.status);
+      var data4 = await res4.json();
+      var info = data4.data || {};
+      var detail = [];
+      if (info.label) detail.push('label: <code>' + info.label + '</code>');
+      if (info.limit != null) detail.push('limit: $' + info.limit);
+      if (info.usage != null) detail.push('used: $' + info.usage);
+      addBubble('✓ <strong>OpenRouter key valid.</strong>' + (detail.length ? '<br>' + detail.join(' · ') : ''), 'claude');
+    } catch(e4) { addBubble('⚠ OpenRouter key check failed: '+e4.message,'claude','err'); }
   }
 }
+window.checkAvailableModels = checkAvailableModels;
+// Console diagnostics (also used by automated checks)
+window.plotterStudioDebug = {
+  providerFor: providerFor,
+  academicUrl: function(p){ return academicUrl(p); },
+  isKnownModel: isKnownModel,
+  setCorsProxy: function(v){ academicCorsProxy = v; },
+  academicModels: function(){ return ACADEMIC_MODELS.slice(); }
+};
 
 // Session manager
 var SESSIONS_KEY = 'plotterStudio_sessions';
@@ -5667,6 +5921,12 @@ function loadState(){
     if(s.settings && typeof s.settings === 'object') applySettings(s.settings);
 
     if(s.model && typeof s.model === 'string'){
+      // Saved model may have been retired from a provider catalogue since last
+      // visit — falling through to a stale id would mis-route or 404. Reset it.
+      if(!isKnownModel(s.model)){
+        console.warn('Saved model "' + s.model + '" no longer offered — falling back to default.');
+        s.model = 'claude-sonnet-4-6';
+      }
       var savedLabel = MODEL_LABELS[s.model] || s.model;
       MODEL = s.model;
       G('model-btn-label').textContent = savedLabel;
@@ -5696,6 +5956,10 @@ function loadState(){
 
     if(s.promptRequestModels && typeof s.promptRequestModels === 'object'){
       promptRequestModels = adoptStringMap(promptRequestModels, s.promptRequestModels);
+      // Drop per-phase overrides pointing at retired models.
+      Object.keys(promptRequestModels).forEach(function(k){
+        if(promptRequestModels[k] && !isKnownModel(promptRequestModels[k])) promptRequestModels[k] = '';
+      });
     }
 
     if(s.currentTemplate === 'dma' || s.currentTemplate === 'custom') setActiveTpl(s.currentTemplate);
@@ -6163,7 +6427,7 @@ document.addEventListener('click',function(e){
 });
 
 // ── Provider sub-accordion toggle ────────────────────────────
-var provSectionOpen = { anthropic: true, gemini: true, academic: true };
+var provSectionOpen = { anthropic: true, gemini: true, academic: true, openrouter: true };
 function toggleProvSection(prov) {
   provSectionOpen[prov] = !provSectionOpen[prov];
   var body = G('prov-body-' + prov);
@@ -6182,8 +6446,8 @@ G('kset').addEventListener('click', function() {
   try { localStorage.setItem('plotterStudio_apiKey_' + prov, v); } catch(e) {}
   forcedKeyProvider = null; // return banner to following selected model
   updateKeyStatusDots();
-  addBubble((prov === 'anthropic' ? 'Anthropic' : prov === 'gemini' ? 'Gemini' : 'Academic Cloud') + ' API key saved.', 'claude');
-  if (prov !== 'academic') checkAvailableModels(prov);
+  addBubble((PROVIDER_NAMES[prov] || prov) + ' API key saved.', 'claude');
+  checkAvailableModels(prov);
   updateKeyBanner();
 });
 
@@ -6193,12 +6457,12 @@ G('kreset').addEventListener('click', function() {
 });
 
 // ── Status dot clicks → switch key banner to that provider ────
-['anthropic','gemini','academic'].forEach(function(prov) {
+['anthropic','gemini','academic','openrouter'].forEach(function(prov) {
   ['key-sdot-'+prov, 'key-sdot2-'+prov].forEach(function(id) {
     var el = G(id);
     if (el) {
       el.style.cursor = 'pointer';
-      el.title = (prov==='anthropic'?'Anthropic':prov==='gemini'?'Gemini':'Academic Cloud') + ' key — click to edit';
+      el.title = (PROVIDER_NAMES[prov] || prov) + ' key — click to edit';
       el.addEventListener('click', function(e) { e.stopPropagation(); switchKeyBannerTo(prov); });
     }
   });
