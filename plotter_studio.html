@@ -1834,10 +1834,22 @@ body.text-lg #cin{font-size:13px!important}
     </div>
     <div class="md-prov-body open" id="prov-body-gemini">
       <div class="md-section-label free-label" style="border-top:none">Free Tier</div>
-      <div class="md-item md-recommended" data-model="gemini-3.5-flash" data-provider="gemini"
-           data-tip="★ Best Choice. Gemini 3.5 Flash — newest, most intelligent for sustained agentic + coding work. Fast all-rounder. 15 RPM · 1,500/day · 1M TPM.">
+      <div class="md-item md-recommended" data-model="gemini-flash-latest" data-provider="gemini"
+           data-tip="★ Always newest. Google alias that auto-points at the latest Gemini Flash — you never have to update the model. Fast all-rounder. 15 RPM · 1,500/day · 1M TPM.">
+        <div class="md-item-main"><span class="md-name">Gemini Flash (Latest)</span>
+          <div class="md-tags"><span class="md-tag tag-rec">★ Auto-newest</span><span class="md-tag tag-alias">Alias</span></div>
+        </div><div class="md-id">gemini-flash-latest</div>
+      </div>
+      <div class="md-item" data-model="gemini-flash-lite-latest" data-provider="gemini"
+           data-tip="Always newest Flash Lite. Google alias that auto-points at the latest Flash Lite — fastest tier, spam-friendly. 15 RPM · 1,500/day · 1M TPM.">
+        <div class="md-item-main"><span class="md-name">Gemini Flash Lite (Latest)</span>
+          <div class="md-tags"><span class="md-tag tag-alias">Alias</span></div>
+        </div><div class="md-id">gemini-flash-lite-latest</div>
+      </div>
+      <div class="md-item" data-model="gemini-3.5-flash" data-provider="gemini"
+           data-tip="Gemini 3.5 Flash — newest pinned Flash, most intelligent for sustained agentic + coding work. Fast all-rounder. 15 RPM · 1,500/day · 1M TPM.">
         <div class="md-item-main"><span class="md-name">Gemini 3.5 Flash</span>
-          <div class="md-tags"><span class="md-tag tag-rec">★ Best Choice</span><span class="md-tag tag-alias">New</span></div>
+          <div class="md-tags"><span class="md-tag tag-alias">New</span></div>
         </div><div class="md-id">gemini-3.5-flash</div>
       </div>
       <div class="md-item" data-model="gemini-3-flash-preview" data-provider="gemini"
@@ -3892,7 +3904,9 @@ var MODEL_LABELS = {
   'claude-opus-4-8-latest':      'Claude Opus 4.8',
   'claude-sonnet-4-6-latest':    'Claude Sonnet 4.6 ★',
   'claude-haiku-4-5-latest':     'Claude Haiku 4.5',
-  'gemini-3.5-flash':                       'Gemini 3.5 Flash ★',
+  'gemini-flash-latest':                    'Gemini Flash (Latest) ★',
+  'gemini-flash-lite-latest':               'Gemini Flash Lite (Latest)',
+  'gemini-3.5-flash':                       'Gemini 3.5 Flash',
   'gemini-3-flash-preview':                 'Gemini 3 Flash',
   'gemini-3.1-flash-lite':                  'Gemini 3.1 Flash Lite',
   'gemini-2.5-flash':                       'Gemini 2.5 Flash',
