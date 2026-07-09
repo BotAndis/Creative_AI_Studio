@@ -24,6 +24,7 @@ Use the local (API-Version) file for the full feature set.
 
 - Two workspaces in one file: **Plotter Studio** + **Audio Studio**
 - Live p5.js preview, Processing code generation, realtime Web Audio playback
+- **Vector export** — download the generated drawing as plotter-ready `.svg` or `.pdf` (true vector paths, not raster), alongside `.png` / `.html` / `.pde` / `.js`
 - **Editable code panels** with chat-history sync — your edits feed back into the next AI request
 - Multi-phase pipeline for both workspaces (concept → code → fix → explain)
 - Mode-aware chat ("Plotter Assistant" / "Audio Assistant") with separate histories, shared model + key
@@ -78,7 +79,7 @@ Then open `plotter_studio.html` directly in your browser. There is no npm setup,
 4. Send the prompt — concept, p5.js sketch, Processing code, and explanations populate automatically.
 5. Switch between the Processing and p5.js code tabs, or hit **✎ Edit** to modify code in-place.
 6. Save edits — your changes flow into the next request and the p5 preview re-runs.
-7. Download `.pde`, `.js`, `.html`, or a `.png` of the preview.
+7. Download `.pde`, `.js`, `.html`, a `.png` of the preview, or a plotter-ready **vector `.svg` / `.pdf`** of the drawing.
 
 ### Audio Studio flow
 
@@ -295,6 +296,29 @@ Model responses are parsed into named sections:
 - `### How it works (p5.js)`
 
 Audio responses are parsed via `parseAudioResponse()` into `{ code, explain }`.
+
+---
+
+### Vector Export (SVG / PDF)
+
+The live preview draws to a raster `<canvas>`, which is useless for a pen plotter.
+To export true vectors, the current p5 sketch is **re-run through the
+[`p5.js-svg`](https://github.com/zenozeng/p5.js-svg) renderer** so every
+`line`/`rect`/`ellipse`/`vertex` becomes a real SVG path:
+
+- `renderCurrentSketchToSVG()` transforms `createCanvas(w, h)` → `createCanvas(w, h, p.SVG)`
+  and runs the sketch in a **hidden, same-origin iframe with its own pinned p5 1.6.0**
+  (p5.js-svg's renderer is broken against the app's p5 1.9.0 — it drops shapes /
+  throws in `RendererSVG.resize`). The main app's p5 stays 1.9.0 and untouched.
+- `.svg` download = the serialized vector document.
+- `.pdf` download wraps that SVG via [`svg2pdf.js`](https://github.com/yWorks/svg2pdf.js) +
+  [`jsPDF`](https://github.com/parallax/jsPDF) — still vector. If a sketch can't be
+  re-rendered to SVG (e.g. WEBGL), PDF falls back to a raster embed of the canvas.
+- All three export libraries load lazily from CDN on first use, so a user who never
+  exports pays nothing.
+
+Buttons live on the preview action bar, the fullscreen bar, and the
+generation-complete chat message.
 
 ---
 

@@ -1485,6 +1485,8 @@ body.text-lg #cin{font-size:13px!important}
         <div style="display:flex;align-items:center;gap:7px"><span class="d">◆</span> p5.js Preview</div>
         <div class="plb-actions" id="prv-actions" style="display:none">
           <button class="ibtn" id="rbtn">⟳ Reseed</button>
+          <button class="ibtn" id="dlsvg-preview-btn" title="Vector SVG — plotter-ready">↓ SVG</button>
+          <button class="ibtn" id="dlpdf-preview-btn" title="Vector PDF — plotter-ready">↓ PDF</button>
           <button class="ibtn" id="dlhtml-preview-btn">↓ .html</button>
           <button class="ibtn" id="fsbtn">⛶ Fullscreen</button>
         </div>
@@ -1567,6 +1569,8 @@ body.text-lg #cin{font-size:13px!important}
     <div style="display:flex;gap:8px;align-items:center">
       <button class="ibtn" id="fs-reseed">⟳ Reseed</button>
       <button class="ibtn" id="fs-dl-png">↓ PNG</button>
+      <button class="ibtn" id="fs-dl-svg" title="Vector SVG — plotter-ready">↓ SVG</button>
+      <button class="ibtn" id="fs-dl-pdf" title="Vector PDF — plotter-ready">↓ PDF</button>
       <button class="ibtn" id="fs-close">✕ Close</button>
     </div>
   </div>
@@ -4086,7 +4090,11 @@ window.plotterStudioDebug = {
   academicUrl: function(p){ return academicUrl(p); },
   isKnownModel: isKnownModel,
   setCorsProxy: function(v){ academicCorsProxy = v; },
-  academicModels: function(){ return ACADEMIC_MODELS.slice(); }
+  academicModels: function(){ return ACADEMIC_MODELS.slice(); },
+  // Vector-export test hooks
+  setSketch: function(fn, title, libs){ stored.p5code = fn; stored.title = title || 'test'; stored.p5libs = libs || []; lastFnP5 = fn; },
+  renderSvg: function(){ return renderCurrentSketchToSVG(); },
+  forceSvgCanvas: function(fn){ return forceSvgCanvas(fn, p5ParamName(fn)); }
 };
 
 // Session manager
@@ -4845,6 +4853,153 @@ function triggerHtmlDownload(){
   downloadBlob(new Blob([html],{type:'text/html'}),'plotter_'+slugFromTitle()+'.html');
 }
 
+// ── Vector export (SVG / PDF) ─────────────────────────────────
+// Plotters want vectors, not pixels. The live preview draws to a raster
+// <canvas>, so we re-run the SAME sketch through the p5.js-svg renderer in a
+// hidden container: every line/shape becomes a real SVG path, then optionally
+// wrapped into a PDF via svg2pdf + jsPDF. Libraries load lazily from CDN on
+// first use so a user who never exports pays nothing.
+var VECTOR_LIB_CDN = {
+  // The SVG re-render runs in an isolated iframe with its OWN p5 — p5.js-svg's
+  // renderer is broken against p5 1.9.0 (RendererSVG.resize → __clearCanvas on
+  // undefined), but p5 1.6.0 + p5.js-svg 1.5.1 captures shapes correctly.
+  // Pinning it inside the sandbox keeps the main app's p5 1.9.0 untouched.
+  sandboxP5: 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js',
+  p5svg:     'https://cdn.jsdelivr.net/npm/p5.js-svg@1.5.1/dist/p5.svg.js',
+  jspdf:     'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  svg2pdf:   'https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.3/dist/svg2pdf.umd.min.js'
+};
+
+// Detect the instance param name ("p" in `function(p){…}`) so we can reference
+// its SVG constant regardless of what the sketch author named it.
+function p5ParamName(fnStr){
+  var m = /function\s*\(\s*([A-Za-z_$][\w$]*)/.exec(fnStr || '');
+  return m ? m[1] : 'p';
+}
+
+// Rewrite `x.createCanvas(w, h)` → `x.createCanvas(w, h, x.SVG)` so the sketch
+// renders through the SVG backend. Only the 2-arg form is touched; a sketch
+// that already passes a renderer (e.g. WEBGL) is left alone and rejected below.
+function forceSvgCanvas(fnStr, param){
+  return fnStr.replace(/(\.createCanvas\s*\(\s*[^,()]+,\s*[^,()]+)\s*\)/, '$1, ' + param + '.SVG)');
+}
+
+// Re-run the current sketch through p5.js-svg inside an isolated, same-origin
+// iframe (own p5 1.6.0) and return the serialized <svg>. The iframe reads the
+// job off window.parent and writes the result back — no source-string escaping.
+function renderCurrentSketchToSVG(){
+  var fn = stored.p5code || lastFnP5;
+  if(!fn || fn.trim()===''){ return Promise.reject(new Error('Nothing to export yet — generate a sketch first.')); }
+  if(/WEBGL/.test(fn)){ return Promise.reject(new Error('This sketch uses WEBGL — SVG/PDF export supports 2D sketches only.')); }
+
+  var param = p5ParamName(fn);
+  var svgFn = forceSvgCanvas(fn, param);
+  if(svgFn === fn){ return Promise.reject(new Error('Could not locate createCanvas() to switch into SVG mode.')); }
+
+  var libUrls = p5LibUrls(stored.p5libs || []);
+
+  return new Promise(function(resolve, reject){
+    var ifr = document.createElement('iframe');
+    ifr.style.cssText = 'position:fixed;left:-99999px;top:-99999px;width:1200px;height:1200px;border:0';
+    document.body.appendChild(ifr);
+    var settled = false;
+    function cleanup(){ try{ document.body.removeChild(ifr); }catch(e){} }
+    function done(fn2){ if(settled) return; settled = true; cleanup(); fn2(); }
+
+    // Job payload the sandbox reads back off the parent window.
+    window.__plotterSvgJob = { fnSrc: svgFn };
+
+    var scripts = [VECTOR_LIB_CDN.sandboxP5, VECTOR_LIB_CDN.p5svg].concat(libUrls)
+      .map(function(u){ return '<scr'+'ipt src="'+u+'"></scr'+'ipt>'; }).join('');
+    var boot =
+      'var job = parent.__plotterSvgJob;' +
+      'var holder = document.getElementById("h");' +
+      'window.__svgOut = null; window.__svgErr = null;' +
+      'try {' +
+      '  new p5(eval("("+job.fnSrc+")"), holder);' +
+      '  var tries = 0;' +
+      '  var poll = setInterval(function(){' +
+      '    tries++;' +
+      '    var s = holder.querySelector("svg");' +
+      '    var hasShapes = s && s.children && s.children.length > 0;' +
+      '    if ((hasShapes) || tries > 40) {' +
+      '      clearInterval(poll);' +
+      '      if (!s) { window.__svgErr = "SVG renderer produced no output for this sketch."; return; }' +
+      '      if (!s.getAttribute("xmlns")) s.setAttribute("xmlns","http://www.w3.org/2000/svg");' +
+      '      window.__svgOut = { w: parseFloat(s.getAttribute("width"))||540, h: parseFloat(s.getAttribute("height"))||383, str: new XMLSerializer().serializeToString(s) };' +
+      '    }' +
+      '  }, 50);' +
+      '} catch(e) { window.__svgErr = e.message; }';
+    var html = '<!doctype html><html><head><meta charset="utf-8">' + scripts +
+      '</head><body style="margin:0"><div id="h"></div><scr'+'ipt>' + boot + '</scr'+'ipt></body></html>';
+
+    var doc = ifr.contentDocument || (ifr.contentWindow && ifr.contentWindow.document);
+    if(!doc){ done(function(){ reject(new Error('Could not open export sandbox.')); }); return; }
+    doc.open(); doc.write(html); doc.close();
+
+    var waited = 0;
+    var wait = setInterval(function(){
+      waited += 100;
+      var win = ifr.contentWindow || {};
+      if(win.__svgErr){ clearInterval(wait); done(function(){ reject(new Error('SVG render failed: ' + win.__svgErr)); }); return; }
+      if(win.__svgOut){
+        var out = win.__svgOut; clearInterval(wait);
+        var str = out.str;
+        if(str.indexOf('<?xml') !== 0) str = '<?xml version="1.0" encoding="UTF-8"?>\n' + str;
+        done(function(){ resolve({ svg: str, width: out.w, height: out.h }); });
+        return;
+      }
+      if(waited >= 8000){ clearInterval(wait); done(function(){ reject(new Error('SVG render timed out.')); }); }
+    }, 100);
+  });
+}
+
+function triggerSvgDownload(){
+  addBubble('Rendering vector SVG…','claude');
+  renderCurrentSketchToSVG().then(function(out){
+    downloadBlob(new Blob([out.svg], {type:'image/svg+xml'}), 'plotter_' + slugFromTitle() + '.svg');
+    addBubble('✓ SVG exported — vector paths, plotter-ready.','claude');
+  }).catch(function(e){
+    addBubble('SVG export failed: ' + e.message, 'claude', 'err');
+  });
+}
+
+function triggerPdfDownload(){
+  addBubble('Rendering vector PDF…','claude');
+  // Preferred path: vector SVG → PDF (svg2pdf). Falls back to a raster embed
+  // of the live canvas if the SVG re-render is unsupported for this sketch.
+  renderCurrentSketchToSVG().then(function(out){
+    return Promise.all([loadScript(VECTOR_LIB_CDN.jspdf), loadScript(VECTOR_LIB_CDN.svg2pdf)]).then(function(){
+      var JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+      if(!JsPDF) throw new Error('jsPDF failed to load.');
+      var w = out.width, h = out.height;
+      var pdf = new JsPDF({ orientation: w >= h ? 'landscape' : 'portrait', unit: 'pt', format: [w, h] });
+      // svg2pdf registers pdf.svg(); re-parse the string so the element is
+      // owned by this document (the render holder was removed).
+      var el = new DOMParser().parseFromString(out.svg, 'image/svg+xml').documentElement;
+      return pdf.svg(el, { x: 0, y: 0, width: w, height: h }).then(function(){
+        downloadBlob(pdf.output('blob'), 'plotter_' + slugFromTitle() + '.pdf');
+        addBubble('✓ PDF exported — vector paths, plotter-ready.','claude');
+      });
+    });
+  }).catch(function(e){
+    // Raster fallback — still gives the user a usable PDF of the drawing.
+    var canvas = document.querySelector('#p5w canvas');
+    if(!canvas){ addBubble('PDF export failed: ' + e.message, 'claude', 'err'); return; }
+    loadScript(VECTOR_LIB_CDN.jspdf).then(function(){
+      var JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+      if(!JsPDF){ addBubble('PDF export failed: jsPDF failed to load.', 'claude', 'err'); return; }
+      var w = canvas.width, h = canvas.height;
+      var pdf = new JsPDF({ orientation: w >= h ? 'landscape' : 'portrait', unit: 'px', format: [w, h] });
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h);
+      downloadBlob(pdf.output('blob'), 'plotter_' + slugFromTitle() + '.pdf');
+      addBubble('⚠ Vector PDF unavailable for this sketch (' + e.message + ') — exported a raster PDF instead.', 'claude');
+    }).catch(function(e2){ addBubble('PDF export failed: ' + e2.message, 'claude', 'err'); });
+  });
+}
+window.triggerSvgDownload = triggerSvgDownload;
+window.triggerPdfDownload = triggerPdfDownload;
+
 function setAudioStatus(msg, isErr){
   var el = G('audio-status');
   if (!el) return;
@@ -5513,6 +5668,8 @@ G('dlp5-btn').addEventListener('click',function(){
 });
 G('dlhtml-btn').addEventListener('click',triggerHtmlDownload);
 G('dlhtml-preview-btn').addEventListener('click',triggerHtmlDownload);
+G('dlsvg-preview-btn').addEventListener('click',triggerSvgDownload);
+G('dlpdf-preview-btn').addEventListener('click',triggerPdfDownload);
 G('audio-play-btn').addEventListener('click',function(){ setMute(false); playAudio(); });
 G('audio-stop-btn').addEventListener('click',stopAudio);
 function setMute(on){
@@ -5658,6 +5815,8 @@ function closeFullscreenOverlay(){
 G('fs-close').addEventListener('click',closeFullscreenOverlay);
 G('fs-reseed').addEventListener('click',function(){if(lastFnP5)runP5_FS(lastFnP5,Math.floor(Math.random()*999999));});
 G('fs-dl-png').addEventListener('click',function(){downloadPNG(document.querySelector('#fs-p5w canvas'),'plotter_'+slugFromTitle()+'_preview.png');});
+G('fs-dl-svg').addEventListener('click',triggerSvgDownload);
+G('fs-dl-pdf').addEventListener('click',triggerPdfDownload);
 function runP5_FS(fnStr,seed){
   if(p5instFS){p5instFS.remove();p5instFS=null;}var w=G('fs-p5w');w.innerHTML='';
   var fn=fnStr;if(seed!==undefined)fn=fn.replace(/let seed\s*=\s*\d+\s*;/,'let seed = '+seed+';');
@@ -6318,6 +6477,8 @@ async function send(){
       'Done — all panels updated.<br>' + modelLine + pipelineNote + '<br>' +
       '<button class="dl-btn" onclick="document.getElementById(\'dlpde-btn\').click()">↓ .pde</button>'+
       '<button class="dl-btn" onclick="document.getElementById(\'dlp5-btn\').click()">↓ .js</button>'+
+      '<button class="dl-btn" onclick="triggerSvgDownload()">↓ SVG</button>'+
+      '<button class="dl-btn" onclick="triggerPdfDownload()">↓ PDF</button>'+
       '<button class="dl-btn" onclick="triggerHtmlDownload()">↓ .html</button>',
       'claude'
     );
